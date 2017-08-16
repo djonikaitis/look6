@@ -6,7 +6,7 @@ window = expsetup.screen.window;
 %% Exp stage (either keep the same or change the task)
 
 if tid==1
-    expsetup.stim.exp_version_temp = 2; % Version to start with on the first trial
+    expsetup.stim.exp_version_temp = 1; % Version to start with on the first trial
     expsetup.stim.exp_version_update_next_trial = 0;
     fprintf('Task level is %.2f\n', expsetup.stim.exp_version_temp)
 elseif tid>1
