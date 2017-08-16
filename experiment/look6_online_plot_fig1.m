@@ -63,7 +63,7 @@ if tid>min_trials_to_plot
     end
     index1 = strcmp('correct', expsetup.stim.edata_error_code);
     a = sprintf ('\nCorrect trials: %i (%i percent) \n', sum(index1), round((sum(index1)/tid)*100));
-    text(plotbins(end), 150, a, 'Color', [0.2, 0.2, 0.2], 'FontSize', fontsz, 'HorizontalAlignment', 'right');
+    text(plotbins(end), 110, a, 'Color', [0.2, 0.2, 0.2], 'FontSize', fontsz, 'HorizontalAlignment', 'right');
 end
 
 

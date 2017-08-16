@@ -13,7 +13,7 @@ function [mx, my] = runexp_eyelink_get_v11
 
 global expsetup;
 recordeyes = expsetup.general.recordeyes;
-if isfield('eyelink', expsetup)
+if isfield(expsetup, 'eyelink')
     el = expsetup.eyelink;
 end
 

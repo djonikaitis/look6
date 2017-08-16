@@ -20,6 +20,10 @@ stim.memory_delay_duration_ini_step = 0.1;
 stim.fixation_maintain_duration_ini = 2.2;
 stim.fixation_maintain_duration_ini_step = -0.1;
 
+% Stage 3
+% Use stimulus luminance for interleaving
+
+
 %% Quick settings
 
 % Specify target coordinates based on a RF mapping

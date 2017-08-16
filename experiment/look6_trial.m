@@ -609,12 +609,12 @@ while loop_over==0
     % Deterine the error to be updated for drift correction
     if expsetup.general.recordeyes == 1 && ~isnan(expsetup.stim.edata_fixation_drift_maintained(tid,1)) && isnan(expsetup.stim.edata_fixation_drift_calculated(tid,1))
         a = expsetup.stim.fixation_drift_maintain_maximum - expsetup.stim.fixation_drift_maintain_minimum;
-        t1 = a/expsetup.screen.ifi;
+        t1 = round(a/expsetup.screen.ifi);
         ind1 = (c1_frame_index1 - t1 + 1 : 1 : c1_frame_index1);
         if numel(ind1)>1
             % Data points with recorded saccade position
-            x1 = expsetup.stim.eframes_eye_x(ind1,1);
-            y1 = expsetup.stim.eframes_eye_y(ind1,1);
+            x1 = expsetup.stim.eframes_eye_x{tid}(ind1,1);
+            y1 = expsetup.stim.eframes_eye_y{tid}(ind1,1);
             % Determine average position
             x1 = mean(x1);
             y1 = mean(y1);
