@@ -106,31 +106,31 @@ end
 
 % Raw firing rate relative to texture onset
 
-% if expsetup.general.plexon_online_spikes==1
-%     hfig = subplot(3,4,[5,6]); hold on
-%     plot_var1 = 'texture';
-%     look5_online_plot_fig4
-% end
+if expsetup.general.plexon_online_spikes==1
+    hfig = subplot(3,4,[5,6]); hold on
+    plot_var1 = 'texture';
+    look6_online_plot_fig4
+end
 
 %% FIGURE 6
 
 % Firing rate relative to memory onset
 
-% if expsetup.general.plexon_online_spikes==1
-%     hfig = subplot(3,4,[9,10]); hold on
-%     plot_var1 = 'memory';
-%     look5_online_plot_fig4
-% end
+if expsetup.general.plexon_online_spikes==1
+    hfig = subplot(3,4,[9,10]); hold on
+    plot_var1 = 'memory';
+    look6_online_plot_fig4
+end
 
 
 %% Figure 5
 
 % Raw firing rate
 
-% if expsetup.general.plexon_online_spikes==1
-%     hfig = subplot(3,4,[7,8]); hold on
-%     look5_online_plot_fig5
-% end
+if expsetup.general.plexon_online_spikes==1
+    hfig = subplot(3,4,[7,8]); hold on
+    look6_online_plot_fig5
+end
 
 
 
