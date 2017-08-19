@@ -1,12 +1,14 @@
 % Script running main experiment file. Initializes and closes all devices.
 % V2.1 Update as of May 16, 2017
 % V2.2 July 15, 2017: Improved compatability with new framework
+% V2.3 August 19, 2017: Finished compatibility with new framework
+
 
 close all;
 clear all;
 clc;
 
-fprintf ('\nRun experiment file used is V2.2, update as of Apri l 19, 2017\n\n')
+fprintf ('\nRun experiment file used is V2.3, update as of August 19, 2017\n\n')
  
 global expsetup
 global ni
