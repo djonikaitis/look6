@@ -17,11 +17,11 @@ sz1 = expsetup.stim.esetup_fixation_size(tid,1:4);
 fixation_rect = runexp_convert_deg2pix_rect_v10(coord1, sz1); % Output - one column - one object;
 
 % Fixation for eyelink drift
-sz1 = expsetup.stim.esetup_fixation_size_drift(tid,1:4);
+sz1 = expsetup.stim.esetup_fixation_size_drift(tid,1:4).*2;
 fixation_rect_eyelink_drift = runexp_convert_deg2pix_rect_v10(coord1, sz1); % One column - one object;
 
 % Fixation for eyelink tracking
-sz1 = expsetup.stim.esetup_fixation_size_eyetrack(tid,1:4);
+sz1 = expsetup.stim.esetup_fixation_size_eyetrack(tid,1:4).*2;
 fixation_rect_eyelink = runexp_convert_deg2pix_rect_v10(coord1, sz1); % One column - one object;
 
 
@@ -39,7 +39,7 @@ sz1 = expsetup.stim.esetup_target_size(tid,1:4);
 st1_rect = runexp_convert_deg2pix_rect_v10(coord1, sz1); % Output - one column - one object;
 
 % Size for eyelink tracking
-sz1 = expsetup.stim.esetup_target_size_eyetrack(tid,1:4);
+sz1 = expsetup.stim.esetup_target_size_eyetrack(tid,1:4).*2;
 st1_rect_eyelink = runexp_convert_deg2pix_rect_v10(coord1, sz1); % One column - one object;
 
 
@@ -50,7 +50,7 @@ sz1 = expsetup.stim.esetup_target_size(tid,1:4);
 st2_rect = runexp_convert_deg2pix_rect_v10(coord1, sz1); % Output - one column - one object;
 
 % Size for eyelink tracking
-sz1 = expsetup.stim.esetup_target_size_eyetrack(tid,1:4);
+sz1 = expsetup.stim.esetup_target_size_eyetrack(tid,1:4).*2;
 st2_rect_eyelink = runexp_convert_deg2pix_rect_v10(coord1, sz1); % One column - one object;
 
 
@@ -97,7 +97,7 @@ xy_texture_combined(2,1:2:num1*2)=y_texture_start;
 xy_texture_combined(2,2:2:num1*2)=y_texture_end;
 
 % Save the matrix for offline analysis and drawing
-expsetup.stim.esetup_xy_texture_combined{tid} = xy_texture_combined;
+% expsetup.stim.esetup_xy_texture_combined{tid} = xy_texture_combined;
 
     
 %% Flash for photodiode

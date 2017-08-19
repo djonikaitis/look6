@@ -453,9 +453,9 @@ while loop_over==0
             
             % Distractor
             eyepos=[];
-            eyepos(1,1)=st2_rect_eyelink([1,3])+x1_error;
+            eyepos(1,1)=st2_rect_eyelink(1)+x1_error;
             eyepos(3,1)=st2_rect_eyelink(3)+x1_error;
-            eyepos(2,1)=st2_rect_eyelink([2,4])+y1_error;
+            eyepos(2,1)=st2_rect_eyelink(2)+y1_error;
             eyepos(4,1)=st2_rect_eyelink(4)+y1_error;
             a=round(eyepos);
             Eyelink('Command', 'draw_box %d %d %d %d 15', a(1),a(2),a(3),a(4)); % Empty square
@@ -927,7 +927,7 @@ if expsetup.general.reward_on==1
 end
 
 
-%% If fixation was maintained, start reward
+%% Start reward
 
 % Prepare reward signal
 if expsetup.general.reward_on==1
@@ -960,65 +960,65 @@ end
 
 %% Inter-trial interval & possibility to add extra reward
 
-timer1_now = GetSecs;
-time_start = GetSecs;
-if ~isnan(expsetup.stim.edata_reward_on(tid)) 
-    trial_duration = expsetup.stim.trial_dur_intertrial;
-else % Error trials
-    trial_duration = expsetup.stim.trial_dur_intertrial_error;
-end
-
-if strcmp(char,'x') || strcmp(char,'r')
-    endloop_skip = 1;
-else
-    endloop_skip = 0;
-end
-
-while endloop_skip == 0
-    
-    % Record what kind of button was pressed
-    [keyIsDown,timeSecs,keyCode] = KbCheck;
-    char = KbName(keyCode);
-    % Catch potential press of two buttons
-    if iscell(char)
-        char=char{1};
-    end
-    
-    % Give reward
-    if (strcmp(char,'space') || strcmp(char,'r'))
-        
-        % Prepare reward signal
-        if expsetup.general.reward_on==1
-            % Continous reward
-            reward_duration = expsetup.stim.reward_size_ms;
-            signal1 = linspace(expsetup.ni_daq.reward_voltage, expsetup.ni_daq.reward_voltage, reward_duration)';
-            signal1 = [0; signal1; 0; 0; 0; 0; 0];
-            queueOutputData(ni.session_reward, signal1);
-        end
-        
-        if expsetup.general.reward_on == 1
-            ni.session_reward.startForeground;
-            if expsetup.general.recordeyes==1
-                Eyelink('Message', 'reward_on');
-            end
-            expsetup.stim.edata_reward_on(tid) = GetSecs;
-            % Save how much reward was given
-            expsetup.stim.edata_reward_size_ms(tid,1)=expsetup.stim.reward_size_ms;
-            expsetup.stim.edata_reward_size_ml(tid,1)=expsetup.stim.reward_size_ml;
-        end
-        
-        % End loop
-        endloop_skip=1;
-        
-    end
-    
-    % Check time & quit loop
-    timer1_now = GetSecs;
-    if timer1_now - time_start >= trial_duration
-        endloop_skip=1;
-    end
-    
-end
+% timer1_now = GetSecs;
+% time_start = GetSecs;
+% if ~isnan(expsetup.stim.edata_reward_on(tid)) 
+%     trial_duration = expsetup.stim.trial_dur_intertrial;
+% else % Error trials
+%     trial_duration = expsetup.stim.trial_dur_intertrial_error;
+% end
+% 
+% if strcmp(char,'x') || strcmp(char,'r')
+%     endloop_skip = 1;
+% else
+%     endloop_skip = 0;
+% end
+% 
+% while endloop_skip == 0
+%     
+%     % Record what kind of button was pressed
+%     [keyIsDown,timeSecs,keyCode] = KbCheck;
+%     char = KbName(keyCode);
+%     % Catch potential press of two buttons
+%     if iscell(char)
+%         char=char{1};
+%     end
+%     
+%     % Give reward
+%     if (strcmp(char,'space') || strcmp(char,'r'))
+%         
+%         % Prepare reward signal
+%         if expsetup.general.reward_on==1
+%             % Continous reward
+%             reward_duration = expsetup.stim.reward_size_ms;
+%             signal1 = linspace(expsetup.ni_daq.reward_voltage, expsetup.ni_daq.reward_voltage, reward_duration)';
+%             signal1 = [0; signal1; 0; 0; 0; 0; 0];
+%             queueOutputData(ni.session_reward, signal1);
+%         end
+%         
+%         if expsetup.general.reward_on == 1
+%             ni.session_reward.startForeground;
+%             if expsetup.general.recordeyes==1
+%                 Eyelink('Message', 'reward_on');
+%             end
+%             expsetup.stim.edata_reward_on(tid) = GetSecs;
+%             % Save how much reward was given
+%             expsetup.stim.edata_reward_size_ms(tid,1)=expsetup.stim.reward_size_ms;
+%             expsetup.stim.edata_reward_size_ml(tid,1)=expsetup.stim.reward_size_ml;
+%         end
+%         
+%         % End loop
+%         endloop_skip=1;
+%         
+%     end
+%     
+%     % Check time & quit loop
+%     timer1_now = GetSecs;
+%     if timer1_now - time_start >= trial_duration
+%         endloop_skip=1;
+%     end
+%     
+% end
 
 
 %% Trigger new trial

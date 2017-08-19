@@ -6,7 +6,7 @@ close all;
 clear all;
 clc;
 
-fprintf ('\nRun experiment file used is V2.2, update as of April 19, 2017\n\n')
+fprintf ('\nRun experiment file used is V2.2, update as of Apri l 19, 2017\n\n')
  
 global expsetup
 global ni
@@ -21,9 +21,9 @@ expsetup.general.debug = 0; % 0: default; 1: reward off, eyelink off; 2: reward 
 expsetup.general.record_plexon = 0;  % 0 - no recording; 1 - yes recording;
 expsetup.general.plexon_online_spikes = 0;  % 0 - no; 1 - yes;
 expsetup.general.stimulator_input_on = 0; % 0 - no input, 1 - yes input
-expsetup.general.recordeyes = 0; % 0 - no recording; 1 - yes recording; 2 - ask experimenter
+expsetup.general.recordeyes = 1; % 0 - no recording; 1 - yes recording; 2 - ask experimenter
 expsetup.general.reward_on = 1; % 0 - no reward, 1 - reward
-expsetup.general.arduino_on = 0; % 0 - no arduino, 1 - yes arduno
+expsetup.general.arduino_on = 1; % 0 - no arduino, 1 - yes arduno
 expsetup.general.psychaudio = 0; % 0 - no psych audio; 1 - yes psych audio
 expsetup.general.convert_edf = 0; % 1 - convert to .asc & .dat
 
@@ -483,7 +483,7 @@ while endexp1==0
 
         % Run trials
         fprintf('\nTrial number is %i\n', tid);
-        eval(expsetup.general.code_trial)
+         eval(expsetup.general.code_trial)
         
 %         if tid>1
 %             fprintf('Trial duration was %i ms \n', round((GetSecs-time_tstart_1)*1000))
