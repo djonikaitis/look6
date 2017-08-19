@@ -31,14 +31,14 @@ x = -5; y = -5;
 stim.target_spacing_arc = 90;
 
 % Defaults
-stim.main_cond = [1,2]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
+stim.main_cond = [1]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(97:100)= 1; % Number of probes (= 1 or 2)
 stim.memory_delay_duration = [1.8:0.01:2.2]; % How long memory delay lasts
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
 stim.number_of_trials_per_block = 200;
-stim.number_of_blocks = 2;
-stim.main_cond_shuffle = 1; % 1 - shuffle, 2 - preset order
+stim.number_of_blocks = 1;
+stim.main_cond_shuffle = 2; % 1 - shuffle, 2 - preset order
 
 
 %% Stimulus positions
@@ -73,7 +73,7 @@ else
     stim.reward_size_ml = 0.18;
 end
 stim.reward_size_ms = round(polyval(stim.reward_coeff1, stim.reward_size_ml));
-stim.reward_feedback = 2; % If 1 - show feedback;  2 - play audio feedback; 3 - audio feedback via arduino
+stim.reward_feedback = 3; % If 1 - show feedback;  2 - play audio feedback; 3 - audio feedback via arduino
 stim.reward_feedback_audio_dur = 0.2; % How long to wait to give reward feedback
 stim.reward_pic_size = [0, 0, 5, 5]; % If reward pic is shown, thats the size
 
@@ -103,7 +103,7 @@ stim.fixation_color_change_soa = -0.3; % Neg if before memory on, pos if after m
 stim.fixation_color_memory_delay = [20,20,200];
 
 % Fixation duration
-stim.fixation_acquire_duration = [0.8:0.01:1.2]; % How long to show fixation before it is acquired
+stim.fixation_acquire_duration = [5]; % How long to show fixation before it is acquired
 stim.fixation_maintain_duration = [0.6:0.01:0.8]; % Time to maintain target before memory onset
 
 %===============
@@ -116,7 +116,7 @@ stim.fixation_drift_maintain_maximum = 0.6; % Drift correction ends
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'aq')
     stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'hb')
-    stim.fixation_size_eyetrack = 3; % Window within which to maintain fixation
+    stim.fixation_size_eyetrack = 4; % Window within which to maintain fixation
 else
     stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
 end
@@ -212,7 +212,7 @@ stim.background_texture_on = [ones(1, length(stim.background_texture_line_angle)
 %===============
 % Duration of inter-trial
 stim.trial_dur_intertrial = 0.1; % Blank screen at the end
-stim.trial_dur_intertrial_error = 2; % Blank screen at the end
+stim.trial_dur_intertrial_error = 0.1; % Blank screen at the end
 
 %================
 % Staircase

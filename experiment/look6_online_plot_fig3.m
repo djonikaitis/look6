@@ -201,13 +201,13 @@ set(gca,'YLim',[-6.5, 16]);
 ylabel ('Gaze position, deg', 'FontSize', fontszlabel)
 
 % X axis
-if ~isnan(expsetup.stim.edata_memory_on(tid)) && ~isnan(expsetup.stim.edata_fixation_off(tid))
+if ~isnan(expsetup.stim.edata_memory_on(tid)) && ~isnan(expsetup.stim.edata_st1_on(tid))
     set(gca,'XTick', [0, ...
         round(  (expsetup.stim.edata_memory_on(tid) - expsetup.stim.edata_first_display(tid)) * 1000   ),...
         round(  (expsetup.stim.edata_st1_on(tid) - expsetup.stim.edata_first_display(tid)) * 1000  ),...
-        round(  (expsetup.stim.edata_loop_over(tid) - expsetup.stim.edata_first_display(tid)) * 1000  )];
+        round(  (expsetup.stim.edata_loop_over(tid) - expsetup.stim.edata_first_display(tid)) * 1000  )  ]);
 else
-    set(gca,'XTick', [0, round(   (expsetup.stim.edata_loop_over(tid)- expsetup.stim.edata_first_display(tid)) * 1000  )];
+    set(gca,'XTick', [0, round(   (expsetup.stim.edata_loop_over(tid)- expsetup.stim.edata_first_display(tid)) * 1000  ) ]);
 end
 a1 = (expsetup.stim.edata_loop_over(tid) - expsetup.stim.edata_first_display(tid)) * 1000;
 set(gca,'XLim',[-250,a1+250]);
