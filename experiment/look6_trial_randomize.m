@@ -16,7 +16,8 @@ else
                 [m,n,o]=size(expsetup.stim.(f1{i}));
                 expsetup.stim.(f1{i})(tid,1:n,1:o) = NaN;
             elseif iscell(expsetup.stim.(f1{i}))
-                expsetup.stim.(f1{i}){tid} = NaN;
+                [m,n,o]=size(expsetup.stim.(f1{i}));
+                expsetup.stim.(f1{i}){tid,1:n,1:o} = NaN;
             end
         end
     end
@@ -39,24 +40,29 @@ if tid==1
 end
 
 if tid==1
+    % Shuffle conditons or just do them in a sequence?
     if stim.main_cond_shuffle==1
         temp1=Shuffle(expsetup.stim.main_cond_reps);
     else
         temp1=expsetup.stim.main_cond_reps;
     end
+    expsetup.stim.main_cond_reps = temp1;
     expsetup.stim.esetup_block_cond(tid) = temp1(1);
     expsetup.stim.esetup_block_no(tid) = 1;
 elseif tid>1 
-    ind = strcmp(expsetup.stim.edata_error_code{tid}, 'correct') && expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
-    if sum(ind)<=expsetup.stim.number_of_trials_per_block
+    if expsetup.stim.trial_error_repeat == 1
+        ind = strcmp(expsetup.stim.edata_error_code, 'correct') & expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
+    else
+        ind = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
+    end
+    if sum(ind) < expsetup.stim.number_of_trials_per_block
         expsetup.stim.esetup_block_cond(tid) = expsetup.stim.esetup_block_cond(tid-1);
         expsetup.stim.esetup_block_no(tid) = expsetup.stim.esetup_block_no(tid-1);
-    else
+    elseif sum(ind) >= expsetup.stim.number_of_trials_per_block
         expsetup.stim.esetup_block_no(tid) = expsetup.stim.esetup_block_no(tid-1)+1;
-        ind = expsetup.stim.esetup_block_no(tid);
-        expsetup.stim.esetup_block_cond(tid) = expsetup.stim.main_cond_reps(ind);
+        i1 = expsetup.stim.esetup_block_no(tid);
+        expsetup.stim.esetup_block_cond(tid) = expsetup.stim.main_cond_reps(i1);
     end
-elseif tid>1
 end
 
 

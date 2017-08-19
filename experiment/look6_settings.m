@@ -7,6 +7,7 @@
 %% Different training stages have different stim durations
 
 stim.training_stage_matrix = [1,2]; % Different levels of task difficulty. Select to use one.
+stim.exp_version_temp = 1;
 
 % Stage 1.0. No changes to the code. Look/avoid tasks interleaved 
 % Stage 2.0. Increase the delay.
@@ -31,13 +32,13 @@ x = -5; y = -5;
 stim.target_spacing_arc = 90;
 
 % Defaults
-stim.main_cond = [1]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
+stim.main_cond = [1,2]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(97:100)= 1; % Number of probes (= 1 or 2)
 stim.memory_delay_duration = [1.8:0.01:2.2]; % How long memory delay lasts
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
-stim.number_of_trials_per_block = 200;
-stim.number_of_blocks = 1;
+stim.number_of_trials_per_block = 2;
+stim.number_of_blocks = 4;
 stim.main_cond_shuffle = 2; % 1 - shuffle, 2 - preset order
 
 
@@ -212,7 +213,7 @@ stim.background_texture_on = [ones(1, length(stim.background_texture_line_angle)
 %===============
 % Duration of inter-trial
 stim.trial_dur_intertrial = 0.1; % Blank screen at the end
-stim.trial_dur_intertrial_error = 0.1; % Blank screen at the end
+stim.trial_dur_intertrial_error = 2; % Blank screen at the end
 
 %================
 % Staircase
@@ -224,7 +225,8 @@ stim.trial_correct_goal_down = 2; % What is accuracy to make task harder
 stim.trial_error_repeat = 1; % 1 - repeats same trial if error occured immediatelly; 0 - no repeat
 stim.trial_abort_counter = 20; % Quit experiment if trials in a row are aborted
 stim.plot_every_x_trial = 1; % Every which trial to plot (every 1, 2nd, 10th etc trial)
- 
+stim.end_experiment = 0; % Default value 
+
 % Picture file used for instruction
 stim.instrpic{1}='image_condition1';
 stim.instrpic{2}='image_condition2';
