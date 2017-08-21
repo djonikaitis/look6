@@ -23,18 +23,18 @@ elseif tid>=trials_to_plot % Plot data
         ind = intervalbins(j)-trials_to_plot+1:intervalbins(j);
         
         % Correct trials
-        index1 = strcmp('correct', expsetup.stim.edata_error_code(1:tid));
+        index1 = strcmp('correct', expsetup.stim.edata_error_code(ind));
         temp1(1,j)= sum(index1);
         % Error trials
-        index1 = strcmp('looked at distractor', expsetup.stim.edata_error_code(1:tid));
+        index1 = strcmp('looked at distractor', expsetup.stim.edata_error_code(ind));
         temp1(2,j)= sum(index1);
         % Aborted
-        index1 = strcmp('broke fixation before drift', expsetup.stim.edata_error_code(1:tid)) | ...
-            strcmp('broke fixation', expsetup.stim.edata_error_code(1:tid)) |...
-            strcmp('fixation not acquired in time', expsetup.stim.edata_error_code(1:tid)) | ...
-            strcmp('experimenter terminated the trial', expsetup.stim.edata_error_code(1:tid)) | ...
-            strcmp('no saccade', expsetup.stim.edata_error_code(1:tid)) | ...
-            strcmp('left ST', expsetup.stim.edata_error_code(1:tid));
+        index1 = strcmp('broke fixation before drift', expsetup.stim.edata_error_code(ind)) | ...
+            strcmp('broke fixation', expsetup.stim.edata_error_code(ind)) |...
+            strcmp('fixation not acquired in time', expsetup.stim.edata_error_code(ind)) | ...
+            strcmp('experimenter terminated the trial', expsetup.stim.edata_error_code(ind)) | ...
+            strcmp('no saccade', expsetup.stim.edata_error_code(ind)) | ...
+            strcmp('left ST', expsetup.stim.edata_error_code(ind));
         temp1(3,j)= sum(index1);
     end
     
@@ -52,10 +52,10 @@ elseif tid>=trials_to_plot % Plot data
             graphcond=1;
             text(-log(1), 138, 'Correct ST', 'Color', color1(graphcond,:), 'FontSize', fontsz, 'HorizontalAlignment', 'right')
         elseif i==2
-            graphcond=2;
+            graphcond=3;
             text(-log(1), 128, 'Wrong ST', 'Color', color1(graphcond,:), 'FontSize', fontsz, 'HorizontalAlignment', 'right')
         elseif i==3
-            graphcond=4;
+            graphcond=2;
             text(-log(1), 118, 'Aborted', 'Color', color1(graphcond,:), 'FontSize', fontsz, 'HorizontalAlignment', 'right')
         end
         % Lines

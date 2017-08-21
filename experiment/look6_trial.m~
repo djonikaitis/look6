@@ -3,33 +3,64 @@
 window = expsetup.screen.window;
 
 
+%% If block number has changed reset stimulus luminance
+
+if tid>1 && strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance equal') || trcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance change')
+    if expsetup.stim.trial_error_repeat == 1
+        ind = strcmp(expsetup.stim.edata_error_code, 'correct') & expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
+    else
+        ind = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
+    end
+    if sum(ind) == expsetup.stim.number_of_trials_per_block % If current block is new block, change task version
+        a = expsetup.stim.esetup_exp_version{tid-1};
+        if strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance change')
+        elseif strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance equal')
+            a = expsetup.stim.esetup_exp_version{tid-1};
+        end
+        ind1 = strcmp(expsetup.stim.training_stage_matrix, a);
+        ind1 = find(ind1==1);
+        if ind1-<=numel(expsetup.stim.training_stage_matrix)
+            b = expsetup.stim.training_stage_matrix{ind1+1};
+        else
+            b = expsetup.stim.training_stage_matrix{ind1};
+        end
+        expsetup.stim.exp_version_temp = b;
+        
+        
+        expsetup.stim.exp_version_update_next_trial = 1; % Update next trial
+        expsetup.stim.esetup_exp_version{tid-1} = 'luminance change'; % Over-write previous trial to 
+    end
+end
+
+
 %% Exp stage (either keep the same or change the task)
 
 if tid==1
     if ~isfield(expsetup.stim, 'exp_version_temp')
-        expsetup.stim.exp_version_temp = 1; % Version to start with on the first trial
+        expsetup.stim.exp_version_temp = expsetup.stim.training_stage_matrix{end}; % Version to start with on the first trial
     end
     expsetup.stim.exp_version_update_next_trial = 0;
-    fprintf('Task level is %.2f\n', expsetup.stim.exp_version_temp)
+    fprintf('Running task version: %s\n', expsetup.stim.exp_version_temp)
 elseif tid>1
     if expsetup.stim.exp_version_update_next_trial == 0 % Keep the same
-        b = expsetup.stim.esetup_exp_version(tid-1,1);
+        b = expsetup.stim.esetup_exp_version{tid-1};
         expsetup.stim.exp_version_temp = b;
     elseif expsetup.stim.exp_version_update_next_trial == 1 % Change the task
-        a = expsetup.stim.esetup_exp_version(tid-1,1); % Take previous trial exp version
-        b = expsetup.stim.training_stage_matrix (expsetup.stim.training_stage_matrix<a); % Other available exp versions
-        b = b(end);
-        expsetup.stim.exp_version_temp = b; % Take largest available number (smallest number is end of training)
+        a = expsetup.stim.esetup_exp_version{tid-1};
+        ind1 = strcmp(expsetup.stim.training_stage_matrix, a);
+        ind1 = find(ind1==1);
+        if ind1+1<=numel(expsetup.stim.training_stage_matrix)
+            b = expsetup.stim.training_stage_matrix{ind1+1};
+        else
+            b = expsetup.stim.training_stage_matrix{ind1};
+        end
+        expsetup.stim.exp_version_temp = b;
     end
-    if expsetup.stim.exp_version_temp~=1
-        fprintf('Task level is %.2f\n', b)
-    end
+    fprintf('Running task version: %s\n', expsetup.stim.exp_version_temp)
 end
 
 % Update performance if necessary
-if expsetup.stim.exp_version_temp~=1
-    runexp_trial_update_performance_v10
-end
+runexp_trial_update_performance_v11
 
 
 %% PREPARE ALL OBJECTS AND FRAMES TO BE DRAWN:
@@ -74,7 +105,7 @@ ind_block = expsetup.stim.esetup_block_no(tid);
 % Which task it is?
 if expsetup.stim.esetup_block_cond(tid) == 1
     ind_task = sprintf('Look');
-elseif expsetup.stim.esetup_block_no(tid) == 2
+elseif expsetup.stim.esetup_block_cond(tid) == 2
     ind_task = sprintf('Avoid');
 else
     ind_task = sprintf('Control');
@@ -877,12 +908,15 @@ fprintf('Trial evaluation: %s\n', expsetup.stim.edata_error_code{tid})
 % Check whether trial is counted towards online performance tracking. In
 % some cases correct trials can be discounted.
 
-if expsetup.stim.esetup_exp_version(tid,1) <= 2
+if strcmp(expsetup.stim.esetup_exp_version{tid}, 'delay increase') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'final version') ||...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance equal')
+    %==========
     if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
         expsetup.stim.edata_trial_online_counter(tid,1) = 1;
-    elseif strcmp(expsetup.stim.edata_error_code{tid}, 'looked at distractor')
+    elseif strcmp(expsetup.stim.edata_error_code{tid}, 'looked at distractor') || strcmp(expsetup.stim.edata_error_code{tid}, 'experimenter terminated the trial')
         expsetup.stim.edata_trial_online_counter(tid,1) = 2;
     end
+    %=========
 end
 
 
@@ -1129,20 +1163,21 @@ if expsetup.stim.esetup_block_no(tid) == expsetup.stim.number_of_blocks
         ind_correct = strcmp(expsetup.stim.edata_error_code, 'correct') & expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid);
         ind_recorded = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid);
         % How many error trials recorded?
-        temp1 = sum(ind_recorded)-sum(ind_correct)-1; % -1 as we dont know whether current trial will be correct
+        temp1 = sum(ind_recorded)-sum(ind_correct); % -1 as we dont know whether current trial will be correct
         % Block size is expected number of trials + error trials
         ind_total = expsetup.stim.number_of_trials_per_block + temp1;
     else
         ind_recorded = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid);
         ind_total = expsetup.stim.number_of_trials_per_block;
     end
-    % Which trial it is?
-    ind_tid = sum(ind_recorded);
-    % Which block it is?
+    % If it's last time of last block
+    if sum(ind_recorded) == ind_total
+        expsetup.stim.end_experiment = 1;
+    end
+    
 end
     
     
 
 
-expsetup.stim.end_experiment = 1;
 
