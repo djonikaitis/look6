@@ -25,7 +25,7 @@ end
 
 %% Which exp version is running?
 
-expsetup.stim.esetup_exp_version(tid,1) = expsetup.stim.exp_version_temp;
+expsetup.stim.esetup_exp_version{tid,1} = expsetup.stim.exp_version_temp;
 
 
 %% Main condition & block number
@@ -63,6 +63,20 @@ elseif tid>1
         i1 = expsetup.stim.esetup_block_no(tid);
         expsetup.stim.esetup_block_cond(tid) = expsetup.stim.main_cond_reps(i1);
     end
+end
+
+
+%%  Background color
+if expsetup.stim.esetup_block_cond(tid) == 1
+    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task1;
+elseif expsetup.stim.esetup_block_cond(tid) == 2
+    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task2;
+elseif expsetup.stim.esetup_block_cond(tid) == 3
+    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task3;
+elseif expsetup.stim.esetup_block_cond(tid) == 4
+    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task4;
+elseif expsetup.stim.esetup_block_cond(tid) == 5
+    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task5;
 end
 
 
@@ -110,14 +124,20 @@ temp1=Shuffle(expsetup.stim.fixation_acquire_duration);
 expsetup.stim.esetup_fixation_acquire_duration(tid,1) = temp1(1);
  
 % Fixation maintain duration varies as a stage of training
-% Memory duration, varies as a stage of training
-if expsetup.stim.esetup_exp_version(tid, 1) < 2
+
+%============
+ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+ind1 = find(ind0==1);
+ind0 = strcmp(expsetup.stim.training_stage_matrix, 'delay increase');
+ind2 = find(ind0==1);
+if ind1>ind2
     temp1 = Shuffle(expsetup.stim.fixation_maintain_duration);
-elseif expsetup.stim.esetup_exp_version(tid, 1) == 2
+elseif ind1==ind2
     temp1 = Shuffle(tv1(1).temp_var_current);
-elseif expsetup.stim.esetup_exp_version(tid, 1) > 2
+elseif ind1<ind2
     temp1 = Shuffle(expsetup.stim.fixation_maintain_duration_ini);
 end
+%=============
 expsetup.stim.esetup_fixation_maintain_duration(tid,1) = temp1(1);
 
 % Do drift correction or not?
@@ -174,7 +194,7 @@ expsetup.stim.esetup_target_size_eyetrack(tid,1:4) = [0, 0, temp1(1), temp1(1)];
 % Look, avoid
 if expsetup.stim.esetup_block_cond(tid) == 1 || expsetup.stim.esetup_block_cond(tid) == 2
     temp1 = Shuffle(expsetup.stim.target_number); % Select 1 or 2 targets
-    if expsetup.stim.esetup_exp_version(tid, 1) >=2
+    if strcmp(expsetup.stim.esetup_exp_version{tid}, 'delay increase')
         expsetup.stim.esetup_target_number(tid) = 2;
     else
         expsetup.stim.esetup_target_number(tid) = temp1(1);
@@ -201,18 +221,46 @@ a = Shuffle(1:size(expsetup.stim.response_t3_coord,1));
 temp1 = expsetup.stim.response_t3_coord(a,:);
 st3 = temp1(1,1:2);
 
+
+% ST2 color, varies as a stage of training
+%=========
+ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+ind1 = find(ind0==1);
+ind0 = strcmp(expsetup.stim.training_stage_matrix, 'luminance change');
+ind2 = find(ind0==1);
+if ind1>ind2
+    temp1 = Shuffle(expsetup.stim.st2_color_level);
+elseif ind1==ind2
+    temp1 = Shuffle(tv1(1).temp_var_current);
+elseif ind1<ind2
+    temp1 = Shuffle(expsetup.stim.st2_color_level);
+end
+%===========
+expsetup.stim.esetup_st2_color_level(tid) = temp1(1);
+    
+    
 % Initialize different colors and shapes, based on block_cond
 if expsetup.stim.esetup_block_cond(tid,1) == 1 && expsetup.stim.esetup_target_number(tid,1) == 2
     expsetup.stim.esetup_st1_coord(tid,1:2) = st_mem;
     expsetup.stim.esetup_st2_coord(tid,1:2) = st_nonmem;
     expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t1_color_task1;
-    expsetup.stim.esetup_st2_color(tid,1:3) = expsetup.stim.response_t2_color_task1;
+    % ST2 color level changes
+    c1 = expsetup.stim.response_t2_color_task1;
+    d1 = expsetup.stim.esetup_background_color(tid,1:3) - c1;
+    a1 = c1 + d1 * expsetup.stim.esetup_st2_color_level(tid);
+    expsetup.stim.esetup_st2_color(tid,1:3) = a1;
+    %====
     expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_task1;
 elseif expsetup.stim.esetup_block_cond(tid,1) == 2 && expsetup.stim.esetup_target_number(tid,1) == 2
     expsetup.stim.esetup_st1_coord(tid,1:2) = st_nonmem;
     expsetup.stim.esetup_st2_coord(tid,1:2) = st_mem;
     expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t2_color_task2;
-    expsetup.stim.esetup_st2_color(tid,1:3) = expsetup.stim.response_t1_color_task2;
+    % ST2 color level changes
+    c1 = expsetup.stim.response_t1_color_task2;
+    d1 = expsetup.stim.esetup_background_color(tid,1:3) - c1;
+    a1 = c1 + d1 * expsetup.stim.esetup_st2_color_level(tid);
+    expsetup.stim.esetup_st2_color(tid,1:3) = a1;
+    %====  
     expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_task2;
 elseif expsetup.stim.esetup_block_cond(tid,1) == 1 && expsetup.stim.esetup_target_number(tid,1) == 1
     expsetup.stim.esetup_st1_coord(tid,1:2) = st3;
@@ -237,14 +285,22 @@ expsetup.stim.esetup_memory_duration(tid) = temp1(1);
 
 % Memory delay duration
 if expsetup.stim.esetup_target_number(tid,1)==2 % Two target trials
+   
     % Memory duration, varies as a stage of training
-    if expsetup.stim.esetup_exp_version(tid, 1) < 2
+    %=========
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+    ind1 = find(ind0==1);
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'delay increase');
+    ind2 = find(ind0==1);
+    if ind1>ind2
         temp1 = Shuffle(expsetup.stim.memory_delay_duration);
-    elseif expsetup.stim.esetup_exp_version(tid, 1) == 2
+    elseif ind1==ind2
         temp1 = Shuffle(tv1(2).temp_var_current);
-    elseif expsetup.stim.esetup_exp_version(tid, 1) > 2
+    elseif ind1<ind2
         temp1 = Shuffle(expsetup.stim.memory_delay_duration_ini);
     end
+    %===========
+    
 elseif expsetup.stim.esetup_target_number(tid,1)==1 % Single target trials
     temp1 = Shuffle(expsetup.stim.memory_delay_duration_probe);
 end
@@ -275,19 +331,6 @@ expsetup.stim.esetup_background_texture_line_number(tid) = temp1(1);
 % Line length
 temp1 = Shuffle(expsetup.stim.background_texture_line_length);
 expsetup.stim.esetup_background_texture_line_length(tid) = temp1(1);
-
-% Background color
-if expsetup.stim.esetup_block_cond(tid) == 1
-    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task1;
-elseif expsetup.stim.esetup_block_cond(tid) == 2
-    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task2;
-elseif expsetup.stim.esetup_block_cond(tid) == 3
-    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task3;
-elseif expsetup.stim.esetup_block_cond(tid) == 4
-    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task4;
-elseif expsetup.stim.esetup_block_cond(tid) == 5
-    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task5;
-end
 
 
 %% If previous trial was an error, then copy settings of the previous trial

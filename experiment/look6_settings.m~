@@ -6,9 +6,8 @@
 
 %% Different training stages have different stim durations
 
-stim.training_stage_matrix = {'fixation training', 'look only', 'avoid only', 'added probe trials', ...
-    'delay increase', 'luminance change', 'luminance equal', 'final version'};
-stim.exp_version_temp = 'luminance change';
+stim.training_stage_matrix = {'fixation', 'look', 'avoid', 'delay', 'luminance', 'no_luminance update', 'final'};
+stim.exp_version_temp = 'luminance';
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
 
 % Stage 'fixation'. Learn to fixate while memory target is flashed.
@@ -25,9 +24,9 @@ stim.memory_delay_duration_ini_step = 0.1;
 stim.fixation_maintain_duration_ini = 2.2;
 stim.fixation_maintain_duration_ini_step = -0.1;
 
-% Stage 'luminance change'
+% Stage 'luminance'
 % Use stimulus luminance for interleaving blocks
-stim.st2_color_level_ini = 0.6;
+stim.st2_color_level_ini = 0.8;
 stim.st2_color_level_ini_step = -0.1;
 
 
@@ -43,7 +42,7 @@ stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(97:100)= 1; % Number of probes (= 1 or 2)
 stim.memory_delay_duration = [1.8:0.01:2.2]; % How long memory delay lasts
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
-stim.number_of_trials_per_block = 150;
+stim.number_of_trials_per_block = 200;
 stim.number_of_blocks = 4;
 stim.main_cond_shuffle = 2; % 1 - shuffle, 2 - preset order
 
@@ -110,7 +109,7 @@ stim.fixation_color_change_soa = -0.3; % Neg if before memory on, pos if after m
 stim.fixation_color_memory_delay = [20,20,200];
 
 % Fixation duration
-stim.fixation_acquire_duration = [0.5]; % How long to show fixation before it is acquired
+stim.fixation_acquire_duration = [5]; % How long to show fixation before it is acquired
 stim.fixation_maintain_duration = [0.6:0.01:0.8]; % Time to maintain target before memory onset
 
 %===============
@@ -123,7 +122,7 @@ stim.fixation_drift_maintain_maximum = 0.6; % Drift correction ends
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'aq')
     stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'hb')
-    stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
+    stim.fixation_size_eyetrack = 4; % Window within which to maintain fixation
 else
     stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
 end
