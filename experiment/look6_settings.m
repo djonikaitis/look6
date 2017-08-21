@@ -44,11 +44,7 @@ stim.target_number(97:100)= 1; % Number of probes (= 1 or 2)
 stim.memory_delay_duration = [1.8:0.01:2.2]; % How long memory delay lasts
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
 stim.number_of_trials_per_block = 150;
-<<<<<<< HEAD
-stim.number_of_blocks = 8;
-=======
 stim.number_of_blocks = 4;
->>>>>>> 9ec84cac1509e7b2eef6fbd7e0b201703740639b
 stim.main_cond_shuffle = 2; % 1 - shuffle, 2 - preset order
 
 
