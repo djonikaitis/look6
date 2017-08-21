@@ -12,8 +12,8 @@ stim.training_stage_matrix = {'fixation training', 'look only', 'avoid only', 'a
     'delay increase', 'luminance change', 'luminance equal', 'final version'};
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
 
-% Stage 'fixation training'. Learn to fixate while memory target is flashed.
-% Stage 'look only'. Learn to do look task.
+% Stage 'fixation'. Learn to fixate while memory target is flashed.
+% Stage 'look'. Learn to do look task.
 % Stage 'avoid only'. Learn to do avoid task.
 % Stage 'luminance change'. Tasks interleaved, using stimulus luminance
 % Stage 'delay increase'. Increase the delay.
