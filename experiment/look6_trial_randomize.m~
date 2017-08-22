@@ -137,6 +137,7 @@ if ind1>ind2
 elseif ind1==ind2
     temp1 = Shuffle(tv1(1).temp_var_current);
     var_copy.esetup_fixation_maintain_duration = temp1(1); % Copy variable for error trials
+
 elseif ind1<ind2
     temp1 = Shuffle(expsetup.stim.fixation_maintain_duration_ini);
 end
