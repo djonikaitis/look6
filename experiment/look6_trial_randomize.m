@@ -253,7 +253,7 @@ if expsetup.stim.esetup_block_cond(tid,1) == 1 && expsetup.stim.esetup_target_nu
         %====
         c1 = expsetup.stim.response_t2_color_task1;
         d1 = expsetup.stim.esetup_background_color(tid,1:3) - c1;
-        a1 = c1 + d1 * expsetup.stim.edata_st2_color_level(tid);
+        a1 = c1 + d1 * expsetup.stim.esetup_st2_color_level(tid);
         expsetup.stim.esetup_st2_color(tid,1:3) = a1;
         var_copy.esetup_st2_color = expsetup.stim.esetup_st2_color(tid,1:3); % Copy variable for error trials
         %====
@@ -272,7 +272,7 @@ elseif expsetup.stim.esetup_block_cond(tid,1) == 2 && expsetup.stim.esetup_targe
         %===
         c1 = expsetup.stim.response_t1_color_task2;
         d1 = expsetup.stim.esetup_background_color(tid,1:3) - c1;
-        a1 = c1 + d1 * expsetup.stim.edata_st2_color_level(tid);
+        a1 = c1 + d1 * expsetup.stim.esetup_st2_color_level(tid);
         expsetup.stim.esetup_st2_color(tid,1:3) = a1;
         var_copy.esetup_st2_color = expsetup.stim.esetup_st2_color(tid,1:3); % Copy variable for error trials
         %====
@@ -386,7 +386,7 @@ if tid>1
                 f1 = fieldnames(var_copy);
                 for i=1:numel(f1)
                     if ~iscell(expsetup.stim.(f1{i}))
-                        [m,n,o]=size(expsetup.stim.(f1{i}));
+                        [m,n,o]=size(var_copy.(f1{i}));
                         expsetup.stim.(f1{i})(tid,1:n,1:o) = var_copy.(f1{i})(1:m,1:n,1:o);
                     elseif iscell(expsetup.stim.(f1{i}))
                         expsetup.stim.(f1{i}){tid} = var_copy.(f1{i});
