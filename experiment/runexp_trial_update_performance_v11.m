@@ -9,6 +9,7 @@
 % expname_trial_update_stimuli - this code must exist
 % 
 % v1.0 August 16, 2017. Initial code.
+% v1.1 August 19, 2017. Recoded task version into string variable.
 
 
 
@@ -27,15 +28,13 @@ end
 if ~isempty(ind1)
     total1 = sum (expsetup.stim.edata_trial_online_counter(ind1) == 1); % Correct
     total2 = sum (expsetup.stim.edata_trial_online_counter(ind1) == 2); % Error
-    fprintf('Online stimulus updating: %d out of %d trials were correct\n', total1, expsetup.stim.trial_online_counter)
+    fprintf('Online stimulus updating: %d correct; %d error; out of %d total\n', total1, total2, expsetup.stim.trial_online_counter)
 end
 
 % Select variables to increase/decrease
 % No performance updating if exp_version_temp==1;
-if expsetup.stim.exp_version_temp~=1
-    u1 = sprintf('%s_trial_update_stimuli', expsetup.general.expname); % Path to file containing trial settings
-    eval (u1);
-end
+u1 = sprintf('%s_trial_update_stimuli', expsetup.general.expname); % Path to file containing trial settings
+eval (u1);
 
 
 % Change task difficulty/level
@@ -43,7 +42,7 @@ end
 %===============
 %===============
 % A - if not enough trials collected
-if isempty(ind1) && expsetup.stim.exp_version_temp~=1
+if isempty(ind1) && ~isempty(fieldnames(tv1))
     
     % Start of experiment uses default values
     for i = 1:numel(tv1)
@@ -58,7 +57,7 @@ if isempty(ind1) && expsetup.stim.exp_version_temp~=1
     %===============
     %===============
     % B - If performance is good, update stimulus from previous trial to make task harder
-elseif ~isempty(ind1) && total1 >= expsetup.stim.trial_correct_goal_up && expsetup.stim.exp_version_temp~=1
+elseif ~isempty(ind1) && total1 >= expsetup.stim.trial_correct_goal_up && ~isempty(fieldnames(tv1))
     
     % Select stim property and change it
     for i = 1:numel(tv1)
@@ -84,11 +83,10 @@ elseif ~isempty(ind1) && total1 >= expsetup.stim.trial_correct_goal_up && expset
     expsetup.stim.edata_trial_online_counter(ind1) = 99;
     
     
-    
     %===============
     %===============
     % C - If performance is bad, update stimulus from previous to make task easier
-elseif ~isempty(ind1) && total2 >= expsetup.stim.trial_correct_goal_down && expsetup.stim.exp_version_temp~=1
+elseif ~isempty(ind1) && total2 >= expsetup.stim.trial_correct_goal_down && ~isempty(fieldnames(tv1))
     
     % Select stim property and change it
     for i = 1:numel(tv1)
@@ -118,7 +116,7 @@ elseif ~isempty(ind1) && total2 >= expsetup.stim.trial_correct_goal_down && exps
     %===============
     %===============
     % D - If not enough of trials, copy values from earlier trial
-elseif ~isempty(ind1) && total1 < expsetup.stim.trial_correct_goal_up && total2 < expsetup.stim.trial_correct_goal_down && expsetup.stim.exp_version_temp~=1
+elseif ~isempty(ind1) && total1 < expsetup.stim.trial_correct_goal_up && total2 < expsetup.stim.trial_correct_goal_down && ~isempty(fieldnames(tv1))
     
     % Select stim property and change it
     for i = 1:numel(tv1)
@@ -135,22 +133,17 @@ elseif ~isempty(ind1) && total1 < expsetup.stim.trial_correct_goal_up && total2 
     
 end
 
-%===================
-% Make a decision whether to change the task level on next trial
+%% Make a decision whether to change the task level on next trial
 
 % If stimulus reached the value selected, then stop updating it
-if ~isempty(ind1) && expsetup.stim.exp_version_temp~=1
+if ~isempty(ind1) && ~isempty(fieldnames(tv1))
     i=numel(tv1);
     if tv1(i).temp_var_current==tv1(i).temp_var_final
         expsetup.stim.exp_version_update_next_trial = 1;
-        % Print output onscreen
-        a = expsetup.stim.esetup_exp_version(tid-1,1); % Take previous trial exp version
-        b = expsetup.stim.training_stage_matrix (expsetup.stim.training_stage_matrix<a); % Other available exp versions
-        b = b(end); % Take largest available number (smallest number is end of training)
-        fprintf('Task criterion reached, on next trial will change task from level %.2f to level %.2f\n', a, b)
+        fprintf('Task criterion reached, on next trial will change task\n', a, b)
     elseif tv1(i).temp_var_current~=tv1(i).temp_var_final
         expsetup.stim.exp_version_update_next_trial = 0;
     end
-elseif expsetup.stim.exp_version_temp==1 % Never change the task for final level
+elseif isempty(fieldnames(tv1)) % Never change the task for final level
     expsetup.stim.exp_version_update_next_trial = 0;
 end

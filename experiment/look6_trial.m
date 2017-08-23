@@ -3,29 +3,66 @@
 window = expsetup.screen.window;
 
 
+%% If block number has changed, reset stimulus luminance updating
+
+if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance equal'))
+    if expsetup.stim.trial_error_repeat == 1
+        ind = strcmp(expsetup.stim.edata_error_code, 'correct') & expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
+    else
+        ind = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
+    end
+    if sum(ind) == expsetup.stim.number_of_trials_per_block % If current block is new block, change task version
+        a = expsetup.stim.esetup_exp_version{tid-1};
+        ind1 = strcmp(expsetup.stim.training_stage_matrix, a);
+        ind1 = find(ind1==1);
+        if strcmp(a, 'luminance change')
+            if ind1-1>=1
+                b = expsetup.stim.training_stage_matrix{ind1-1};
+            else
+                error('Exp version before "luminance change" has to be defined')
+            end
+        elseif strcmp(a, 'luminance equal')
+            if ind1-2>=1
+                b = expsetup.stim.training_stage_matrix{ind1-2};
+            else
+                error('Exp version before "luminance change" has to be defined')
+            end
+        end
+        expsetup.stim.exp_version_update_next_trial = 1; % Update next trial
+        expsetup.stim.esetup_st2_color_level(tid-1) = expsetup.stim.st2_color_level_ini; % Over-write previous trial
+        expsetup.stim.esetup_exp_version{tid-1} = b; % Over-write previous trial
+    end
+end
+
+
 %% Exp stage (either keep the same or change the task)
 
 if tid==1
-    expsetup.stim.exp_version_temp = 1; % Version to start with on the first trial
+    if ~isfield(expsetup.stim, 'exp_version_temp')
+        expsetup.stim.exp_version_temp = expsetup.stim.training_stage_matrix{end}; % Version to start with on the first trial
+    end
     expsetup.stim.exp_version_update_next_trial = 0;
-    fprintf('Task level is %.2f\n', expsetup.stim.exp_version_temp)
+    fprintf('Running task version: %s\n', expsetup.stim.exp_version_temp)
 elseif tid>1
     if expsetup.stim.exp_version_update_next_trial == 0 % Keep the same
-        b = expsetup.stim.esetup_exp_version(tid-1,1);
+        b = expsetup.stim.esetup_exp_version{tid-1};
         expsetup.stim.exp_version_temp = b;
     elseif expsetup.stim.exp_version_update_next_trial == 1 % Change the task
-        a = expsetup.stim.esetup_exp_version(tid-1,1); % Take previous trial exp version
-        b = expsetup.stim.training_stage_matrix (expsetup.stim.training_stage_matrix<a); % Other available exp versions
-        b = b(end);
-        expsetup.stim.exp_version_temp = b; % Take largest available number (smallest number is end of training)
+        a = expsetup.stim.esetup_exp_version{tid-1};
+        ind1 = strcmp(expsetup.stim.training_stage_matrix, a);
+        ind1 = find(ind1==1);
+        if ind1+1<=numel(expsetup.stim.training_stage_matrix)
+            b = expsetup.stim.training_stage_matrix{ind1+1};
+        else
+            b = expsetup.stim.training_stage_matrix{ind1};
+        end
+        expsetup.stim.exp_version_temp = b;
     end
-    fprintf('Task level is %.2f\n', b)
+    fprintf('Running task version: %s\n', expsetup.stim.exp_version_temp)
 end
 
 % Update performance if necessary
-if expsetup.stim.exp_version_temp~=1
-    runexp_trial_update_performance_v10
-end
+runexp_trial_update_performance_v11
 
 
 %% PREPARE ALL OBJECTS AND FRAMES TO BE DRAWN:
@@ -48,6 +85,38 @@ eval (u1);
 u1 = sprintf('%s_trial_frames', expsetup.general.expname); % Path to file containing trial settings
 eval (u1);
 
+
+%% Calculate trial number in a block 
+
+% How many trials in a block recorded?
+if expsetup.stim.trial_error_repeat == 1
+    ind_correct = strcmp(expsetup.stim.edata_error_code, 'correct') & expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid);
+    ind_recorded = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid);
+    % How many error trials recorded?
+    temp1 = sum(ind_recorded)-sum(ind_correct)-1; % -1 as we dont know whether current trial will be correct
+    % Block size is expected number of trials + error trials
+    ind_total = expsetup.stim.number_of_trials_per_block + temp1;
+else
+    ind_recorded = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid);
+    ind_total = expsetup.stim.number_of_trials_per_block;
+end
+% Which trial it is?
+ind_tid = sum(ind_recorded);
+% Which block it is?
+ind_block = expsetup.stim.esetup_block_no(tid);
+% Which task it is?
+if expsetup.stim.esetup_block_cond(tid) == 1
+    ind_task = sprintf('Look');
+elseif expsetup.stim.esetup_block_cond(tid) == 2
+    ind_task = sprintf('Avoid');
+else
+    ind_task = sprintf('Control');
+end
+
+msg1 = sprintf('%s task, trial %i of %i, block %i', ind_task, ind_tid, ind_total, ind_block);
+fprintf('%s\n', msg1)
+
+
 %% EYETRACKER INITIALIZE
 
 % Start recording
@@ -60,7 +129,7 @@ end
 
 % SEND MESSAGE WITH TRIAL ID TO EYELINK
 if expsetup.general.recordeyes==1
-    msg1 = sprintf('Trial %i', tid);
+    msg1 = sprintf('%s task, trial %i of %i, block %i', ind_task, ind_tid, ind_total, ind_block);
     Eyelink('Command', 'record_status_message ''%s'' ', msg1);
 end
 
@@ -841,12 +910,15 @@ fprintf('Trial evaluation: %s\n', expsetup.stim.edata_error_code{tid})
 % Check whether trial is counted towards online performance tracking. In
 % some cases correct trials can be discounted.
 
-if expsetup.stim.esetup_exp_version(tid,1) <= 2
+if strcmp(expsetup.stim.esetup_exp_version{tid}, 'delay increase') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'final version') ||...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance equal')
+    %==========
     if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
         expsetup.stim.edata_trial_online_counter(tid,1) = 1;
-    elseif strcmp(expsetup.stim.edata_error_code{tid}, 'looked at distractor')
+    elseif strcmp(expsetup.stim.edata_error_code{tid}, 'looked at distractor') || strcmp(expsetup.stim.edata_error_code{tid}, 'experimenter terminated the trial')
         expsetup.stim.edata_trial_online_counter(tid,1) = 2;
     end
+    %=========
 end
 
 
@@ -960,65 +1032,65 @@ end
 
 %% Inter-trial interval & possibility to add extra reward
 
-% timer1_now = GetSecs;
-% time_start = GetSecs;
-% if ~isnan(expsetup.stim.edata_reward_on(tid)) 
-%     trial_duration = expsetup.stim.trial_dur_intertrial;
-% else % Error trials
-%     trial_duration = expsetup.stim.trial_dur_intertrial_error;
-% end
-% 
-% if strcmp(char,'x') || strcmp(char,'r')
-%     endloop_skip = 1;
-% else
-%     endloop_skip = 0;
-% end
-% 
-% while endloop_skip == 0
-%     
-%     % Record what kind of button was pressed
-%     [keyIsDown,timeSecs,keyCode] = KbCheck;
-%     char = KbName(keyCode);
-%     % Catch potential press of two buttons
-%     if iscell(char)
-%         char=char{1};
-%     end
-%     
-%     % Give reward
-%     if (strcmp(char,'space') || strcmp(char,'r'))
-%         
-%         % Prepare reward signal
-%         if expsetup.general.reward_on==1
-%             % Continous reward
-%             reward_duration = expsetup.stim.reward_size_ms;
-%             signal1 = linspace(expsetup.ni_daq.reward_voltage, expsetup.ni_daq.reward_voltage, reward_duration)';
-%             signal1 = [0; signal1; 0; 0; 0; 0; 0];
-%             queueOutputData(ni.session_reward, signal1);
-%         end
-%         
-%         if expsetup.general.reward_on == 1
-%             ni.session_reward.startForeground;
-%             if expsetup.general.recordeyes==1
-%                 Eyelink('Message', 'reward_on');
-%             end
-%             expsetup.stim.edata_reward_on(tid) = GetSecs;
-%             % Save how much reward was given
-%             expsetup.stim.edata_reward_size_ms(tid,1)=expsetup.stim.reward_size_ms;
-%             expsetup.stim.edata_reward_size_ml(tid,1)=expsetup.stim.reward_size_ml;
-%         end
-%         
-%         % End loop
-%         endloop_skip=1;
-%         
-%     end
-%     
-%     % Check time & quit loop
-%     timer1_now = GetSecs;
-%     if timer1_now - time_start >= trial_duration
-%         endloop_skip=1;
-%     end
-%     
-% end
+timer1_now = GetSecs;
+time_start = GetSecs;
+if ~isnan(expsetup.stim.edata_reward_on(tid)) 
+    trial_duration = expsetup.stim.trial_dur_intertrial;
+else % Error trials
+    trial_duration = expsetup.stim.trial_dur_intertrial_error;
+end
+
+if strcmp(char,'x') || strcmp(char,'r')
+    endloop_skip = 1;
+else
+    endloop_skip = 0;
+end
+
+while endloop_skip == 0
+    
+    % Record what kind of button was pressed
+    [keyIsDown,timeSecs,keyCode] = KbCheck;
+    char = KbName(keyCode);
+    % Catch potential press of two buttons
+    if iscell(char)
+        char=char{1};
+    end
+    
+    % Give reward
+    if (strcmp(char,'space') || strcmp(char,'r'))
+        
+        % Prepare reward signal
+        if expsetup.general.reward_on==1
+            % Continous reward
+            reward_duration = expsetup.stim.reward_size_ms;
+            signal1 = linspace(expsetup.ni_daq.reward_voltage, expsetup.ni_daq.reward_voltage, reward_duration)';
+            signal1 = [0; signal1; 0; 0; 0; 0; 0];
+            queueOutputData(ni.session_reward, signal1);
+        end
+        
+        if expsetup.general.reward_on == 1
+            ni.session_reward.startForeground;
+            if expsetup.general.recordeyes==1
+                Eyelink('Message', 'reward_on');
+            end
+            expsetup.stim.edata_reward_on(tid) = GetSecs;
+            % Save how much reward was given
+            expsetup.stim.edata_reward_size_ms(tid,1)=expsetup.stim.reward_size_ms;
+            expsetup.stim.edata_reward_size_ml(tid,1)=expsetup.stim.reward_size_ml;
+        end
+        
+        % End loop
+        endloop_skip=1;
+        
+    end
+    
+    % Check time & quit loop
+    timer1_now = GetSecs;
+    if timer1_now - time_start >= trial_duration
+        endloop_skip=1;
+    end
+    
+end
 
 
 %% Trigger new trial
@@ -1058,7 +1130,7 @@ if tid>=expsetup.stim.trial_abort_counter
         if ~strcmp(char,expsetup.general.quit_key')
             char='x';
             % Over-write older trials
-            expsetup.stim.edata_trial_abort_counter(ind1, q) = 2000;
+            expsetup.stim.edata_trial_abort_counter(ind1, 1) = 2000;
         end
     end
 end
@@ -1073,3 +1145,41 @@ if expsetup.general.recordeyes==1
 end
 
 fprintf('  \n')
+
+%% Save texture as a separate file for each trial (to make memory faster)
+
+dir1 = [expsetup.general.directory_data_psychtoolbox_subject];
+if ~isdir (dir1)
+    mkdir(dir1)
+end
+f_name = ['trial_' num2str(tid), '_texture_matrix'];
+d1 = sprintf('%s%s', dir1, f_name);
+save (d1, 'xy_texture_combined');
+
+%% End experiment?
+
+if expsetup.stim.esetup_block_no(tid) == expsetup.stim.number_of_blocks
+    
+    % How many trials in a block recorded?
+    if expsetup.stim.trial_error_repeat == 1
+        ind_correct = strcmp(expsetup.stim.edata_error_code, 'correct') & expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid);
+        ind_recorded = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid);
+        % How many error trials recorded?
+        temp1 = sum(ind_recorded)-sum(ind_correct); % -1 as we dont know whether current trial will be correct
+        % Block size is expected number of trials + error trials
+        ind_total = expsetup.stim.number_of_trials_per_block + temp1;
+    else
+        ind_recorded = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid);
+        ind_total = expsetup.stim.number_of_trials_per_block;
+    end
+    % If it's last time of last block
+    if sum(ind_recorded) == ind_total
+        expsetup.stim.end_experiment = 1;
+    end
+    
+end
+    
+    
+
+
+

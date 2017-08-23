@@ -1,12 +1,15 @@
 % Script running main experiment file. Initializes and closes all devices.
 % V2.1 Update as of May 16, 2017
 % V2.2 July 15, 2017: Improved compatability with new framework
+% V2.3 August 19, 2017: Finished compatibility with new framework
+% V2.4 August 23, 2017: Added helper functions folder to the path
+
 
 close all;
 clear all;
 clc;
 
-fprintf ('\nRun experiment file used is V2.2, update as of Apri l 19, 2017\n\n')
+fprintf ('\nRun experiment file used is V2.4, update as of August 23, 2017\n\n')
  
 global expsetup
 global ni
@@ -14,7 +17,7 @@ global ni
 %% General settings to run the code
 
 expsetup.general.expname = 'look6';
-expsetup.general.exp_location = 'edoras'; % 'dj'; 'mbox'
+expsetup.general.exp_location = 'dj'; % 'dj'; 'mbox'; 'edoras'; 'citadel';
 expsetup.general.debug = 0; % 0: default; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
 
 % Devices and routines
@@ -39,7 +42,7 @@ expsetup.general.trials_before_saving = 10; % How many trials to run before savi
 % Plexon events
 expsetup.general.plex_event_start = 1; % Code saved as trial start
 expsetup.general.plex_event_end = 2; % Code saved as trial start
-expsetup.general.plex_trial_timeout_sec = 30; % How many seconds before plexon stops checking data
+expsetup.general.plex_trial_timeout_sec = 60; % How many seconds before plexon stops checking data
 expsetup.general.plex_data_rate = []; % At which rate data is collected (40000 Hz), determined during tcpip connection
 
 % Get subject name
@@ -126,12 +129,18 @@ eval(expsetup.general.code_computer_setup)
 %% Add the folder with experimental code to the path
 
 expsetup.general.directory_experiment_code = [expsetup.general.directory_baseline_code, expsetup.general.expname, '/experiment/'];
+expsetup.general.directory_helper_functions = [expsetup.general.directory_baseline_code, expsetup.general.expname, '/helper_functions/'];
 if isdir (expsetup.general.directory_experiment_code)
     addpath (expsetup.general.directory_experiment_code);
 else
     error ('Experiment name specified does not exist')
 end
 
+if isdir(expsetup.general.directory_helper_functions)
+    addpath(genpath(expsetup.general.directory_helper_functions));
+else
+    error ('Helper functions folder not added')
+end
 
 %% Create directories for data recording (main file)
 
@@ -482,12 +491,9 @@ while endexp1==0
         time_tstart_1 = GetSecs;
 
         % Run trials
-        fprintf('\nTrial number is %i\n', tid);
-         eval(expsetup.general.code_trial)
+        fprintf('\nCurrent trial number is %i\n', tid);
+        eval(expsetup.general.code_trial)
         
-%         if tid>1
-%             fprintf('Trial duration was %i ms \n', round((GetSecs-time_tstart_1)*1000))
-%         end
         
         % Save data structure if more than tno trials were run (does not save early terminations)
         if tid>tno1
@@ -524,13 +530,11 @@ while endexp1==0
             ShowCursor;
         end
         
-%         % Show reward and number of trials completed
-%         if expsetup.general.reward_on>0
-%             reward_given = nansum(expsetup.stim.expmatrix(:, em_data_reward_size_ml));
-%             fprintf ('\nAdministered reward %i milliliters\n', round(reward_given))
-%         end
-%         index1 = expsetup.stim.expmatrix(:, em_data_reject) == 1;
-%         fprintf ('\nNumber of correct trials completed: %i \n', sum(index1))
+        % Show reward and number of trials completed
+        if expsetup.general.reward_on>0
+            reward_given = nansum(expsetup.stim.edata_reward_size_ml);
+            fprintf ('\nAdministered reward %i milliliters\n', round(reward_given))
+        end
         
         % Close the audio device
         if expsetup.general.psychaudio == 1 && ~isempty(expsetup.audio.handle)
@@ -601,10 +605,15 @@ while endexp1==0
         end
     end
     
-% % % % %     if tid==size(expsetup.stim.expmatrix,1)
-% % % % %         endexp1=1;
-% % % % %     end
-    tid=tid+1;
+    % Terminate experiment?
+    if expsetup.stim.end_experiment==1
+        endexp1=1;
+    end
+    
+    % Update trial number?
+    if endexp1~=1
+        tid=tid+1;
+    end
     
     if ismac
         ListenChar(0); % 1 turns the keyboard back on
@@ -718,13 +727,11 @@ end
 
 %% Print some statistics
 
-% time_expend = GetSecs;
-% fprintf ('\nExperiment duration %d minutes\n', ceil((time_expend-time_expstart)/60))
-% 
-% if expsetup.general.reward_on>0
-%     reward_given = nansum(expsetup.stim.expmatrix(:, em_data_reward_size_ml));
-%     fprintf ('\nAdministered reward %i milliliters\n', round(reward_given))
-% end
-% index1 = expsetup.stim.expmatrix(:, em_data_reject) == 1;
-% fprintf ('\nNumber of correct trials completed: %i \n', sum(index1))
+time_expend = GetSecs;
+fprintf ('\nExperiment duration %d minutes\n', ceil((time_expend-time_expstart)/60))
 
+% Show reward and number of trials completed
+if expsetup.general.reward_on>0
+    reward_given = nansum(expsetup.stim.edata_reward_size_ml);
+    fprintf ('\nAdministered reward %i milliliters\n', round(reward_given))
+end

@@ -96,9 +96,6 @@ xy_texture_combined(1,2:2:num1*2)=x_texture_end;
 xy_texture_combined(2,1:2:num1*2)=y_texture_start;
 xy_texture_combined(2,2:2:num1*2)=y_texture_end;
 
-% Save the matrix for offline analysis and drawing
-% expsetup.stim.esetup_xy_texture_combined{tid} = xy_texture_combined;
-
     
 %% Flash for photodiode
 
