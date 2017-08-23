@@ -27,7 +27,7 @@ end
 
 %==============
 % Determine whether data was accepted
-if ~isnan(expsetup.stim.edata_memory_off(tid)==1
+if ~isnan(expsetup.stim.edata_memory_off(tid))
     cond1 = 1;
 else
     cond1 = -1; % Rejected trial, not analysed
@@ -93,10 +93,14 @@ if cond1>0
             h_2(k) = NaN;
         end
         
-        h_1 = removeNaN(max(h_1));
-        h_2 = removeNaN(min(h_2));
+        h_1 = max(h_1);
+        h_2 = min(h_2);
         h_max=h_1+((h_1-h_2)*0.2); % Upper bound
         h_min=h_2-((h_1-h_2)*0.2); % Lower bound
+        if h_max == h_min
+            h_max = h_max+1;
+            h_min = h_min-1;
+        end
     end
 else
     h_max = 1;

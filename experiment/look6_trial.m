@@ -1130,7 +1130,7 @@ if tid>=expsetup.stim.trial_abort_counter
         if ~strcmp(char,expsetup.general.quit_key')
             char='x';
             % Over-write older trials
-            expsetup.stim.edata_trial_abort_counter(ind1, q) = 2000;
+            expsetup.stim.edata_trial_abort_counter(ind1, 1) = 2000;
         end
     end
 end

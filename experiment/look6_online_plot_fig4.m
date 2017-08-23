@@ -2,7 +2,7 @@
 
 % plot_var1 = 'texture';
 % plot_var1 = 'memory';
-
+    
 fig_color = [9,10]; % Colors used for the figure
 
 % Select appropriate interval for plottings
@@ -30,11 +30,11 @@ else
     elseif strcmp(plot_var1, 'memory')
         spikes_matrix_1 = spikes_matrix_me;
     end
-    % Increase matrix size
-    [a,b,c,d] = size(spikes_matrix_1);
-    t1 = NaN(a+1, b, c, d);
-    t1(1:a, 1:b, 1:c, 1:d) = spikes_matrix_1;
-    spikes_matrix_1 = t1;
+% % % % % %     % Increase matrix size
+% % % % % %     [a,b,c,d] = size(spikes_matrix_1);
+% % % % % %     t1 = NaN(a+1, b, c, d);
+% % % % % %     t1(1:a, 1:b, 1:c, 1:d) = spikes_matrix_1;
+% % % % % %     spikes_matrix_1 = t1;
 end
 
 %==============
@@ -101,8 +101,9 @@ if strcmp(plot_var1, 'texture')
     
     legend1_values = cell(1);
     
-    % Create condition matrix
     expcond = NaN(1,numel(expsetup.stim.edata_error_code));
+   
+    % Create condition matrix
     ind1 = strcmp(expsetup.stim.edata_error_code, 'correct') & ...
         expsetup.stim.esetup_background_texture_on == 1;
     expcond(ind1) = 1;
@@ -160,7 +161,11 @@ color1_line=[]; color1_error=[];
 col_min = color1(fig_color(1),:); % Orientation 0
 col_max = color1(fig_color(2),:); % Orientation max
 d1 = col_max-col_min;
-stepsz = 1/(numel(legend1_values)-1);
+if numel(legend1_values)>1
+    stepsz = 1/(numel(legend1_values)-1); % One element less
+else
+    stepsz = 1;
+end
 for i=1:numel(legend1_values)
     color1_line(i,:)=col_min + (d1*stepsz)*(i-1);
 end
@@ -256,10 +261,14 @@ if sum(isnan(expcond))<numel(expcond)
             h_1(k) = NaN;
             h_2(k) = NaN;
         end
-        h_1 = removeNaN(max(h_1));
-        h_2 = removeNaN(min(h_2));
+        h_1 = max(h_1);
+        h_2 = min(h_2);
         h_max=h_1+((h_1-h_2)*0.4); % Uper bound
         h_min=h_2-((h_1-h_2)*0.3); % Lower bound
+        if h_max == h_min
+            h_max = h_max+1;
+            h_min = h_min-1;
+        end
     end
     
 else
@@ -331,11 +340,11 @@ if strcmp(plot_var1, 'memory')
     k = 1;
     
     % Plot legend text
-    if expsetup.stim.expmatrix(tid,em_blockcond) == 1
+    if expsetup.stim.esetup_block_cond(tid) == 1
         l1 = sprintf('Look, channel %d', sp_struct.ch1);
-    elseif expsetup.stim.expmatrix(tid,em_blockcond) == 2
+    elseif expsetup.stim.esetup_block_cond(tid) == 2
         l1 = sprintf('Avoid, channel %d', sp_struct.ch1);
-    elseif expsetup.stim.expmatrix(tid,em_blockcond) == 3
+    elseif expsetup.stim.esetup_block_cond(tid) == 3
         l1 = sprintf('Control, channel %d', sp_struct.ch1);
     end
     text(x1(k), y1(k), l1, 'Color', color1_line(k,:),  'FontSize', fontszlabel, 'HorizontalAlignment', 'right')
@@ -389,7 +398,6 @@ if strcmp(plot_var1, 'memory')
         text(0, -2, 'Mem pos', 'Color', color1_line(1,:),  'FontSize', fontszlabel, 'HorizontalAlignment', 'center')
     end
 end
-
 
 
 

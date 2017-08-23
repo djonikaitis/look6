@@ -42,8 +42,6 @@ if expsetup.general.plexon_online_spikes == 1
             sp_struct.(f1{i}) = spike_online_save(tid).(f1{i});
         end
         
-        % Get trial matrix for current trial
-        trialmat = expsetup.stim.trialmatrix{tid};
     end
 end
 

@@ -35,7 +35,7 @@ stim.st2_color_level_ini_step = -0.1;
 %% Quick settings
 
 % Specify target coordinates based on a RF mapping
-x = -4; y = -3;
+x = -5; y = -3;
 stim.target_spacing_arc = 90;
 
 % Defaults
