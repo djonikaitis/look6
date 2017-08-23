@@ -1,7 +1,6 @@
 % Get data from plexon
 
 num_ch1 = expsetup.general.plex_num_act_channels;
-save_online_spikes_v1 = 1;
 
 %==============
 % Connect two computers
@@ -73,21 +72,17 @@ end
 
 %% Save for debugging purposes
 
-if save_online_spikes_v1==1
-    
-    if tid==1
-        spike_online_save = struct;
-    else
-    end
-    
-    f1 = fieldnames(sp_struct);
-    for i = 1:numel(f1)
-        spike_online_save.(f1{i}) = sp_struct.(f1{i});
-    end
-    
-    dir1 = expsetup.general.directory_data_psychtoolbox_subject;
-    f_name = sprintf( 'trial_%s_%s%s', num2str(tid), expsetup.general.subject_filename,  '_spike_online_save');
-    d1 = sprintf('%s%s', dir1, f_name);
-    save (d1, 'spike_online_save');
+if tid==1
+    spike_online_save = struct;
+else
 end
+f1 = fieldnames(sp_struct);
+for i = 1:numel(f1)
+    spike_online_save.(f1{i}) = sp_struct.(f1{i});
+end
+
+dir1 = expsetup.general.directory_data_psychtoolbox_subject;
+f_name = sprintf( 'trial_%d_%s%s', texpsetup.general.subject_filename,  '_spike_online_save');
+d1 = sprintf('%s%s', dir1, f_name);
+save (d1, 'spike_online_save');
 

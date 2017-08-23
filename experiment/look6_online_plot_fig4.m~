@@ -31,15 +31,9 @@ else
         spikes_matrix_1 = spikes_matrix_me;
     end
     % Increase matrix size
-    [a,b,c,d] = size(spikes_matrix_1);
+    [~,b,c,d] = size(spikes_matrix_1);
     t1 = NaN(tid, b, c, d); % One trial - one row
-    if a==tid-1
-        t1(1:tid-1, 1:b, 1:c, 1:d) = spikes_matrix_1(1:tid-1, 1:b, 1:c, 1:d);
-    elseif a==tid
-        t1(1:tid-1, 1:b, 1:c, 1:d) = spikes_matrix_1(1:tid-1, 1:b, 1:c, 1:d);
-    else
-        error('spikes_matrix_1 size: it should not exceed or be less than trial number! (m<=tid)')
-    end
+    t1(1:tid-1, 1:b, 1:c, 1:d) = spikes_matrix_1;
     spikes_matrix_1 = t1;
 end
 

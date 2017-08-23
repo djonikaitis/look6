@@ -2,13 +2,14 @@
 % V2.1 Update as of May 16, 2017
 % V2.2 July 15, 2017: Improved compatability with new framework
 % V2.3 August 19, 2017: Finished compatibility with new framework
+% V2.4 August 23, 2017: Added helper functions folder to the path
 
 
 close all;
 clear all;
 clc;
 
-fprintf ('\nRun experiment file used is V2.3, update as of August 19, 2017\n\n')
+fprintf ('\nRun experiment file used is V2.4, update as of August 23, 2017\n\n')
  
 global expsetup
 global ni
@@ -16,7 +17,7 @@ global ni
 %% General settings to run the code
 
 expsetup.general.expname = 'look6';
-expsetup.general.exp_location = 'edoras'; % 'dj'; 'mbox'; 'edoras'; 'citadel';
+expsetup.general.exp_location = 'dj'; % 'dj'; 'mbox'; 'edoras'; 'citadel';
 expsetup.general.debug = 0; % 0: default; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
 
 % Devices and routines
@@ -41,7 +42,7 @@ expsetup.general.trials_before_saving = 10; % How many trials to run before savi
 % Plexon events
 expsetup.general.plex_event_start = 1; % Code saved as trial start
 expsetup.general.plex_event_end = 2; % Code saved as trial start
-expsetup.general.plex_trial_timeout_sec = 30; % How many seconds before plexon stops checking data
+expsetup.general.plex_trial_timeout_sec = 60; % How many seconds before plexon stops checking data
 expsetup.general.plex_data_rate = []; % At which rate data is collected (40000 Hz), determined during tcpip connection
 
 % Get subject name
@@ -128,12 +129,18 @@ eval(expsetup.general.code_computer_setup)
 %% Add the folder with experimental code to the path
 
 expsetup.general.directory_experiment_code = [expsetup.general.directory_baseline_code, expsetup.general.expname, '/experiment/'];
+expsetup.general.directory_helper_functions = [expsetup.general.directory_baseline_code, expsetup.general.expname, '/helper_functions/'];
 if isdir (expsetup.general.directory_experiment_code)
     addpath (expsetup.general.directory_experiment_code);
 else
     error ('Experiment name specified does not exist')
 end
 
+if isdir(expsetup.general.directory_helper_functions)
+    addpath(genpath(expsetup.general.directory_helper_functions));
+else
+    error ('Helper functions folder not added')
+end
 
 %% Create directories for data recording (main file)
 

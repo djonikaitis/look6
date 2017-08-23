@@ -142,7 +142,7 @@ drawnow;
 
 if save_plots == 1
     
-    dir1 = [expsetup.general.directory_baseline_data, expsetup.general.expname, '/figures_online_trials/', expsetup.general.subject_id, '/', expsetup.general.subject_filename, '/'];
+    dir1 = [expsetup.general.directory_baseline_data, expsetup.general.expname, '/figures_online/', expsetup.general.subject_id, '/', expsetup.general.subject_filename, '/'];
     if ~isdir (dir1)
         mkdir(dir1)
     end
@@ -157,55 +157,18 @@ end
 
 %% Draw data if it's the last trial in the block
 
-% If this is the last trial in the block
-if expsetup.stim.trial_error_repeat == 1
-    ind = strcmp(expsetup.stim.edata_error_code, 'correct') & expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid);
-else
-    ind = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid);
-end
-if sum(ind) == expsetup.stim.number_of_trials_per_block 
-    b_ch = 1;
-else
-    b_ch = 0;
-end
-
-% Plot each channel and save figures (by default)
-if b_ch == 1 && expsetup.general.plexon_online_spikes == 1
+if expsetup.general.plexon_online_spikes == 1
     
-    num_ch1 = expsetup.general.plex_num_act_channels;
+    set(hfig, 'units', 'normalized', 'position', [0.1, 0.1, 0.4, 0.4]);
+    fig_size = [0,0,5,5];
     
-    for ch_no = 1:numel(num_ch1) % For each hannel
-        
-        sp_struct.ch1 = ch_no; % For each hannel
-        
-        close all
-        hfig = figure;
-        set(hfig, 'units', 'normalized', 'position', [0.1, 0.1, 0.4, 0.4]);
-        fig_size = [0,0,5,5];
-        
-        % Fig 1
-        hfig = subplot(2,2,[1,2]); hold on
-        plot_var1 = 'memory';
-        look6_online_plot_fig4
-        
-        % Fig 2
-        hfig = subplot(2,2,[3,4]); hold on
-        plot_var1 = 'texture';
-        look6_online_plot_fig4
-        
-        % Save figure
-        dir1 = [expsetup.general.directory_baseline_data, expsetup.general.expname, '/figures_online_averages/', expsetup.general.subject_id, '/', expsetup.general.subject_filename, '/'];
-        if ~isdir (dir1)
-            mkdir(dir1)
-        end
-        file_name = [dir1, 'trial_' num2str(tid), '_channel_', num2str(sp_struct.ch1)];
-        set(gcf, 'PaperPositionMode', 'manual');
-        set(gcf, 'PaperUnits', 'inches');
-        set(gcf, 'PaperPosition', fig_size);
-        set(gcf, 'PaperSize', [fig_size(3), fig_size(4)])
-        print(file_name, '-dpdf');
-        
-    end
+    close all
+    hfig = figure;
+    
+    hfig = subplot(3,4,[5,6]); hold on
+    plot_var1 = 'memory';
+    look6_online_plot_fig4
+    
     
 end
 
