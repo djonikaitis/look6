@@ -35,11 +35,11 @@ stim.st2_color_level_ini_step = -0.1;
 %% Quick settings
 
 % Specify target coordinates based on a RF mapping
-x = -5; y = -3;
+x = -1; y = -9;
 stim.target_spacing_arc = 90;
 
 % Defaults
-stim.main_cond = [2,1]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
+stim.main_cond = [1,2]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(97:100)= 1; % Number of probes (= 1 or 2)
 stim.memory_delay_duration = [1.8:0.01:2.2]; % How long memory delay lasts

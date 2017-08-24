@@ -127,7 +127,7 @@ end
 
 if expsetup.general.plexon_online_spikes==1
     hfig = subplot(3,4,[7,8]); hold on
-    look6_online_plot_fig5
+%     look6_online_plot_fig5
 end
 
 
