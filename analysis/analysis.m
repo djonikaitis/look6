@@ -7,9 +7,9 @@ clear all;
 clc;
 close all;
 
-sN1 = 'hb'; % Subject name
+settings.subjects = 'hb'; % Subject name
 settings.exp_name = 'look6'; % Epxeriment name
-eval(sprintf('%s_settings', settings.exp_name)); % Load general settings
+% eval(sprintf('%s_settings', settings.exp_name)); % Load general settings
 
 
 %% Preprocessing: import data into usable format
@@ -17,22 +17,25 @@ eval(sprintf('%s_settings', settings.exp_name)); % Load general settings
 % Import raw data files of psychtoolbox, eyelink and plexon
 % This step should be default for most experiments
 
-% Creates a folder "combined" which contains combinded psychtoolbox and
-% eylinkd data 
-settings.preprocessing_psychtoolbox_import = 1;
-settings.overwrite = 1; % If 1, runs analysis again even if it was done 
-if settings.preprocessing_psychtoolbox_import == 1
-    look6_preprocessing_psychtoolbox_import;
+% Creates a folders "temp1" with edf data converted to .asc and 
+% "temp2" which contains matched psychtoolbox and
+% eylinkd data. This data is still raw.
+settings.preprocessing_import_files = 1;
+settings.overwrite = 0; % If 1, runs analysis again even if it was done 
+if settings.preprocessing_import_files == 1
+    preprocessing_import_files_v12(settings);
 end
 
-% % Combine settings and saccades files into one file; reset saccades to
-% % degrees of visual angle; do drift correction
-% settings.preprocessing_eyelink_conversion = 1;
-% settings.overwrite = 0; % If 1, runs analysis again even if it was done 
-% if settings.preprocessing_eyelink_conversion == 1
-%     look5_preprocessing_eyelink_conversion;
-% end
-% 
+% Creates a folder "temp3". Combines settings and saccades files into one file; 
+% reset saccades to degrees of visual angle; do drift correction
+% This file needs to be updated for each experiment
+settings.preprocessing_eyelink_conversion = 1;
+settings.overwrite = 1  ; % If 1, runs analysis again even if it was done 
+if settings.preprocessing_eyelink_conversion == 1
+    preprocessing_eyelink_conversion_v11(settings);
+end
+
+ 
 % % % Creates folder "combined_plexon" which contains all spikes, events etc
 % % settings.preprocessing_plexon_import = 0;
 % % settings.overwrite = 1; % If 1, runs analysis again even if it was done 

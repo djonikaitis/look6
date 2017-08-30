@@ -1,47 +1,48 @@
 % Defines conditions of interest and sets the colors for the paper
 
 
-%% All subjects used in the task
-
-% subjects{1}='aq';
-% subjects{2}='hb';
-
-if strcmp(sN1, 'all')
-    settings.subjects=subjects;
-else
-    settings.subjects{1}=sN1;
-end
-
-% Settings for preprocessing (conversion of edf, plexon files)
-settings.preprocessing_sessions_used = 2; % 1 - all sessions used; 2 - selected session used (denoted as date: 20161231); 3 - last session used;
-if settings.preprocessing_sessions_used ==2
-    settings.preprocessing_day_id = 20170506; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
-end
-
-
 %%  Initialize path to the experiment (will change on different computers);
 
 
 % "analysis" code is stored in:
 settings.path_baseline_code = sprintf('~/proj/experiments/');
 
-% "Experiments_data" folder with eyelink and psychtoolbox data is stored in:
-% settings.path_baseline_data = sprintf('~/data/neurophysiology/Experiments_data/');
+% "Experiments_data" folder with eyelink and psychtoolbox data:
 settings.path_baseline_data = sprintf('~/Dropbox/Experiments_data/');
-% settings.path_baseline_data = sprintf('/Volumes/group/tirin/data/RigE/Experiments_data');
 
-% "Experiments_data" folder, with plexon data is stored in:
-% (might differ from data_root folder due to large data file sizes)
+% "Experiments_data" folder, with plexon data:
+% (might differ from other psychtoolbox data folder due to large plexon file sizes)
 settings.path_baseline_plexon = sprintf('~/data/neurophysiology/Experiments_data/');
 
 % Path to plexon toolbox
 settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';
 
 
+%% All subjects used in the task
+
+s1{1}='aq';
+s1{2}='hb';
+
+if ~iscell(settings.subjects) && strcmp(settings.subjects, 'all')
+    settings.subjects = cell(1);
+    settings.subjects = s1;
+elseif ~iscell(settings.subjects)
+    a = settings.subjects;
+    settings.subjects = cell(1); 
+    settings.subjects{1} = a;
+else
+    % Do nothing
+end
+
+% Settings for preprocessing (conversion of edf, plexon files)
+settings.preprocessing_sessions_used = 1; % 1 - all sessions used; 2 - selected session used (denoted as date: 20161231); 3 - last session used;
+if settings.preprocessing_sessions_used ==2
+    settings.preprocessing_day_id = 20170822; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
+end
+
 
 %% Initialize all major paths
 % No changes needed at this part of the code
-
 
 % Analysis folder
 settings.path_code = sprintf('%s%s/',settings.path_baseline_code, settings.exp_name);
@@ -65,51 +66,52 @@ else
     fprintf('\nPlexon toolbox path not specified, will skip analysis of plexon files\n')
 end
 
-% Add folder for figures
-settings.path_figures = sprintf('%s%s/figures/', settings.path_baseline_code, settings.exp_name);
 
+%%  Folders where different data is stored
 
-% Folders where different data is stored
 % Names of folders
-settings.path_spec_names{1} = 'data_combined';
-settings.path_spec_names{2} = 'data_psychtoolbox';
-settings.path_spec_names{3} = 'data_eyelink_edf';
-settings.path_spec_names{4} = 'data_eyelink_asc';
-settings.path_spec_names{5} = 'data_plexon_mat';
-settings.path_spec_names{6} = 'data_plexon_raw';
-settings.path_spec_names{7} = 'data_combined_plexon';
-settings.path_spec_names{8} = 'data_spikes';
-% Path to folders (might differ for different data types, depends upon data storage demands)
-settings.path_spec_folder{1} = sprintf('%s%s/%s/', settings.path_baseline_data, settings.exp_name, settings.path_spec_names{1});
-settings.path_spec_folder{2} = sprintf('%s%s/%s/', settings.path_baseline_data, settings.exp_name, settings.path_spec_names{2});
-settings.path_spec_folder{3} = sprintf('%s%s/%s/', settings.path_baseline_data, settings.exp_name, settings.path_spec_names{3});
-settings.path_spec_folder{4} = sprintf('%s%s/%s/', settings.path_baseline_data, settings.exp_name, settings.path_spec_names{4});
-settings.path_spec_folder{5} = sprintf('%s%s/%s/', settings.path_baseline_plexon, settings.exp_name, settings.path_spec_names{5});
-settings.path_spec_folder{6} = sprintf('%s%s/%s/', settings.path_baseline_plexon, settings.exp_name, settings.path_spec_names{6});
-settings.path_spec_folder{7} = sprintf('%s%s/%s/', settings.path_baseline_data, settings.exp_name, settings.path_spec_names{7});
-settings.path_spec_folder{8} = sprintf('%s%s/%s/', settings.path_baseline_data, settings.exp_name, settings.path_spec_names{8});
+path_spec_names{1} = {'figures'; settings.path_baseline_code};
+path_spec_names{2} = {'data_combined'; settings.path_baseline_data};
+path_spec_names{3} = {'data_psychtoolbox'; settings.path_baseline_data};
+path_spec_names{4} = {'data_eyelink_edf'; settings.path_baseline_data};
+path_spec_names{5} = {'data_temp_1';  settings.path_baseline_data}; % Converted into .asc and .dat files
+path_spec_names{6} = {'data_temp_2'; settings.path_baseline_data}; % Combine saccades + psychtoolbox into one file
+path_spec_names{7} = {'data_temp_3'; settings.path_baseline_data}; % Converted eyelink data into deg
+path_spec_names{8} = {'data_plexon_mat'; settings.path_baseline_plexon};
+path_spec_names{9} = {'data_plexon_raw'; settings.path_baseline_plexon};
+path_spec_names{10} = {'data_combined_plexon'; settings.path_baseline_data};
+path_spec_names{11} = {'data_spikes'; settings.path_baseline_data};
 
 % Generate path names
-for i=1:length(settings.path_spec_names)
-    v1 = ['path_', settings.path_spec_names{i}];
-    settings.(v1) = settings.path_spec_folder{i};
+for i=1:numel(path_spec_names)
+    v1 = ['path_', path_spec_names{i}{1}];
+    v2 = sprintf('%s%s/%s/', path_spec_names{i}{2}, settings.exp_name,  path_spec_names{i}{1});
+    settings.(v1) = v2;
 end
 
+%% Drift correction settings
+
+% Drift correction settings
+settings.drift_correction_window_min = 0.3; % Min eye distance from fixation for drift correction (1/2 fixation size)
+settings.drift_correction_window_max = 'esetup_fixation_size_drift'; % Max eye distance from fixation for drift correction
+settings.drift_correction_sacc_amp = 0.5; % Max eye distance from fixation for drift correction
+settings.drift_correction_time = 'fixation_drift_maintained'; % Field used for drift correction
+settings.drift_correction_tstart = -110;
+settings.drift_correction_tend = -10;
+settings.drift_correction_trials = 10; % How many trials to use for drift correction
+settings.drift_correction_method = 'median'; % 'mean' or 'median'
 
 
 %% Shared settings for analysis
 
-
-settings.trial_total_threshold=1; % How many trials have to be at least in the bin
+settings.trial_total_threshold = 5; % How many trials have to be at least in the bin
 settings.tboot1 = 10000; % How many times to bootstrap?
 settings.p_level = 0.05; % P-value reported for signifficance
 settings.error_bars = 2; % 1 - bootstrap; 2 - sem;
 
 % How big figure is?
-settings.figsize=[0, 0, 2.2, 2.2];
-% settings.figsize=[0, 0, 1.8, 2.5]; % Temporary, for SFN
-
-% color1=[];
+settings.figsize_1col=[0, 0, 2.2, 2.2];
+settings.figsize_2col=[0, 0, 2.2, 4.4];
 
 % Settings for doing sliding window analysis
 settings.timestep=25;
@@ -119,7 +121,11 @@ settings.intervalbins_sacc=[-700:settings.timestep:100]; % Bins locked to saccad
 settings.bin_length=40; % Milisecconds used for each time bin (for sliding window size)
 settings.baseline_bin_count = 3; % How many time bins to use for moving average analysis
 
+settings.colormap = 'magma';
+
 %% Figure colors
+
+color1=[];
 
 %===========
 % Spikes, SRT
@@ -163,74 +169,44 @@ color1(42,:) = [1, 0, 0.1]; % Aborted trials
 color1(43,:) = [0.1, 0.5, 0.4]; % Correct trials
 
 
-
-
-% % % Trajectories
-% % 
-% % color1(11,:)=[0.2, 0.4, 1]; % Traject: free choice CCW
-% % d1 = [1,1,1]-color1(11,:);
-% % color1(12,:)=color1(11,:)+d1.*0.4; % Traject: free choice CW
-% % color1(13,:)=[0.05, 0.5, 0.4]; % Traject: rule choice CCW
-% % d1 = 1-color1(13,:);
-% % color1(14,:)=color1(13,:)+d1.*0.4; % Traject: rule choice CW
-% % 
-% % color1(15,:) = ; % Traject, -72 CCW
-% % d1 = 1-color1(15,:);
-% % color1(16,:)=color1(15,:)+d1.*0.4; % Traject: +72 CW
-% % color1(17,:) = [0, 0.8, 0.7]; % Traject -144 CCW
-% % d1 = 1-color1(17,:);
-% % color1(18,:)=color1(17,:)+d1.*0.4; % Traject: +144 CW
-% % 
-% % color1(19,:)=[1, 0, 0.1]; % Traject: errors, CCW
-% % d1 = 1-color1(19,:);
-% % color1(20,:)=color1(19,:)+d1.*0.4; % Traject: errors CW
-% % 
-% % % Short and long latencies
-% % color1(21,:) = [1, 0.7, 0]; % Saccade target, short latency
-% % d1 = 1-color1(21,:);
-% % color1(22,:)=color1(21,:)+d1.*0.4; % Long latency
-% % 
-% % color1(23,:) = [0.2, 0.8, 0.3]; % Non-chosen target, short latency
-% % d1 = 1-color1(23,:);
-% % color1(24,:)=color1(23,:)+d1.*0.4; % Long latency
-% % 
-% % color1(25,:)=[1, 0, 0.1]; % Error, short latency
-% % d1 = 1-color1(25,:);
-% % color1(26,:)=color1(25,:)+d1.*0.4; % Long latency
-% % 
-% % color1(27,:)=[0.6, 0.6, 0.6]; % Irrelevant, short latency
-% % d1 = 1-color1(27,:);
-% % color1(28,:)=color1(27,:)+d1.*0.4; % Long latency
-% % 
-% % 
-% % % Colors for different targets (green, blue);
-% % color1(29,:)=[0.2, 0.4, 1]; % Free choice
-% % color1(30,:)=[0.2, 0.8, 0.3]; % Non-chosen target
-% % color1(31,:)=[0.6, 0.6, 0.6]; % Irrelevant
-
-
 % ===============
 % Face color
 for i=1:size(color1,1)
     d1 = 1-color1(i,:);
-    facecolor1(i,:)=color1(i,:)+d1.*0.6;
+    face_color1(i,:)=color1(i,:)+d1.*0.6;
 end
-
 
 %============
 % Markers
-marker1{1}='o'; marker1{2}='o'; marker1{3}='o'; marker1{4}='o';
-marker1{5}='^'; marker1{6}='s'; marker1{7}='^'; marker1{8}='^';
-marker1{9}='o'; marker1{10}='o'; marker1{11}='o'; marker1{12}='o';
-marker1{13}='o'; marker1{14}='o'; marker1{15}='o';
- marker1{16}='o';  marker1{17}='o'; marker1{18}='o'; marker1{19}='o'; marker1{20}='o';
+marker1{1}='o';
+marker1{2}='o'; 
+marker1{3}='o'; 
+marker1{4}='o';
+marker1{5}='^'; 
+marker1{6}='s'; 
+marker1{7}='^'; 
+marker1{8}='^';
+marker1{9}='o'; 
+marker1{10}='o'; 
+marker1{11}='o'; 
+marker1{12}='o';
+marker1{13}='o'; 
+marker1{14}='o'; 
+marker1{15}='o';
+marker1{16}='o';  
+marker1{17}='o'; 
+marker1{18}='o'; 
+marker1{19}='o'; 
+marker1{20}='o';
 
- %============
+%============
 % All other
-settings.msize=3;
-settings.wlineerror=0.9; 
-settings.wlinegraph=1.8;
-settings.fontsz=8;
-settings.fontszlabel=8; % 10
+settings.msize = 3;
+settings.wlineerror = 0.9; 
+settings.wlinegraph = 1.8;
+settings.fontsz = 8;
+settings.fontszlabel = 8; % 10
 
-
+settings.color1 = color1;
+settings.face_color1 = face_color1;
+settings.marker1 = marker1;

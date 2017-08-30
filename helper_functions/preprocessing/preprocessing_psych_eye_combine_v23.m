@@ -16,15 +16,13 @@
 % V2.2 31 October 2016. Removed spike detection as it made too many
 % complications given plexon data formats. Now it deals with eyelink and
 % psychtoolbox data only.
+% V2.3 24 August 2017. Updated file for re-written exp design.
 %
 % Format:
-% preprocessing_psychtoolbox_v20 (settings, i_date, varargin)
-% settins: settings containing path to data folders;
-% i_date: current date to be analysed (f.e. 20160101). Takes only one date
-% at a time.
-% varargin text input: names of fields to be treated as special inputs to
-% be matched to eyelink input; This is due to differences in how expmatrix
-% and how eyelink data are saved (trial counts do not match on them).
+% preprocessing_psychtoolbox_v23 (settings, varargin)
+% settings: settings containing path to data folders;
+% varargin text input: names of structures (.stim usually) to be
+% concatenated as 1 trial - 1 row (1 cell)
 %
 % Associated codes necessary for this to work:
 % preprocessing_eye_edf2asc_v10
@@ -35,18 +33,7 @@
 % are necessary for the code to work
 
 
-function preprocessing_psychtoolbox_v22(settings, i_date, varargin)
-
-% %==============
-% % For debugging purposes initialize few variables
-
-% varargin{1}='stim.expmatrix';
-% varargin{2}='stim.trialmatrix';
-% varargin{3}='stim.refresh_rate_mat';
-% clear S;
-% try
-%     i_date = date_index(i_date);
-% end
+function preprocessing_psych_eye_combine_v23(settings, varargin)
 
 %==============
 
@@ -54,26 +41,28 @@ function preprocessing_psychtoolbox_v22(settings, i_date, varargin)
 % Right hand side of equation can be easily substituted with other folder
 % names wihtout rewriting the rest of this code
 
-settings.path_data_psychtoolbox = settings.path_data_psychtoolbox; % Psychtoolbox settings
-settings.path_data_eyelink_edf = settings.path_data_eyelink_edf; % Eyelink input
-settings.path_data_eyelink_asc = settings.path_data_eyelink_asc; % Eyelink output
-settings.path_data_output = settings.path_data_combined; % To which folder the data is saved
+settings.path_data_psychtoolbox = settings.path_data_psychtoolbox_subject; % Psychtoolbox settings
+settings.path_data_eyelink_edf = settings.path_data_eyelink_edf_subject; % Eyelink input
+settings.path_data_eyelink_asc = settings.path_data_temp_1_subject; % Eyelink output
+settings.path_data_output = settings.path_data_temp_2_subject; % To which folder the data is saved
 
-overwrite_saccades_EK2006 = 0; % 1 - will over-write saccade detection for EK algorithm
+overwrite_saccades_EK2003 = 0; % 1 - will over-write saccade detection for EK algorithm
 
 
 %% Do analysis
 
-ind_session = find(i_date==settings.index_dates);
+sessions_used = find(settings.date_current==settings.index_dates);
+i_date = settings.date_current;
 
 % Do analysis for each desired session
 % No changes needed for this section
-for i_session = 1:length(ind_session)
+for i_session = 1:numel(sessions_used)
     
+    % Which recorded to use
+    session_ind = sessions_used(i_session);
     
-    %% Folder name to be used
-    
-    folder_name = settings.index_directory{ind_session(i_session)};
+    % Folder name to be used
+    folder_name = settings.index_directory{session_ind};
     
     
     %% Load psychtoolbox data (no processing needed)
@@ -99,7 +88,6 @@ for i_session = 1:length(ind_session)
         var1 = varx.(f1{1});
     end
 
-    
     %  Save the path of loaded files
     var3 = struct;
     if isempty(fieldnames(var1))
@@ -119,7 +107,7 @@ for i_session = 1:length(ind_session)
     
     % General path setup
     path_in=[settings.path_data_eyelink_edf, folder_name, '/']; % Load edf file
-    path_out=[settings.path_data_eyelink_asc, folder_name, '/']; % Save into edf folder
+    path_out=[settings.path_data_eyelink_asc, folder_name, '/']; % Save into asc folder
     file_name = folder_name;
     
     if ~isdir(path_out)
@@ -132,9 +120,11 @@ for i_session = 1:length(ind_session)
     path_asc = sprintf('%s%s.asc', path_out, file_name); % Full path to .asc file
     path_edf = sprintf('%s%s.edf', path_in, file_name); % Full path to .asc file
     if ~exist (path_asc,'file') && exist (path_edf,'file') % If asc file doesn't exist - do the conversion
-        preprocessing_eye_edf2asc_v10(path_in, path_out, file_name) % Script doing conversion
+        preprocessing_eye_edf2asc_v11(path_in, path_out, file_name) % Script doing conversion
         if exist (path_asc,'file')
             fprintf ('\n\nFile %s.edf was converted to .asc and .dat files \n', file_name)
+        else
+            fprintf ('\n\n %s.edf conversion failed (no .asc and .dat files created) \n', file_name)
         end
     elseif ~exist (path_asc,'file') && ~exist (path_edf,'file')
         fprintf ('Eyelink files %s.edf does not exist, skipping edf conversion  \n', file_name)
@@ -151,7 +141,7 @@ for i_session = 1:length(ind_session)
     if ~exist (path_events,'file')
         path_asc = sprintf('%s%s.asc', path_out, file_name); % Full path to .asc file
         if exist (path_asc,'file')
-            preprocessing_eye_msg2tab_v20(path_out, file_name);
+            preprocessing_eye_msg2tab_v21(path_out, file_name);
         else
             fprintf ('.asc file does not exist. Can not proceed with event extraction\n')
         end
@@ -186,11 +176,11 @@ for i_session = 1:length(ind_session)
     
     
     % IF converted file does not exist, then do conversion
-    if ~exist (path_saccades_EK, 'file')  || overwrite_saccades_EK2006==1
+    if ~exist (path_saccades_EK, 'file')  || overwrite_saccades_EK2003==1
         
         path_dat = sprintf('%s%s.dat', path_out, file_name);  % Full path to .asc file
         
-        if exist (path_dat,'file')
+        if exist (path_dat,'file') && isfield(var4, 'eyelink_events')
             
             % Saccade detection settings
             const.SAMPRATE  = []; % Sampling rate of Eye Tracker
@@ -202,13 +192,17 @@ for i_session = 1:length(ind_session)
             const.trial_start = var4.eyelink_events.START;
             const.trial_end = var4.eyelink_events.END;
             
-            fprintf('Processing %s eye data based on Engbert & Kliegl (2006) algorithm \n', file_name);
-            preprocessing_eye_saccades_EK2003_v14(path_out, file_name, const); % Eye movement analysis
+            fprintf('Processing %s eye data based on Engbert & Kliegl (2003) algorithm \n', file_name);
+            tic
+            preprocessing_eye_saccades_EK2003_v15(path_out, file_name, const); % Eye movement analysis
+            a = toc;
+            a = round(a, 2);
+            fprintf('Time taken to extract saccades was %d seconds \n', a);
         else
             fprintf ('.dat file does not exist. Can not proceed with saccade detection\n')
         end
         if exist(path_saccades_EK,'file')
-            fprintf ('Prepared saccades file %s_saccades_EK based on Engbert & Kliegl (2006); conversion complete \n', file_name)
+            fprintf ('Prepared saccades file %s_saccades_EK based on Engbert & Kliegl (2003); conversion complete \n', file_name)
         end
     else
         fprintf ('Saccades file %s_saccades_EK already exist, no conversion done  \n', file_name)
@@ -221,7 +215,7 @@ for i_session = 1:length(ind_session)
         varx = struct;
     end
     
-    % Extract a structure which is in the var1
+    % Extract a structure which is in the varx
     var2 = struct;
     f1 = fieldnames(varx);
     if length(f1)==1
@@ -447,67 +441,69 @@ end
 
 %=============
 % Concatenate user input fields (done only for user input fields)
-% For example, expmatrix is concatenated to one row one trial form
+% For example, fields in .stim structure are concatenated as one row-one
+% trial
+
 
 if exist ('S', 'var')
     for i1=1:length(varargin)
         
-        b1=strsplit(varargin{i1}, '.');
+        f0 = varargin{i1};
+        f1 = fieldnames(S.(f0)); % Fields of that structure
         
-        if size(b1,2)==2
+        for i2 = 1:numel(f1)
             
-            mat1 = S.(b1{1}).(b1{2}); % Structure to be re-organized
+            mat1 = S.(f0).(f1{i2}); % Structure to be re-organized
             mat_s = S.session; % Structure with session numbers
             num_s = size(mat_s,1); % Total number of sessions tested
             
             % Extract dimensions from each field
-            dim1=NaN(size(S.session,1),1);
-            dim2=NaN(size(S.session,1),1);
-            dim3=NaN(size(S.session,1),1);
-            for rep1=1:num_s
-                if ndims(mat1{rep1})==2 % Get the size
-                    [dim1(rep1), dim2(rep1)] = size(mat1{rep1});
-                else
-                    error('Combining sessions is only possible for two dimensional matrix/structure')
-                end
-                dim3(rep1) = size(mat_s{rep1},1);
-            end
+            dim1_a = NaN(size(S.session,1),1);
+            dim1_b = NaN(size(S.session,1),1);
+            dim1_c = NaN(size(S.session,1),1);
+            dim_s = NaN(size(S.session,1),1);
             
-            % If the field size matches session size, concatenate it
-            if dim1==dim3 % Combine vertically
-                if length(unique(dim2))==1
-                    S.(b1{1}).(b1{2}) = cat(1, mat1{:});
+            for rep1=1:num_s
+                if ndims(mat1{rep1})<=3 % Get the size
+                    [dim1_a(rep1), dim1_b(rep1), dim1_c(rep1)] = size(mat1{rep1});
                 else
-                    S.(b1{1}).(b1{2}) = mat1; % No combining
+                    error('Combining sessions is only possible 3D, not 4D matrix/structure')
                 end
-            elseif dim2==dim3 % Combine horizontally
-                if length(unique(dim1))==1
-                    S.(b1{1}).(b1{2})= cat(2, mat1{:})'; % Flip to vertical, to keep up with conventions
-                else
-                    S.(b1{1}).(b1{2}) = mat1; % No combining
+                dim_s(rep1) = size(mat_s{rep1},1);
+                
+                
+                % If the field size matches session size, concatenate it
+                if dim1_a == dim_s % Combine vertically
+                    if length(unique(dim1_b))==1 && length(unique(dim1_c))==1
+                        S.(f0).(f1{i2}) = cat(1, mat1{:});
+                    else
+                        S.(f0).(f1{i2}) = mat1; % No combining
+                    end
+                elseif dim1_b == dim_s % Combine horizontally
+                    if length(unique(dim1_a))==1 && length(unique(dim1_c))==1
+                        S.(f0).(f1{i2})= cat(2, mat1{:})'; % Flip to vertical, to keep up with conventions
+                    else
+                        S.(f0).(f1{i2}) = mat1; % No combining
+                    end
                 end
                 
-            elseif dim1>=dim3  % Remove some rows if there are too many; Combine horizontally
-                if length(unique(dim2))==1
-                    for rep1=1:num_s
-                        x1 = mat1{rep1};
-                        x1 = x1(1:size(mat_s{rep1},1),:);
-                        mat1{rep1} = x1;
+                % If particular fields are missing, still concatenate by creating empty field
+                if any(dim1_a==0)
+                    for i=1:length(dim1_a)
+                        if dim1_a(i)==0 && ismatrix(S.(f0).(f1{i2}){i})
+                            S.(f0).(f1{i2}){i}=NaN(dim3(i),1);
+                        elseif dim1_a(i)==0 && iscell(S.(f0).(f1{i2}){i})
+                            S.(f0).(f1{i2}){i}=cell(dim3(i),1);
+                        end
                     end
-                    S.(b1{1}).(b1{2})=cat(1,mat1{1:end});
-                else
-                    S.(b1{1}).(b1{2}) = mat1;
+                    S.(f0).(f1{j})= cat(1, S.(f0).(f1{j}){:});
                 end
-            else
-                error ('Combining sessions was not prepared for this contingency')
+
             end
-            
-        else
-            error ('Combining matrices workds only for structure arrays at the moment')
-        end
-        
+                       
+        end            
+     
     end
-    
     
     S.session = cat(1,S.session{1:end});
     S.date = cat(1,S.date{1:end});
@@ -604,7 +600,7 @@ end
 
 if exist('S', 'var')
     
-    folder_name = [settings.subject_name, num2str(i_date)];
+    folder_name = [settings.subject_current, num2str(settings.date_current)];
     path1=[settings.path_data_output, folder_name, '/'];
     
     if isdir(path1)
@@ -629,6 +625,7 @@ if exist('S', 'var')
     % Output
     fprintf('Preprocessed data successfully saved under following name:\n')
     fprintf ('%s\n', path1)
+    
 else
     fprintf('Data for given day did not exist, no files saved\n')
 end

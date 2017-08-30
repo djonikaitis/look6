@@ -9,11 +9,11 @@
 % "/Applications/EyeLink/EDF_Access_API/Example/"
 % Otherwise this analysis wont work
 %
-% DJ V1.0 September 6, 2016. Initial version
+% V1.0 September 6, 2016. Initial version
+% V1.1 February 5, 2017. Corrected bug in which file conversion fails and
+% crashes the code.
 
-
-
-function preprocessing_eye_edf2asc_v10(path_in, path_out, file_name)
+function preprocessing_eye_edf2asc_v11(path_in, path_out, file_name)
 
 
 % Create .dat file
@@ -25,8 +25,13 @@ catch
 end
 % Convert and move .asc file into .dat file
 path_1 = sprintf('%s%s.asc', path_in, file_name);
-path_2 = sprintf('%s%s.dat', path_out, file_name);
-movefile(sprintf('%s',path_1), sprintf('%s',path_2))
+if exist (path_1,'file')
+    path_2 = sprintf('%s%s.dat', path_out, file_name);
+    movefile(sprintf('%s',path_1), sprintf('%s',path_2))
+else
+    % Skip it without crashing code
+end
+
 
 % Create .asc file
 try
@@ -36,7 +41,11 @@ catch
 end
 % Move .asc file into it's folder
 path_1 = sprintf('%s%s.asc', path_in, file_name);
-path_2 = sprintf('%s%s.asc', path_out, file_name);
-movefile(sprintf('%s',path_1), sprintf('%s',path_2));
+if exist (path_1,'file')
+    path_2 = sprintf('%s%s.asc', path_out, file_name);
+    movefile(sprintf('%s',path_1), sprintf('%s',path_2));
+else
+    % Skip it, without crashing code
+end
 
 

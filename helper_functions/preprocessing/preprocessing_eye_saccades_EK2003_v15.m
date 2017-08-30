@@ -1,7 +1,7 @@
 % Extract saccades using Engbert & Kliegl (2003) code
 %
 % path 1: path in which .dat file is stored and output is saved
-% file_name: basic filename (typically initials + date)
+% file_name: basic filename (typically initials + date). 
 % const : struct containing info needed for analysis
 %
 % output is a matrix containing all saccades, as many rows as there are saccades;
@@ -25,9 +25,10 @@
 % v12: March 28, 2016 Now removes ... message notation at the 5th column of the .dat file
 % v13: August 26, 2016 Rewrote the file completely. Simplified desing. 
 % v14: September 5, 2016 Removes blink detection into separate code.
+% v15: February 23, 2017 Changed blink threshold (5 samples instead of 10) to match human psychophysics better
 
 
-function preprocessing_eye_saccades_EK2003_v14 (path1, file_name, const)
+function preprocessing_eye_saccades_EK2003_v15 (path1, file_name, const)
 
 % % For debugging purposes only, use only once
 % path1 = path_out;
@@ -106,7 +107,7 @@ for i_trial = 1:(size(trial_start,1))
     if missing_data==0 && ~isempty(t_time)
         
         % Remove blinks
-        [t_pupil, t_pos] = blink_detect_v10(t_pupil_old, t_pos_old, 10);
+        [t_pupil, t_pos] = blink_detect_v11(t_pupil_old, t_pos_old, 5);
 
         % Gety saccades, in case there is no data, just return empty ms
         % matrix
@@ -116,7 +117,7 @@ for i_trial = 1:(size(trial_start,1))
             ms = preprocessing_eye_saccpar_v10(ms);
         catch
             % This catches trial if saccades can not be
-            % caluclated (such as blink through whole trial)
+            % calculated (such as blink through whole trial)
             ms = [];
         end
         

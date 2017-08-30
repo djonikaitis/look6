@@ -14,9 +14,11 @@
 % structure: MSG text time. This extracts default eyelink messages and user
 % generated messages. The big change is that it does not need user input to
 % specify which messages to read out.
+% v2.1 February 3, 2017: Fixes the bug in which START or END messages might
+% be missing (corrupt edf file)
 
 
-function preprocessing_eye_msg2tab_v20(path_in, file_name)
+function preprocessing_eye_msg2tab_v21(path_in, file_name)
 
 
 
@@ -115,100 +117,107 @@ end
 % Setup trial start and trial end times
 index1 = strcmp(events.msg, 'START');
 index2 = strcmp(events.msg, 'END');
+skip_file = 0;
 if sum(index1)~=sum(index2)
-    error ('trial start and trial end time count mismatch, no contingency plan at the moment')
+    fprintf ('Extracting eyelink messages: START and END count mismatch. Skipping this file')
+    skip_file = 1;
+elseif sum(index1)==0 || sum(index2)==0
+    fprintf ('Extracting eyelink messages: START and END messages dont exist. Skipping this file')
+    skip_file = 1;
 end
 
-% Create structure which contains each message as a field
-unique_fields = unique(events.msg);
-temp1 = struct;
-for j=1:length(unique_fields)
-    index1 = strcmp(events.msg, unique_fields{j});
-    time1 = events.time(index1);
-    try
-        temp1.(unique_fields{j})=time1;
-    catch % Some messages might start with illegal character, possible to save them
-        % name1 = ['unknown_fieldname_', num2str(j)];
-        % temp1.(name1) = time1;
-    end
-end
+if skip_file == 0 % If all is ok with start and end messages 
     
-% Remove message field if they are contain no timestamps
-% This might happen if message contains other info, like calibration
-% coordinates
-unique_fields = fieldnames(temp1);
-a=cell(1);
-for j=1:length(unique_fields)
-    if isempty(temp1.(unique_fields{j}))
-        if isempty(a{1})
-            a{1} = unique_fields{j};
-        else
-            a{end+1} = unique_fields{j};
+    % Create structure which contains each message as a field
+    unique_fields = unique(events.msg);
+    temp1 = struct;
+    for j=1:length(unique_fields)
+        index1 = strcmp(events.msg, unique_fields{j});
+        time1 = events.time(index1);
+        try
+            temp1.(unique_fields{j})=time1;
+        catch % Some messages might start with illegal character, possible to save them
+            % name1 = ['unknown_fieldname_', num2str(j)];
+            % temp1.(name1) = time1;
         end
     end
-end
-if ~isempty(a{1})
-    temp1 = rmfield(temp1, a);
-end
     
-    
-% Create a structure with 1 line per 1 trial of messages
-% At the moment 1 timestamp per message only
-
-t_start = temp1.START; % trial start
-t_end = temp1.END; % trial end
-
-unique_fields = fieldnames(temp1);
-temp2 = struct;
-
-for j= 1:length(unique_fields)
-    m_in = temp1.(unique_fields{j});
-    m_out = NaN(length(t_start),1);
-    for i=1:length(t_start)
-        index = m_in>=t_start(i) & m_in<=t_end(i);
-        if sum(index)>=1
-            a = m_in(index);
-            m_out(i)=a(1); % If multiple messages, save ONLY first one
+    % Remove message field if they are contain no timestamps
+    % This might happen if message contains other info, like calibration
+    % coordinates
+    unique_fields = fieldnames(temp1);
+    a=cell(1);
+    for j=1:length(unique_fields)
+        if isempty(temp1.(unique_fields{j}))
+            if isempty(a{1})
+                a{1} = unique_fields{j};
+            else
+                a{end+1} = unique_fields{j};
+            end
         end
     end
-    temp2.(unique_fields{j})=m_out;
-end
+    if ~isempty(a{1})
+        temp1 = rmfield(temp1, a);
+    end
     
-% Remove message field if they contain no timestamps
-unique_fields = fieldnames(temp2);
-a=cell(1);
-t_start = temp2.START;
-for j=1:length(unique_fields)
-    index = isnan(temp2.(unique_fields{j}));
-    if sum(index)==length(t_start)
-        if isempty(a{1})
-            a{1} = unique_fields{j};
-        else
-            a{end+1} = unique_fields{j};
+    
+    % Create a structure with 1 line per 1 trial of messages
+    % At the moment 1 timestamp per message only
+    
+    t_start = temp1.START; % trial start
+    t_end = temp1.END; % trial end
+    
+    unique_fields = fieldnames(temp1);
+    temp2 = struct;
+    
+    for j= 1:length(unique_fields)
+        m_in = temp1.(unique_fields{j});
+        m_out = NaN(length(t_start),1);
+        for i=1:length(t_start)
+            index = m_in>=t_start(i) & m_in<=t_end(i);
+            if sum(index)>=1
+                a = m_in(index);
+                m_out(i)=a(1); % If multiple messages, save ONLY first one
+            end
+        end
+        temp2.(unique_fields{j})=m_out;
+    end
+    
+    % Remove message field if they contain no timestamps
+    unique_fields = fieldnames(temp2);
+    a=cell(1);
+    t_start = temp2.START;
+    for j=1:length(unique_fields)
+        index = isnan(temp2.(unique_fields{j}));
+        if sum(index)==length(t_start)
+            if isempty(a{1})
+                a{1} = unique_fields{j};
+            else
+                a{end+1} = unique_fields{j};
+            end
         end
     end
+    if ~isempty(a{1})
+        temp2 = rmfield(temp2, a);
+    end
+    
+    temp2.sampling_frequency = events.sampling_frequency;
+    eyelink_events = temp2;
+    
+    
+    %% Save events structure
+    
+    % Check whether sampling frequency is uniform and terminate file it is
+    % not. If sampling is fine, then save the file
+    a=unique(eyelink_events.sampling_frequency);
+    if length(a)>1
+        error ('Non-uniform sampling freqency. No contingency plan at the moment')
+    elseif length(a)==1
+        path1 = sprintf('%s%s_events.mat', path_in, file_name);
+        save (eval('path1'), 'eyelink_events')
+    end
+    
 end
-if ~isempty(a{1})
-    temp2 = rmfield(temp2, a);
-end
-
-temp2.sampling_frequency = events.sampling_frequency;
-eyelink_events = temp2;
-
-
-%% Save events structure
-
-% Check whether sampling frequency is uniform and terminate file it is
-% not. If sampling is fine, then save the file
-a=unique(eyelink_events.sampling_frequency);
-if length(a)>1
-    error ('Non-uniform sampling freqency. No contingency plan at the moment')
-elseif length(a)==1
-    path1 = sprintf('%s%s_events.mat', path_in, file_name);
-    save (eval('path1'), 'eyelink_events')
-end
-
-
 
 
 
