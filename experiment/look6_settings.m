@@ -28,14 +28,21 @@ stim.fixation_maintain_duration_ini_step = -0.1;
 
 % Stage 'luminance change'
 % Use stimulus luminance for interleaving blocks
-stim.st2_color_level_ini = 0.6;
+if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
+    stim.st2_color_level_ini = 0.9;
+elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
+    stim.st2_color_level_ini = 0.3;
+elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'jw')
+    stim.st2_color_level_ini = 0.0;
+end
 stim.st2_color_level_ini_step = -0.1;
 
 
 %% Quick settings
 
 % Specify target coordinates based on a RF mapping
-x = -1; y = -9;
+x = -5;
+y = -5;
 stim.target_spacing_arc = 90;
 
 % Defaults
@@ -44,7 +51,7 @@ stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(97:100)= 1; % Number of probes (= 1 or 2)
 stim.memory_delay_duration = [1.8:0.01:2.2]; % How long memory delay lasts
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
-stim.number_of_trials_per_block = 150;
+stim.number_of_trials_per_block = 200;
 stim.number_of_blocks = 4;
 stim.main_cond_shuffle = 2; % 1 - shuffle, 2 - preset order
 
@@ -72,7 +79,7 @@ stim.response_t3_coord  = stim.response_target_coord;
 stim.reward_coeff1 = [881.4887   -3.3301]; % Pump reward measure as of 10.19.2016
 
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.reward_size_ml = 0.25; % Typical reward to start with
+    stim.reward_size_ml = 0.28; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
     stim.reward_size_ml = 0.16; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'jw')
