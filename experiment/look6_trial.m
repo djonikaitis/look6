@@ -680,6 +680,7 @@ while loop_over==0
         a = expsetup.stim.fixation_drift_maintain_maximum - expsetup.stim.fixation_drift_maintain_minimum;
         t1 = round(a/expsetup.screen.ifi);
         ind1 = (c1_frame_index1 - t1 + 1 : 1 : c1_frame_index1);
+        ind1 (ind1<=0) = []; % In case theres problem with refresh rates, remove neg frames
         if numel(ind1)>1
             % Data points with recorded saccade position
             x1 = expsetup.stim.eframes_eye_x{tid}(ind1,1);
