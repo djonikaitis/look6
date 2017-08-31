@@ -392,7 +392,6 @@ stim.edata_eyelinkscreen_fixation = NaN; % Fixation after drift correction is do
 stim.edata_eyelinkscreen_memory = NaN;
 stim.edata_eyelinkscreen_st1 = NaN;
 stim.edata_eyelinkscreen_st2 = NaN;
-stim.edata_eyelinkscreen_distractor = NaN;
 
 % Monitoring performance
 stim.edata_error_code{1} = NaN;

@@ -813,17 +813,10 @@ while loop_over==0
                 if strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train luminance') || ...
                         strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train position') || ...
                         strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor on')
-                    %==
-                    if expsetup.stim.eframes_eye_target{tid}(c1_frame_index1, 1) ==2
-                        expsetup.stim.edata_error_code{tid} = 'looked at distractor';
-                    elseif expsetup.stim.eframes_eye_target{tid}(c1_frame_index1, 1) ~= 1
-                        expsetup.stim.edata_error_code{tid} = 'broke fixation';
-                    end
-                    %==
                 else
-                    if expsetup.stim.eframes_eye_target{tid}(c1_frame_index1, 1) ~= 1
-                        expsetup.stim.edata_error_code{tid} = 'broke fixation';
-                    end
+                                    if expsetup.stim.eframes_eye_target{tid}(c1_frame_index1, 1) ~= 1
+                    expsetup.stim.edata_error_code{tid} = 'broke fixation';
+                end
                 end
                 %==============
 
@@ -915,7 +908,7 @@ while loop_over==0
     end
     
     % Record what kind of button was pressed
-    if strcmp(char,'c') || strcmp(char,'p') || strcmp(char,'r') || strcmp(char,'space') || strcmp(char, expsetup.general.quit_key)
+    if strcmp(char,'c') || strcmp(char,'p') || strcmp(char,'r') || strcmp(char, expsetup.general.quit_key)
         expsetup.stim.edata_error_code{tid} = 'experimenter terminated the trial';
     end
 
@@ -1025,16 +1018,6 @@ if strcmp(expsetup.stim.esetup_exp_version{tid}, 'delay increase') || strcmp(exp
         strcmp(expsetup.stim.esetup_exp_version{tid}, 'added probe trials') || ...
         strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance equal') ...
         strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance equal')
-    %==========
-    if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
-        expsetup.stim.edata_trial_online_counter(tid,1) = 1;
-    elseif strcmp(expsetup.stim.edata_error_code{tid}, 'looked at st2') || strcmp(expsetup.stim.edata_error_code{tid}, 'experimenter terminated the trial')
-        expsetup.stim.edata_trial_online_counter(tid,1) = 2;
-    end
-    %=========
-elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train luminance') || ...
-        strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train position') || ...
-        strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor on')
     %==========
     if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
         expsetup.stim.edata_trial_online_counter(tid,1) = 1;
@@ -1165,7 +1148,7 @@ else % Error trials
     trial_duration = expsetup.stim.trial_dur_intertrial_error;
 end
 
-if strcmp(char,'x') || strcmp(char,'r') || strcmp(char,'c') || strcmp(char,'p') || strcmp(char,'space')
+if strcmp(char,'x') || strcmp(char,'r')
     endloop_skip = 1;
 else
     endloop_skip = 0;
@@ -1182,7 +1165,7 @@ while endloop_skip == 0
     end
     
     % Give reward
-    if strcmp(char,'space') || strcmp(char,'r')
+    if (strcmp(char,'space') || strcmp(char,'r'))
         
         % Prepare reward signal
         if expsetup.general.reward_on==1
@@ -1203,11 +1186,6 @@ while endloop_skip == 0
             expsetup.stim.edata_reward_size_ms(tid,1)=expsetup.stim.reward_size_ms;
             expsetup.stim.edata_reward_size_ml(tid,1)=expsetup.stim.reward_size_ml;
         end
-        
-        % End loop
-        endloop_skip=1;
-        
-    elseif strcmp(char,'x') || strcmp(char,'p')) || strcmp(char,'c')
         
         % End loop
         endloop_skip=1;

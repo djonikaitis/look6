@@ -54,6 +54,17 @@ sz1 = expsetup.stim.esetup_target_size_eyetrack(tid,1:4).*2;
 st2_rect_eyelink = runexp_convert_deg2pix_rect_v10(coord1, sz1); % One column - one object;
 
 
+%% Distractor location
+
+coord1 = expsetup.stim.esetup_distractor_coord(tid,:); % One column, one object
+sz1 = expsetup.stim.esetup_target_size(tid,1:4);
+dist_rect = runexp_convert_deg2pix_rect_v10(coord1, sz1); % Output - one column - one object;
+
+% Size for eyelink tracking
+sz1 = expsetup.stim.esetup_target_size_eyetrack(tid,1:4).*2;
+dist_rect_eyelink = runexp_convert_deg2pix_rect_v10(coord1, sz1); % One column - one object;
+
+
 %% Reward feedback picture
 
 if expsetup.stim.reward_feedback==1

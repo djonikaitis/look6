@@ -248,18 +248,31 @@ a = Shuffle(1:size(expsetup.stim.response_t3_coord,1));
 temp1 = expsetup.stim.response_t3_coord(a,:);
 st3 = temp1(1,1:2);
 
+
 % ST2 color, varies as a stage of training. For look/avoid task ST2 color
 % level and step is the same.
 %=========
-if strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change') ||...
-        strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') ||...
-        strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change')
+% Modified part
+ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+ind1 = find(ind0==1);
+if strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change')
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'luminance change');
+elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change')
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'look luminance change');
+elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change')
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'avoid luminance change');
+else
+    ind0=0; % For other conditions will plot same target/distractor level
+end
+ind2 = find(ind0==1);
+if ind1>ind2
+    temp1 = Shuffle(expsetup.stim.st2_color_level);
+elseif ind1==ind2
     temp1 = Shuffle(tv1(1).temp_var_current);
     var_copy.esetup_st2_color_level = temp1(1); % Copy variable for error trials
-else
+elseif ind1<ind2
     temp1 = Shuffle(expsetup.stim.st2_color_level);
 end
-
 % End of fixed part
 %===========
 expsetup.stim.esetup_st2_color_level(tid) = temp1(1);
