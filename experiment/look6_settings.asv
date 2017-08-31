@@ -6,7 +6,7 @@
 
 %% Different training stages have different stim durations
 
-stim.exp_version_temp = 'luminance change'; % Version you want to run
+stim.exp_version_temp = 'distractor train luminance'; % Version you want to run
 
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
@@ -338,7 +338,8 @@ stim.esetup_memory_delay = NaN; % Delay duration
 
 % Distractor
 stim.esetup_distractor_coord(1,1:2) = NaN;
-stim.esetup_distractor_coord_x = NaN;
+stim.esetup_distractor_coord_x = -4;
+
 stim.esetup_distractor_color(1,1:3) = NaN; % SOA between t1 & t2
 stim.esetup_distractor_color_level = NaN;
 stim.esetup_distractor_probability = NaN;

@@ -342,10 +342,13 @@ if ind1>ind2
 elseif ind1==ind2
     temp1 = Shuffle(tv1(1).temp_var_current);
     var_copy.esetup_distractor_coord(1,1:2) = [temp1(1),0]; % Copy variable for error trials
+    var_copy.esetup_distractor_coord_x(1,1) = temp1(1); % Copy variable for error trials
     expsetup.stim.esetup_distractor_coord(tid,1:2) = [temp1(1),0];
+    expsetup.stim.esetup_distractor_coord_x(tid,1) = temp1(1);
 elseif ind1<ind2
     temp1 = Shuffle(expsetup.stim.distractor_coord_x_ini);
     expsetup.stim.esetup_distractor_coord(tid,1:2) = [temp1(1),0];
+    expsetup.stim.esetup_distractor_coord_x(tid,1) = temp1(1);
 end
 %=============
 

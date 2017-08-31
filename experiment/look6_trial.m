@@ -336,7 +336,7 @@ while loop_over==0
                 expsetup.stim.esetup_distractor_probability(tid) == 1
             
             % Properties
-            sh1 = expsetup.distractor_shape;
+            sh1 = expsetup.stim.distractor_shape;
             c1 = expsetup.stim.esetup_distractor_color(tid,:);
             p1 = expsetup.stim.distractor_pen_width;
             r1 = dist_rect;
@@ -1021,9 +1021,9 @@ fprintf('Trial evaluation: %s\n', expsetup.stim.edata_error_code{tid})
 % some cases correct trials can be discounted.
 
 if strcmp(expsetup.stim.esetup_exp_version{tid}, 'delay increase') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'final version') ||...
-        strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance equal') ...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance equal') || ...
         strcmp(expsetup.stim.esetup_exp_version{tid}, 'added probe trials') || ...
-        strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance equal') ...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance equal') || ...
         strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance equal')
     %==========
     if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
@@ -1207,7 +1207,7 @@ while endloop_skip == 0
         % End loop
         endloop_skip=1;
         
-    elseif strcmp(char,'x') || strcmp(char,'p')) || strcmp(char,'c')
+    elseif strcmp(char,'x') || strcmp(char,'p') || strcmp(char,'c')
         
         % End loop
         endloop_skip=1;

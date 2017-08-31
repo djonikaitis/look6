@@ -43,7 +43,7 @@ if strcmp(expsetup.stim.exp_version_temp, 'distractor train position')
     tv1(1).temp_var_final = nanmean(expsetup.stim.distractor_coord_x);
     tv1(1).temp_var_ini = expsetup.stim.distractor_coord_x_ini;
     tv1(1).temp_var_ini_step = expsetup.stim.distractor_coord_x_ini_step;
-    tv1(1).name = 'distractor x coordinate';
+    tv1(1).name = 'esetup_distractor_coord_x';
     tv1(1).temp_var_current = NaN; % This value will be filed up
 end
 

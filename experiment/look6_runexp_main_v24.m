@@ -18,7 +18,7 @@ global ni
 
 expsetup.general.expname = 'look6';
 expsetup.general.exp_location = 'edoras'; % 'dj'; 'mbox'; 'edoras'; 'citadel';
-expsetup.general.debug = 0; % 0: default; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
+expsetup.general.debug = 1; % 0: default; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
 
 % Devices and routines
 expsetup.general.record_plexon = 0;  % 0 - no recording; 1 - yes recording;
