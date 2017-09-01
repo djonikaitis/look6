@@ -53,7 +53,7 @@ if expsetup.general.plexon_online_spikes == 1
     if num_ch1==1
         sp_struct.ch1 = 1;
     elseif num_ch1>1
-        a = randperm(numel(num_ch1));
+        a = randperm(numel(1:num_ch1));
         sp_struct.ch1 = a(1);
     end
 end
@@ -174,9 +174,9 @@ if b_ch == 1 && expsetup.general.plexon_online_spikes == 1
     
     num_ch1 = expsetup.general.plex_num_act_channels;
     
-    for ch_no = 1:numel(num_ch1) % For each hannel
+    for i_ch = 1:num_ch1 % For each hannel
         
-        sp_struct.ch1 = ch_no; % For each hannel
+        sp_struct.ch1 = i_ch; % For each hannel
         
         close all
         hfig = figure;

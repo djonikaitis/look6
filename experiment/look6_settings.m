@@ -61,7 +61,7 @@ stim.distractor_coord_x = -4;
 
 % Specify target coordinates based on a RF mapping
 x = -5;
-y = -5;
+y = -3;
 stim.target_spacing_arc = 90;
 
 % Defaults
