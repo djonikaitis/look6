@@ -7,7 +7,7 @@ window = expsetup.screen.window;
 % This is specific to only luminance changes; This works for interleaved
 % tasks only
 
-if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance equal'))
+if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'task switch luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'task switch luminance equal'))
     if expsetup.stim.trial_error_repeat == 1
         ind = strcmp(expsetup.stim.edata_error_code, 'correct') & expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
     else
@@ -17,17 +17,17 @@ if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance change')
         a = expsetup.stim.esetup_exp_version{tid-1};
         ind1 = strcmp(expsetup.stim.training_stage_matrix, a);
         ind1 = find(ind1==1);
-        if strcmp(a, 'luminance change')
+        if strcmp(a, 'task switch luminance change')
             if ind1-1>=1
                 b = expsetup.stim.training_stage_matrix{ind1-1};
             else
-                error('Exp version before "luminance change" has to be defined')
+                error('Exp version before "task switch luminance change" has to be defined')
             end
-        elseif strcmp(a, 'luminance equal')
+        elseif strcmp(a, 'task switch luminance equal')
             if ind1-2>=1
                 b = expsetup.stim.training_stage_matrix{ind1-2};
             else
-                error('Exp version before "luminance change" has to be defined')
+                error('Exp version before "task switch luminance change" has to be defined')
             end
         end
         expsetup.stim.exp_version_update_next_trial = 1; % Update next trial
@@ -828,11 +828,24 @@ while loop_over==0
                 %==============
 
             elseif timer1_now - timer1_start >= timer1_duration % Record an error
+                % SPECIAL CASE: for fix training terminate the trial
+                if strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase') || ...
+                        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable')
+                    % Terminate the trial
+                    expsetup.stim.edata_error_code{tid} = 'correct';
+                end
                 expsetup.stim.edata_fixation_maintained(tid,1) = timer1_now;
                 Eyelink('Message', 'fixation_maintained');
+                
             end
         elseif expsetup.general.recordeyes==0
             if timer1_now - timer1_start >= timer1_duration % Record an error
+                % SPECIAL CASE: for fix training terminate the trial
+                if strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase') || ...
+                        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable')
+                    % Terminate the trial
+                    expsetup.stim.edata_error_code{tid} = 'correct';
+                end
                 expsetup.stim.edata_fixation_maintained(tid,1) = timer1_now;
             end
         end
@@ -1021,7 +1034,7 @@ fprintf('Trial evaluation: %s\n', expsetup.stim.edata_error_code{tid})
 % some cases correct trials can be discounted.
 
 if strcmp(expsetup.stim.esetup_exp_version{tid}, 'delay increase') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'final version') ||...
-        strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance equal') || ...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance equal') || ...
         strcmp(expsetup.stim.esetup_exp_version{tid}, 'added probe trials') || ...
         strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance equal') || ...
         strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance equal')
@@ -1039,6 +1052,15 @@ elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train luminance
     if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
         expsetup.stim.edata_trial_online_counter(tid,1) = 1;
     elseif strcmp(expsetup.stim.edata_error_code{tid}, 'looked at distractor') || strcmp(expsetup.stim.edata_error_code{tid}, 'experimenter terminated the trial')
+        expsetup.stim.edata_trial_online_counter(tid,1) = 2;
+    end
+    %=========
+elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase') || ...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable')
+    %==========
+    if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
+        expsetup.stim.edata_trial_online_counter(tid,1) = 1;
+    elseif strcmp(expsetup.stim.edata_error_code{tid}, 'broke fixation') || strcmp(expsetup.stim.edata_error_code{tid}, 'experimenter terminated the trial')
         expsetup.stim.edata_trial_online_counter(tid,1) = 2;
     end
     %=========

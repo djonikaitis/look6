@@ -6,26 +6,31 @@
 
 %% Different training stages have different stim durations
 
-stim.exp_version_temp = 'luminance change'; % Version you want to run
+stim.exp_version_temp = 'look luminance change'; % Version you want to run
 
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
 else
 end
 stim.training_stage_matrix = {...
+    'fix duration increase', 'fix duration stable', ...
     'look luminance change', 'look luminance equal', ...
     'avoid luminance change', 'avoid luminance equal',...
     'delay increase', 'added probe trials',...
-    'luminance change', 'luminance equal', ...
+    'task switch luminance change', 'task switch luminance equal', ...
     'distractor train luminance', 'distractor train position', 'distractor on'...
     'final version'};
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
 
-% Stage 'fixation training'. Learn to fixate while memory target is flashed.
-% Stage 'look'. Learn to do look task.
-% Stage 'avoid'. Learn to do avoid task.
-% Stage 'luminance change'. Tasks interleaved, using stimulus luminance
+% Stage 'fixation duration increase/stable'. Learn to fixate while memory target is flashed.
+% Stage 'look luminance change/equal'. Learn to do look task while luminance of st2 changes
+% Stage 'avoid luminance change/equal'. Learn to do avoid task while luminance of st2 changes
 % Stage 'delay increase'. Increase the delay.
+% Stage 'added probe trials'. Adds the probe.
+% Stage 'task switch luminance change/equal'. Tasks interleaved.
+% Stage 'distractor train luminance' - adds distractor, gradually making it brighter
+% Stage 'distractor train position' - gradually moves distractro closer to fovea
+% Stage 'distractor on' - distractor training is finished
 % Stage 'final version'. No changes to the code. Look/avoid tasks interleaved.
 
 % Stage 'delay increase'
@@ -55,6 +60,11 @@ stim.distractor_probability_ini = 1; % How likely is distractor to appear
 stim.distractor_coord_x_ini = [-12];
 stim.distractor_coord_x_ini_step = [1];
 stim.distractor_coord_x = -4;
+
+% Stage 'fix duration increase'
+stim.fix_duration_increase_ini = 1;
+stim.fix_duration_increase_ini_step = 0.1;
+
 
 
 %% Quick settings

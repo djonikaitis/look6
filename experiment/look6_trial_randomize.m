@@ -138,19 +138,36 @@ expsetup.stim.esetup_fixation_acquire_duration(tid,1) = temp1(1);
 % Fixation maintain duration varies as a stage of training
 
 %============
-% Fixed part
+% Modified part for two contingencies
 ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
 ind1 = find(ind0==1);
-ind0 = strcmp(expsetup.stim.training_stage_matrix, 'delay increase');
-ind2 = find(ind0==1);
-if ind1>ind2
-    temp1 = Shuffle(expsetup.stim.fixation_maintain_duration);
-elseif ind1==ind2
+%==========
+% For fix duration increase training
+%=========
+if strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase')
+    
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'fix duration increase');
+    ind2 = find(ind0==1);
+    
     temp1 = Shuffle(tv1(1).temp_var_current);
     var_copy.esetup_fixation_maintain_duration = temp1(1); % Copy variable for error trials
-elseif ind1<ind2
-    temp1 = Shuffle(expsetup.stim.fixation_maintain_duration_ini);
+    
+    %==========
+    % For fix delay duration increase training
+    %=========
+else
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'delay increase');
+    ind2 = find(ind0==1);
+    if ind1>ind2
+        temp1 = Shuffle(expsetup.stim.fixation_maintain_duration);
+    elseif ind1==ind2
+        temp1 = Shuffle(tv1(1).temp_var_current);
+        var_copy.esetup_fixation_maintain_duration = temp1(1); % Copy variable for error trials
+    elseif ind1<ind2
+        temp1 = Shuffle(expsetup.stim.fixation_maintain_duration_ini);
+    end
 end
+
 %=============
 expsetup.stim.esetup_fixation_maintain_duration(tid,1) = temp1(1);
 
@@ -251,7 +268,7 @@ st3 = temp1(1,1:2);
 % ST2 color, varies as a stage of training. For look/avoid task ST2 color
 % level and step is the same.
 %=========
-if strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change') ||...
+if strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance change') ||...
         strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') ||...
         strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change')
     temp1 = Shuffle(tv1(1).temp_var_current);
@@ -274,7 +291,7 @@ if expsetup.stim.esetup_block_cond(tid,1) == 1 && expsetup.stim.esetup_target_nu
     expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_task1;
     
     % ST2 color level changes
-    if strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change') ||...
+    if strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance change') ||...
             strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') ||...
             strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change')
         % Calculate ST2 level
@@ -296,7 +313,7 @@ elseif expsetup.stim.esetup_block_cond(tid,1) == 2 && expsetup.stim.esetup_targe
     expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_task2;
     
     % ST2 color level changes
-    if strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change') ||...
+    if strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance change') ||...
             strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') ||...
             strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change')
         % Calculate ST2 level
