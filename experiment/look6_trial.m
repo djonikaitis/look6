@@ -37,34 +37,9 @@ if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'task switch lumina
 end
 
 
-%% Exp stage (either keep the same or change the task)
+%% Training stage in the experiment
 
-if tid==1
-    if ~isfield(expsetup.stim, 'exp_version_temp')
-        expsetup.stim.exp_version_temp = expsetup.stim.training_stage_matrix{end}; % Version to start with on the first trial
-    end
-    expsetup.stim.exp_version_update_next_trial = 0;
-    fprintf('Running task version: %s\n', expsetup.stim.exp_version_temp)
-elseif tid>1
-    if expsetup.stim.exp_version_update_next_trial == 0 % Keep the same
-        b = expsetup.stim.esetup_exp_version{tid-1};
-        expsetup.stim.exp_version_temp = b;
-    elseif expsetup.stim.exp_version_update_next_trial == 1 % Change the task
-        a = expsetup.stim.esetup_exp_version{tid-1};
-        ind1 = strcmp(expsetup.stim.training_stage_matrix, a);
-        ind1 = find(ind1==1);
-        if ind1+1<=numel(expsetup.stim.training_stage_matrix)
-            b = expsetup.stim.training_stage_matrix{ind1+1};
-        else
-            b = expsetup.stim.training_stage_matrix{ind1};
-        end
-        expsetup.stim.exp_version_temp = b;
-    end
-    fprintf('Running task version: %s\n', expsetup.stim.exp_version_temp)
-end
-
-% Update performance if necessary
-runexp_trial_update_performance_v11
+runexp_trial_update_performance_v12
 
 
 %% PREPARE ALL OBJECTS AND FRAMES TO BE DRAWN:
