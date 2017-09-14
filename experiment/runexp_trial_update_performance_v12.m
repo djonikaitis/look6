@@ -52,9 +52,9 @@ if isfield(tv1(1), 'update')
     if strcmp(tv1(1).update, 'gradual') % Gradual update
         trial_online_counter = expsetup.stim.trial_online_counter_gradual;
         update_var = 1;
-    elseif strcmp(tv1(1).update, 'step') % Step update
-        trial_online_counter = expsetup.stim.trial_online_counter_single_step;
-        update_var = 2;
+%     elseif strcmp(tv1(1).update, 'step') % Step update
+%         trial_online_counter = expsetup.stim.trial_online_counter_single_step;
+%         update_var = 2;
     else
         % No updating
         fprintf('This task does not update\n')

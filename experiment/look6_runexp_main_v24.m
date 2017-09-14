@@ -17,13 +17,13 @@ global ni
 %% General settings to run the code
 
 expsetup.general.expname = 'look6';
-expsetup.general.exp_location = 'dj'; % 'dj'; 'mbox'; 'edoras'; 'citadel';
+expsetup.general.exp_location = 'edoras'; % 'dj'; 'mbox'; 'edoras'; 'citadel';
 expsetup.general.debug = 0; % 0: default; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
-expsetup.general.human_exp = 1; % 1 - human; 2 - monkey
+expsetup.general.human_exp = 0; % 1 - human; 2 - monkey
 
 % Devices and routines
-expsetup.general.record_plexon = 0;  % 0 - no recording; 1 - yes recording;
-expsetup.general.plexon_online_spikes = 0;  % 0 - no; 1 - yes;
+expsetup.general.record_plexon = 1;  % 0 - no recording; 1 - yes recording;
+expsetup.general.plexon_online_spikes = 1;  % 0 - no; 1 - yes;
 expsetup.general.stimulator_input_on = 0; % 0 - no input, 1 - yes input
 expsetup.general.recordeyes = 1; % 0 - no recording; 1 - yes recording; 2 - ask experimenter
 expsetup.general.reward_on = 1; % 0 - no reward, 1 - reward

@@ -105,18 +105,18 @@ stim.fix_duration_increase_ini_step = 0.1;
 %% Quick settings
 
 % Specify target coordinates based on a RF mapping
-x = -3;
-y = -4;
+x = -2;
+y = -8;
 stim.target_spacing_arc = 90;
 
 % Defaults
-stim.main_cond = [2,1]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
+stim.main_cond = [2,2,1,1]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(95:100)= 1; % Number of probes (= 1 or 2)
 stim.memory_delay_duration = [1.8:0.01:2.2]; % How long memory delay lasts
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
-stim.number_of_trials_per_block = 250;
-stim.number_of_blocks = 6;
+stim.number_of_trials_per_block = 200;
+stim.number_of_blocks = 4;
 stim.main_cond_shuffle = 2; % 1 - shuffle, 2 - preset order
 
 
@@ -307,7 +307,7 @@ stim.trial_dur_intertrial_error = 2; % Blank screen at the end
 
 %================
 % Staircase
-stim.trial_online_counter = 3; % How many trials to count for updating task difficulty
+stim.trial_online_counter_gradual = 3; % How many trials to count for updating task difficulty
 stim.trial_correct_goal_up = 3; % What is accuracy to make task harder
 stim.trial_correct_goal_down = 2; % What is accuracy to make task harder
 
