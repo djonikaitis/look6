@@ -4,14 +4,18 @@
 % definitions
 
 
-%% Different training stages have different stim durations
+if ~isfield (expsetup.general, 'human_exp')
+    expsetup.general.human_exp=1;
+end
 
-stim.exp_version_temp = 'task switch luminance change'; % Version you want to run
+
+%% Different training stages have different stim durations
 
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
 else
 end
+
 stim.training_stage_matrix = {...
     'fix duration increase', 'fix duration stable', ...
     'look luminance change', 'look luminance equal', ...
@@ -20,7 +24,36 @@ stim.training_stage_matrix = {...
     'task switch luminance change', 'task switch luminance equal', ...
     'distractor train luminance', 'distractor train luminance stable', 'distractor train position', 'distractor on'...
     'final version'};
+
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
+
+
+%% Select current training stage
+
+if expsetup.general.debug>0
+    stim.exp_version_temp = 'task switch luminance equal'; % Version you want to run
+else
+    a = input ('Select training stage by number. Enter 0 if you want to see the list: ');
+    if a==0
+        for i=1:numel(stim.training_stage_matrix)
+            fprintf ('%d - %s\n', i, stim.training_stage_matrix{i})
+        end
+        b = input ('Select training stage by number: ');
+        if b>numel(stim.training_stage_matrix)
+            stim.exp_version_temp = stim.training_stage_matrix{end};
+        else
+            stim.exp_version_temp = stim.training_stage_matrix{b};
+        end
+    else
+        stim.exp_version_temp = stim.training_stage_matrix{a};
+    end
+end
+
+% In case code wont work, just un-comment and over-write:
+% stim.exp_version_temp = 'single target same orientation one ring'; % Version you want to run
+
+
+%% Variables for different training stages
 
 % Stage 'fixation duration increase/stable'. Learn to fixate while memory target is flashed.
 % Stage 'look luminance change/equal'. Learn to do look task while luminance of st2 changes
