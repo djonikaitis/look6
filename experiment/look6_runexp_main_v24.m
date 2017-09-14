@@ -21,8 +21,8 @@ expsetup.general.exp_location = 'edoras'; % 'dj'; 'mbox'; 'edoras'; 'citadel';
 expsetup.general.debug = 0; % 0: default; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
 
 % Devices and routines
-expsetup.general.record_plexon = 1;  % 0 - no recording; 1 - yes recording;
-expsetup.general.plexon_online_spikes = 1;  % 0 - no; 1 - yes;
+expsetup.general.record_plexon = 0;  % 0 - no recording; 1 - yes recording;
+expsetup.general.plexon_online_spikes = 0;  % 0 - no; 1 - yes;
 expsetup.general.stimulator_input_on = 0; % 0 - no input, 1 - yes input
 expsetup.general.recordeyes = 1; % 0 - no recording; 1 - yes recording; 2 - ask experimenter
 expsetup.general.reward_on = 1; % 0 - no reward, 1 - reward
@@ -42,7 +42,7 @@ expsetup.general.trials_before_saving = 10; % How many trials to run before savi
 % Plexon events
 expsetup.general.plex_event_start = 1; % Code saved as trial start
 expsetup.general.plex_event_end = 2; % Code saved as trial start
-expsetup.general.plex_trial_timeout_sec = 60; % How many seconds before plexon stops checking data
+expsetup.general.plex_trial_timeout_sec = 30; % How many seconds before plexon stops checking data
 expsetup.general.plex_data_rate = []; % At which rate data is collected (40000 Hz), determined during tcpip connection
 
 % Get subject name

@@ -6,7 +6,7 @@
 
 %% Different training stages have different stim durations
 
-stim.exp_version_temp = 'look luminance change'; % Version you want to run
+stim.exp_version_temp = 'task switch luminance change'; % Version you want to run
 
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
@@ -18,7 +18,7 @@ stim.training_stage_matrix = {...
     'avoid luminance change', 'avoid luminance equal',...
     'delay increase', 'added probe trials',...
     'task switch luminance change', 'task switch luminance equal', ...
-    'distractor train luminance', 'distractor train position', 'distractor on'...
+    'distractor train luminance', 'distractor train luminance stable', 'distractor train position', 'distractor on'...
     'final version'};
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
 
@@ -43,9 +43,9 @@ stim.fixation_maintain_duration_ini_step = -0.1;
 % Stages with 'luminance change' in the name
 % Use stimulus luminance for interleaving blocks
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.st2_color_level_ini = 0.9;
+    stim.st2_color_level_ini = 0.5;
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
-    stim.st2_color_level_ini = 0.3;
+    stim.st2_color_level_ini = 0.5;
 else
     stim.st2_color_level_ini = 0.9;
 end
@@ -53,8 +53,10 @@ stim.st2_color_level_ini_step = -0.1;
 
 % Stage 'distractor train luminance'
 stim.distractor_color_level_ini = 0.9;
-stim.distractor_color_level_ini_step = -0.1;
+stim.distractor_color_level_ini_step = -0.05;
 stim.distractor_probability_ini = 1; % How likely is distractor to appear
+stim.distractor_color_level = 0.6;
+
 
 % Stage 'distractor train position'
 stim.distractor_coord_x_ini = [-12];
@@ -70,18 +72,18 @@ stim.fix_duration_increase_ini_step = 0.1;
 %% Quick settings
 
 % Specify target coordinates based on a RF mapping
-x = -5;
-y = -3;
+x = -3;
+y = -4;
 stim.target_spacing_arc = 90;
 
 % Defaults
-stim.main_cond = [1,2]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
+stim.main_cond = [2,1]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
-stim.target_number(97:100)= 1; % Number of probes (= 1 or 2)
+stim.target_number(95:100)= 1; % Number of probes (= 1 or 2)
 stim.memory_delay_duration = [1.8:0.01:2.2]; % How long memory delay lasts
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
-stim.number_of_trials_per_block = 200;
-stim.number_of_blocks = 4;
+stim.number_of_trials_per_block = 250;
+stim.number_of_blocks = 6;
 stim.main_cond_shuffle = 2; % 1 - shuffle, 2 - preset order
 
 
@@ -100,7 +102,7 @@ target_radius = [repmat(stim.target_radius, 1, length(target_arc))];
 
 % Save coordintes
 stim.response_target_coord = [xc',yc'];
-stim.response_t3_coord  = stim.response_target_coord;
+stim.response_t3_coord  = stim.response_target_coord(1,:);
 stim.distractor_coord = stim.response_target_coord;
 
 %%  Reward
@@ -109,9 +111,9 @@ stim.distractor_coord = stim.response_target_coord;
 stim.reward_coeff1 = [881.4887   -3.3301]; % Pump reward measure as of 10.19.2016
 
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.reward_size_ml = 0.28; % Typical reward to start with
+    stim.reward_size_ml = 0.26; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
-    stim.reward_size_ml = 0.16; % Typical reward to start with
+    stim.reward_size_ml = 0.18; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'jw')
     stim.reward_size_ml = 0.25; % Typical reward to start with
 else
@@ -242,7 +244,6 @@ stim.response_remove_t2 = 1; % 1 - removes second target once first target is fi
 
 %=============
 % Distractor
-stim.distractor_color_level = 0;
 stim.distractor_shape = 'square';
 stim.distractor_color = [250, 250, 250];
 stim.distractor_pen_width = 5; % If empty shapes are drawn
