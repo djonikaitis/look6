@@ -26,7 +26,7 @@ elseif tid>=trials_to_plot % Plot data
         index1 = strcmp('correct', expsetup.stim.edata_error_code(ind));
         temp1(1,j)= sum(index1);
         % Error trials
-        index1 = strcmp('looked at st2', expsetup.stim.edata_error_code(ind));
+        index1 = strcmp('looked at distractor', expsetup.stim.edata_error_code(ind));
         temp1(2,j)= sum(index1);
         % Aborted
         index1 = strcmp('broke fixation before drift', expsetup.stim.edata_error_code(ind)) | ...

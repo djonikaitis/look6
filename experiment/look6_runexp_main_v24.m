@@ -43,7 +43,7 @@ expsetup.general.trials_before_saving = 10; % How many trials to run before savi
 % Plexon events
 expsetup.general.plex_event_start = 1; % Code saved as trial start
 expsetup.general.plex_event_end = 2; % Code saved as trial start
-expsetup.general.plex_trial_timeout_sec = 30; % How many seconds before plexon stops checking data
+expsetup.general.plex_trial_timeout_sec = 60; % How many seconds before plexon stops checking data
 expsetup.general.plex_data_rate = []; % At which rate data is collected (40000 Hz), determined during tcpip connection
 
 % Get subject name
