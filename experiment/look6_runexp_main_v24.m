@@ -17,8 +17,9 @@ global ni
 %% General settings to run the code
 
 expsetup.general.expname = 'look6';
-expsetup.general.exp_location = 'edoras'; % 'dj'; 'mbox'; 'edoras'; 'citadel';
+expsetup.general.exp_location = 'dj'; % 'dj'; 'mbox'; 'edoras'; 'citadel';
 expsetup.general.debug = 0; % 0: default; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
+expsetup.general.human_exp = 1; % 1 - human; 2 - monkey
 
 % Devices and routines
 expsetup.general.record_plexon = 0;  % 0 - no recording; 1 - yes recording;
@@ -56,19 +57,10 @@ else
     expsetup.general.subject_id = input('Enter subject name:  ', 's');
 end
 
-
 % Get file name for computer settings
-if strcmp (expsetup.general.exp_location, 'dj')
-    expsetup.general.code_computer_setup = sprintf('%s_computer_settings_dj_v22', expsetup.general.expname); % Path to file containing computer settings
-elseif strcmp (expsetup.general.exp_location, 'edoras')
-    expsetup.general.code_computer_setup = sprintf('%s_computer_settings_edoras_v22', expsetup.general.expname); % Path to file containing computer settings
-elseif strcmp (expsetup.general.exp_location, 'citadel')
-    expsetup.general.code_computer_setup = sprintf('%s_computer_settings_citadel_v22', expsetup.general.expname); % Path to file containing computer settings
-elseif strcmp (expsetup.general.exp_location, 'unknown')
-    expsetup.general.code_computer_setup = sprintf('%s_computer_settings_dj_v22', expsetup.general.expname); % Path to file containing computer settings
-else
-    error ('Undefined exp location - could not find matching computer settings file')
-end
+n1 = sprintf('%s_computer_settings_v22_%s', expsetup.general.expname, expsetup.general.exp_location);
+expsetup.general.code_computer_setup = n1; % Path to file containing computer settings
+    
 
 % Plexon events
 if expsetup.general.plexon_online_spikes == 1 % Get channel number used in the recording
@@ -123,7 +115,33 @@ expsetup.eyecalib.reward_ms = 100; % How long reward lasts
 
 %% Initialize all computer specific settings
 
-eval(expsetup.general.code_computer_setup)
+a = mfilename('fullpath');
+
+% Create a path to computer settings file
+if ismac
+    del1 = '/';
+else
+    del1 = '\';
+end
+C = strsplit(a,del1);
+if numel(C)>1
+    b = [];
+    for i = 1:numel(C)-1
+        if ~isempty(C{i})
+            b = [b,del1,C{i}];
+        end
+        if i == numel(C)-1
+            b = [b, del1, expsetup.general.code_computer_setup];
+        end
+    end
+end
+
+% Check if computer settings exists
+if exist(b, 'file')==2
+    eval(expsetup.general.code_computer_setup)
+else
+    error ('Could not find matching computer settings file')
+end
 
 
 %% Add the folder with experimental code to the path
@@ -165,7 +183,7 @@ end
 
 % Initialize folder where eyelink data is stored
 expsetup.general.directory_data_eyelink_edf = [expsetup.general.directory_baseline_data, expsetup.general.expname, '/data_eyelink_edf/', expsetup.general.subject_id, '/'];
-expsetup.general.directory_data_eyelink_asc = [expsetup.general.directory_baseline_data, expsetup.general.expname, '/data_temp1/', expsetup.general.subject_id, '/'];
+expsetup.general.directory_data_eyelink_asc = [expsetup.general.directory_baseline_data, expsetup.general.expname, '/data_temp_1/', expsetup.general.subject_id, '/'];
 if ~isdir (expsetup.general.directory_data_eyelink_edf)
     mkdir(expsetup.general.directory_data_eyelink_edf);
 end
@@ -474,9 +492,10 @@ while endexp1==0
                 char=char{1};
             end
             if strcmp(char,'space')
+                % Manual calibration (monkeys)
                 runexp_eyelink_calib_primate_v14;
                 %===========
-                % Automated calibration
+                % Automated calibration (humans)
                 % EyelinkDoTrackerSetup(expsetup.eyelink); % Calibrate the eye tracker before each block
             end
         end
@@ -575,10 +594,10 @@ while endexp1==0
             char=char{1};
         end
         if strcmp(char,'space')
-            % Manual calibration
+            % Manual calibration (monkeys)
             runexp_eyelink_calib_primate_v14;
             %===========
-            % Automated calibration
+            % Automated calibration (humans)
             % EyelinkDoTrackerSetup(expsetup.eyelink); % Calibrate the eye tracker before each block
         end
     end

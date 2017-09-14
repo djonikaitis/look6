@@ -4,45 +4,107 @@
 % definitions
 
 
+if ~isfield (expsetup.general, 'human_exp')
+    expsetup.general.human_exp=1;
+end
+
+
 %% Different training stages have different stim durations
 
-stim.exp_version_temp = 'luminance change'; % Version you want to run
+if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
+elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
+else
+end
 
-stim.training_stage_matrix = {'fixation training', 'look only', 'avoid only', 'added probe trials', ...
-    'delay increase', 'luminance change', 'luminance equal', 'final version'};
+stim.training_stage_matrix = {...
+    'fix duration increase', 'fix duration stable', ...
+    'look luminance change', 'look luminance equal', ...
+    'avoid luminance change', 'avoid luminance equal',...
+    'delay increase', 'added probe trials',...
+    'task switch luminance change', 'task switch luminance equal', ...
+    'distractor train luminance', 'distractor train position', 'distractor on'...
+    'final version'};
+
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
 
-% Stage 'fixation training'. Learn to fixate while memory target is flashed.
-% Stage 'look only'. Learn to do look task.
-% Stage 'avoid only'. Learn to do avoid task.
-% Stage 'luminance change'. Tasks interleaved, using stimulus luminance
+
+%% Select current training stage
+
+if expsetup.general.debug>0
+    stim.exp_version_temp = 'task switch luminance equal'; % Version you want to run
+else
+    a = input ('Select training stage by number. Enter 0 if you want to see the list: ');
+    if a==0
+        for i=1:numel(stim.training_stage_matrix)
+            fprintf ('%d - %s\n', i, stim.training_stage_matrix{i})
+        end
+        b = input ('Select training stage by number: ');
+        if b>numel(stim.training_stage_matrix)
+            stim.exp_version_temp = stim.training_stage_matrix{end};
+        else
+            stim.exp_version_temp = stim.training_stage_matrix{b};
+        end
+    else
+        stim.exp_version_temp = stim.training_stage_matrix{a};
+    end
+end
+
+% In case code wont work, just un-comment and over-write:
+% stim.exp_version_temp = 'single target same orientation one ring'; % Version you want to run
+
+
+%% Variables for different training stages
+
+% Stage 'fixation duration increase/stable'. Learn to fixate while memory target is flashed.
+% Stage 'look luminance change/equal'. Learn to do look task while luminance of st2 changes
+% Stage 'avoid luminance change/equal'. Learn to do avoid task while luminance of st2 changes
 % Stage 'delay increase'. Increase the delay.
+% Stage 'added probe trials'. Adds the probe.
+% Stage 'task switch luminance change/equal'. Tasks interleaved.
+% Stage 'distractor train luminance' - adds distractor, gradually making it brighter
+% Stage 'distractor train position' - gradually moves distractro closer to fovea
+% Stage 'distractor on' - distractor training is finished
 % Stage 'final version'. No changes to the code. Look/avoid tasks interleaved.
 
-% Stage 'delay'
+% Stage 'delay increase'
 % Increase memory delay duration
 stim.memory_delay_duration_ini = 0.4;
 stim.memory_delay_duration_ini_step = 0.1;
 stim.fixation_maintain_duration_ini = 2.2;
 stim.fixation_maintain_duration_ini_step = -0.1;
 
-% Stage 'luminance change'
+% Stages with 'luminance change' in the name
 % Use stimulus luminance for interleaving blocks
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
     stim.st2_color_level_ini = 0.9;
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
     stim.st2_color_level_ini = 0.3;
-elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'jw')
-    stim.st2_color_level_ini = 0.0;
+else
+    stim.st2_color_level_ini = 0.9;
 end
 stim.st2_color_level_ini_step = -0.1;
+
+% Stage 'distractor train luminance'
+stim.distractor_color_level_ini = 0.9;
+stim.distractor_color_level_ini_step = -0.1;
+stim.distractor_probability_ini = 1; % How likely is distractor to appear
+
+% Stage 'distractor train position'
+stim.distractor_coord_x_ini = [-12];
+stim.distractor_coord_x_ini_step = [1];
+stim.distractor_coord_x = -4;
+
+% Stage 'fix duration increase'
+stim.fix_duration_increase_ini = 1;
+stim.fix_duration_increase_ini_step = 0.1;
+
 
 
 %% Quick settings
 
 % Specify target coordinates based on a RF mapping
 x = -5;
-y = -5;
+y = -3;
 stim.target_spacing_arc = 90;
 
 % Defaults
@@ -72,6 +134,7 @@ target_radius = [repmat(stim.target_radius, 1, length(target_arc))];
 % Save coordintes
 stim.response_target_coord = [xc',yc'];
 stim.response_t3_coord  = stim.response_target_coord;
+stim.distractor_coord = stim.response_target_coord;
 
 %%  Reward
 
@@ -203,13 +266,22 @@ stim.response_t3_color_task2 = [20,20,20];
 stim.response_t3_color_task3 = [20,20,20];
 stim.response_t3_shape = 'circle'; % circle, square, empty_circle, empty_quare
 
-
 %============
-% Distractor properties
-if ~isfield(stim, 'response_distractor_soa')
-    stim.response_distractor_soa = 0.0;
+% ST2 properties
+if ~isfield(stim, 'response_soa')
+    stim.response_soa = 0.0;
 end
 stim.response_remove_t2 = 1; % 1 - removes second target once first target is fixated
+
+%=============
+% Distractor
+stim.distractor_color_level = 0;
+stim.distractor_shape = 'square';
+stim.distractor_color = [250, 250, 250];
+stim.distractor_pen_width = 5; % If empty shapes are drawn
+stim.distractor_probability = 0.5;
+stim.distractor_on_time = [0.7];
+stim.distractor_duration = [0.05];
 
 %==============
 % Screen colors
@@ -290,10 +362,11 @@ stim.esetup_memory_pen_width = NaN;
 % Target
 stim.esetup_st1_coord(1,1:2) = NaN;
 stim.esetup_st1_color(1,1:3) = NaN;
-% Distractor
+% Non-target
 stim.esetup_st2_coord(1,1:2) = NaN;
 stim.esetup_st2_color(1,1:3) = NaN;
 stim.esetup_st2_color_level = NaN;
+stim.esetup_response_soa = NaN; % SOA between t1 & t2
 
 % Response targets, common properties
 stim.esetup_target_size(1,1:4) = NaN;
@@ -302,10 +375,18 @@ stim.esetup_target_number = NaN; % 1 or 2 targets
 stim.esetup_target_shape{1} = NaN;
 stim.esetup_target_pen_width = NaN;
 
-% Durations
-stim.esetup_distractor_soa = NaN; % SOA between t1 & t2
+% Memory
 stim.esetup_memory_duration = NaN; % Duration of memory target
 stim.esetup_memory_delay = NaN; % Delay duration
+
+% Distractor
+stim.esetup_distractor_coord(1,1:2) = NaN;
+stim.esetup_distractor_coord_x = NaN;
+stim.esetup_distractor_color(1,1:3) = NaN; % SOA between t1 & t2
+stim.esetup_distractor_color_level = NaN;
+stim.esetup_distractor_probability = NaN;
+stim.esetup_distractor_on_time = NaN;
+stim.esetup_distractor_duration = NaN;
 
 % Texture & background
 stim.esetup_background_texture_on = NaN; % Is texture shown
@@ -337,6 +418,8 @@ stim.edata_response_acquired = NaN;
 stim.edata_response_maintained = NaN;
 
 % Other
+stim.edata_distractor_on = NaN;
+stim.edata_distractor_off = NaN;
 stim.edata_memory_on = NaN;
 stim.edata_memory_off = NaN;
 stim.edata_texture_on = NaN;
@@ -353,6 +436,7 @@ stim.edata_eyelinkscreen_fixation = NaN; % Fixation after drift correction is do
 stim.edata_eyelinkscreen_memory = NaN;
 stim.edata_eyelinkscreen_st1 = NaN;
 stim.edata_eyelinkscreen_st2 = NaN;
+stim.edata_eyelinkscreen_distractor = NaN;
 
 % Monitoring performance
 stim.edata_error_code{1} = NaN;
@@ -380,6 +464,8 @@ stim.eframes_memory_off{1}(1) = NaN;
 stim.eframes_st1_on{1}(1) = NaN;
 stim.eframes_st2_on{1}(1) = NaN;
 stim.eframes_st2_off{1}(1) = NaN;
+stim.eframes_distractor_on{1}(1) = NaN;
+stim.eframes_distractor_off{1}(1) = NaN;
 
 
 

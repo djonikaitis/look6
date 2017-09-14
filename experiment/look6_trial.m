@@ -4,8 +4,10 @@ window = expsetup.screen.window;
 
 
 %% If block number has changed, reset stimulus luminance updating
+% This is specific to only luminance changes; This works for interleaved
+% tasks only
 
-if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance equal'))
+if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'task switch luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'task switch luminance equal'))
     if expsetup.stim.trial_error_repeat == 1
         ind = strcmp(expsetup.stim.edata_error_code, 'correct') & expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
     else
@@ -15,17 +17,17 @@ if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance change')
         a = expsetup.stim.esetup_exp_version{tid-1};
         ind1 = strcmp(expsetup.stim.training_stage_matrix, a);
         ind1 = find(ind1==1);
-        if strcmp(a, 'luminance change')
+        if strcmp(a, 'task switch luminance change')
             if ind1-1>=1
                 b = expsetup.stim.training_stage_matrix{ind1-1};
             else
-                error('Exp version before "luminance change" has to be defined')
+                error('Exp version before "task switch luminance change" has to be defined')
             end
-        elseif strcmp(a, 'luminance equal')
+        elseif strcmp(a, 'task switch luminance equal')
             if ind1-2>=1
                 b = expsetup.stim.training_stage_matrix{ind1-2};
             else
-                error('Exp version before "luminance change" has to be defined')
+                error('Exp version before "task switch luminance change" has to be defined')
             end
         end
         expsetup.stim.exp_version_update_next_trial = 1; % Update next trial
@@ -35,34 +37,9 @@ if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'luminance change')
 end
 
 
-%% Exp stage (either keep the same or change the task)
+%% Training stage in the experiment
 
-if tid==1
-    if ~isfield(expsetup.stim, 'exp_version_temp')
-        expsetup.stim.exp_version_temp = expsetup.stim.training_stage_matrix{end}; % Version to start with on the first trial
-    end
-    expsetup.stim.exp_version_update_next_trial = 0;
-    fprintf('Running task version: %s\n', expsetup.stim.exp_version_temp)
-elseif tid>1
-    if expsetup.stim.exp_version_update_next_trial == 0 % Keep the same
-        b = expsetup.stim.esetup_exp_version{tid-1};
-        expsetup.stim.exp_version_temp = b;
-    elseif expsetup.stim.exp_version_update_next_trial == 1 % Change the task
-        a = expsetup.stim.esetup_exp_version{tid-1};
-        ind1 = strcmp(expsetup.stim.training_stage_matrix, a);
-        ind1 = find(ind1==1);
-        if ind1+1<=numel(expsetup.stim.training_stage_matrix)
-            b = expsetup.stim.training_stage_matrix{ind1+1};
-        else
-            b = expsetup.stim.training_stage_matrix{ind1};
-        end
-        expsetup.stim.exp_version_temp = b;
-    end
-    fprintf('Running task version: %s\n', expsetup.stim.exp_version_temp)
-end
-
-% Update performance if necessary
-runexp_trial_update_performance_v11
+runexp_trial_update_performance_v12
 
 
 %% PREPARE ALL OBJECTS AND FRAMES TO BE DRAWN:
@@ -270,7 +247,8 @@ while loop_over==0
         expsetup.stim.eframes_memory_off{tid}(c1_frame_index1,1) = 1;
     end
     
-    % Saccade target
+    
+    % ST1
     t0 = expsetup.stim.edata_fixation_acquired(tid,1);
     t1 = expsetup.stim.esetup_total_fixation_duration(tid,1);
     if ~isnan(t0) && (time_current - t0 >= t1)
@@ -292,14 +270,14 @@ while loop_over==0
         expsetup.stim.eframes_st1_on{tid}(c1_frame_index1,1) = 1;
     end
     
-    % Distractor off
+    % ST2 off
     if ~isnan(expsetup.stim.edata_response_acquired(tid,1)) && nansum(expsetup.stim.eframes_st2_off{tid}(:,1))==0
         expsetup.stim.eframes_st2_off{tid}(c1_frame_index1,1) = 1;
     end
     
-    % Distractor
+    % ST2
     t0 = expsetup.stim.edata_fixation_acquired(tid,1);
-    t1 = expsetup.stim.esetup_total_fixation_duration(tid,1) + expsetup.stim.esetup_distractor_soa(tid,1);
+    t1 = expsetup.stim.esetup_total_fixation_duration(tid,1) + expsetup.stim.esetup_response_soa(tid,1);
     if ~isnan(t0) && (time_current - t0 >= t1) && expsetup.stim.esetup_target_number(tid) == 2 && ...
             nansum(expsetup.stim.eframes_st2_off{tid}(:,1))==0
         % Properties
@@ -318,6 +296,43 @@ while loop_over==0
             Screen('FrameRect', window, c1, r1, p1);
         end
         expsetup.stim.eframes_st2_on{tid}(c1_frame_index1,1) = 1;
+    end
+    
+    % Show distractor?
+    if strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train luminance') || ...
+            strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train position') || ...
+            strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor on')
+        
+        % Distractor on
+        t0 = expsetup.stim.edata_memory_on(tid,1);
+        t1 = expsetup.stim.esetup_distractor_on_time(tid,1);
+        t2 = expsetup.stim.esetup_distractor_duration(tid,1);
+        if ~isnan(t0) && (time_current - t0 >= t1) && (time_current - t0 < t1+t2) && ...
+                expsetup.stim.esetup_distractor_probability(tid) == 1
+            
+            % Properties
+            sh1 = expsetup.stim.distractor_shape;
+            c1 = expsetup.stim.esetup_distractor_color(tid,:);
+            p1 = expsetup.stim.distractor_pen_width;
+            r1 = dist_rect;
+            % Plot
+            if strcmp(sh1,'circle')
+                Screen('FillArc', window, c1, r1, 0, 360);
+            elseif strcmp(sh1,'square')
+                Screen('FillRect', window, c1, r1, p1);
+            elseif strcmp(sh1,'empty_circle')
+                Screen('FrameArc',window, c1, r1, 0, 360, p1)
+            elseif strcmp(sh1,'empty_square')
+                Screen('FrameRect', window, c1, r1, p1);
+            end
+            expsetup.stim.eframes_distractor_on{tid}(c1_frame_index1,1) = 1;
+        end
+        
+        % Distractor off
+        if ~isnan(t0) && (time_current - t0 >= t1+t2) && nansum(expsetup.stim.eframes_distractor_off{tid}(:,1))==0 &&...
+                expsetup.stim.esetup_distractor_probability(tid) == 1
+            expsetup.stim.eframes_distractor_off{tid}(c1_frame_index1,1) = 1;
+        end
     end
 
     
@@ -387,7 +402,7 @@ while loop_over==0
     % Record st2 onset
     if expsetup.stim.eframes_st2_on{tid}(c1_frame_index1,1)==1 && isnan(expsetup.stim.edata_st2_on(tid,1))
         if expsetup.general.recordeyes==1
-            Eyelink('Message', 'distractor_on');
+            Eyelink('Message', 'st2_on');
         end
         expsetup.stim.edata_st2_on(tid,1) = time_current;
     end
@@ -395,9 +410,25 @@ while loop_over==0
     % Record st2 offset
     if expsetup.stim.eframes_st2_off{tid}(c1_frame_index1,1)==1 && isnan(expsetup.stim.edata_st2_off(tid,1))
         if expsetup.general.recordeyes==1
-            Eyelink('Message', 'distractor_off');
+            Eyelink('Message', 'st2_off');
         end
         expsetup.stim.edata_st2_off(tid,1) = time_current;
+    end
+    
+    % Record distractor onset
+    if expsetup.stim.eframes_distractor_on{tid}(c1_frame_index1,1)==1 && isnan(expsetup.stim.edata_distractor_on(tid,1))
+        if expsetup.general.recordeyes==1
+            Eyelink('Message', 'distractor_on');
+        end
+        expsetup.stim.edata_distractor_on(tid,1) = time_current;
+    end
+    
+    % Record distractor offset
+    if expsetup.stim.eframes_distractor_off{tid}(c1_frame_index1,1)==1 && isnan(expsetup.stim.edata_distractor_off(tid,1))
+        if expsetup.general.recordeyes==1
+            Eyelink('Message', 'distractor_off');
+        end
+        expsetup.stim.edata_distractor_off(tid,1) = time_current;
     end
     
     
@@ -488,6 +519,27 @@ while loop_over==0
     end
     
     %===========================
+    % Distractor plotted (during delay)
+    %===========================
+    
+    if expsetup.general.recordeyes == 1 && isnan(expsetup.stim.edata_eyelinkscreen_distractor(tid,1)) && ~isnan(expsetup.stim.edata_distractor_on(tid,1))
+        
+        x1_error = expsetup.stim.esetup_fixation_drift_offset(tid,1);
+        y1_error = expsetup.stim.esetup_fixation_drift_offset(tid,2);
+        
+        % Recalculate eye-link rectangle
+        eyepos=[];
+        eyepos(1)=dist_rect(1)+x1_error;
+        eyepos(3)=dist_rect(3)+x1_error;
+        eyepos(2)=dist_rect(2)+y1_error;
+        eyepos(4)=dist_rect(4)+y1_error;
+        a=round(eyepos);
+        Eyelink('Command', 'draw_box %d %d %d %d 2', a(1),a(2),a(3),a(4)); % In color
+        
+        expsetup.stim.edata_eyelinkscreen_distractor(tid,1) = time_current;
+    end
+    
+    %===========================
     % Draw sacacde target
     %===========================
     
@@ -555,14 +607,30 @@ while loop_over==0
             x1_target(1) = x + x1_error; % Fixation coordinates x (with potential error)
             y1_target(1) = y + y1_error; % Fixation coordinates y (with potential error)
             error1(1) = expsetup.stim.esetup_fixation_size_drift(tid,4) * expsetup.screen.deg2pix;
-        
-        elseif ~isnan(expsetup.stim.edata_fixation_drift_maintained(tid,1)) && isnan(expsetup.stim.edata_st1_on(tid,1)) % After drift correction or if no drift correction is done
+            
+        elseif ~isnan(expsetup.stim.edata_fixation_drift_maintained(tid,1)) && isnan(expsetup.stim.edata_st1_on(tid,1)) ... % After drift correction or if no drift correction is done
+                && isnan(expsetup.stim.edata_distractor_on(tid,1))
             
             % Target 1 - fixation position
             [x,y]=RectCenter(fixation_rect);
             x1_target(1) = x + x1_error; % Fixation coordinates x (with potential error)
             y1_target(1) = y + y1_error; % Fixation coordinates y (with potential error)
             error1(1) = expsetup.stim.esetup_fixation_size_eyetrack(tid,4) * expsetup.screen.deg2pix;
+            
+        elseif ~isnan(expsetup.stim.edata_fixation_drift_maintained(tid,1)) && isnan(expsetup.stim.edata_st1_on(tid,1)) ... % After drift correction or if no drift correction is done
+                && ~isnan(expsetup.stim.edata_distractor_on(tid,1))
+            
+            % Target 1 - fixation position
+            [x,y]=RectCenter(fixation_rect);
+            x1_target(1) = x + x1_error; % Fixation coordinates x (with potential error)
+            y1_target(1) = y + y1_error; % Fixation coordinates y (with potential error)
+            error1(1) = expsetup.stim.esetup_fixation_size_eyetrack(tid,4) * expsetup.screen.deg2pix;
+            
+            % Target 2 - distractor
+            [x,y]=RectCenter(dist_rect);
+            x1_target (2) = x+x1_error;
+            y1_target (2) = y+y1_error;
+            error1(2) = expsetup.stim.esetup_target_size_eyetrack(tid,4) * expsetup.screen.deg2pix;
         
         elseif ~isnan(expsetup.stim.edata_st1_on(tid,1))
             
@@ -715,15 +783,44 @@ while loop_over==0
         
         if expsetup.general.recordeyes==1
             if timer1_now - timer1_start < timer1_duration % Record an error
-                if expsetup.stim.eframes_eye_target{tid}(c1_frame_index1, 1) ~= 1
-                    expsetup.stim.edata_error_code{tid} = 'broke fixation';
+                %============
+                % Separate code for distractor on trials
+                if strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train luminance') || ...
+                        strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train position') || ...
+                        strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor on')
+                    %==
+                    if expsetup.stim.eframes_eye_target{tid}(c1_frame_index1, 1) ==2
+                        expsetup.stim.edata_error_code{tid} = 'looked at distractor';
+                    elseif expsetup.stim.eframes_eye_target{tid}(c1_frame_index1, 1) ~= 1
+                        expsetup.stim.edata_error_code{tid} = 'broke fixation';
+                    end
+                    %==
+                else
+                    if expsetup.stim.eframes_eye_target{tid}(c1_frame_index1, 1) ~= 1
+                        expsetup.stim.edata_error_code{tid} = 'broke fixation';
+                    end
                 end
+                %==============
+
             elseif timer1_now - timer1_start >= timer1_duration % Record an error
+                % SPECIAL CASE: for fix training terminate the trial
+                if strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase') || ...
+                        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable')
+                    % Terminate the trial
+                    expsetup.stim.edata_error_code{tid} = 'correct';
+                end
                 expsetup.stim.edata_fixation_maintained(tid,1) = timer1_now;
                 Eyelink('Message', 'fixation_maintained');
+                
             end
         elseif expsetup.general.recordeyes==0
             if timer1_now - timer1_start >= timer1_duration % Record an error
+                % SPECIAL CASE: for fix training terminate the trial
+                if strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase') || ...
+                        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable')
+                    % Terminate the trial
+                    expsetup.stim.edata_error_code{tid} = 'correct';
+                end
                 expsetup.stim.edata_fixation_maintained(tid,1) = timer1_now;
             end
         end
@@ -750,7 +847,7 @@ while loop_over==0
                 elseif expsetup.stim.eframes_eye_target{tid}(c1_frame_index1, 1) > 2
                     expsetup.stim.edata_response_acquired(tid,1) = timer1_now;
                     Eyelink('Message', 'response_acquired');
-                    expsetup.stim.edata_error_code{tid} = 'looked at distractor';
+                    expsetup.stim.edata_error_code{tid} = 'looked at st2';
                 end
             elseif timer1_now - timer1_start >= timer1_duration % Record an error
                 expsetup.stim.edata_error_code{tid} = 'no saccade';
@@ -806,7 +903,7 @@ while loop_over==0
     end
     
     % Record what kind of button was pressed
-    if strcmp(char,'c') || strcmp(char,'p') || strcmp(char,'r') || strcmp(char, expsetup.general.quit_key)
+    if strcmp(char,'c') || strcmp(char,'p') || strcmp(char,'r') || strcmp(char,'space') || strcmp(char, expsetup.general.quit_key)
         expsetup.stim.edata_error_code{tid} = 'experimenter terminated the trial';
     end
 
@@ -912,7 +1009,20 @@ fprintf('Trial evaluation: %s\n', expsetup.stim.edata_error_code{tid})
 % some cases correct trials can be discounted.
 
 if strcmp(expsetup.stim.esetup_exp_version{tid}, 'delay increase') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'final version') ||...
-        strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance equal')
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance equal') || ...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'added probe trials') || ...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance equal') || ...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance equal')
+    %==========
+    if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
+        expsetup.stim.edata_trial_online_counter(tid,1) = 1;
+    elseif strcmp(expsetup.stim.edata_error_code{tid}, 'looked at st2') || strcmp(expsetup.stim.edata_error_code{tid}, 'experimenter terminated the trial')
+        expsetup.stim.edata_trial_online_counter(tid,1) = 2;
+    end
+    %=========
+elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train luminance') || ...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train position') || ...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor on')
     %==========
     if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
         expsetup.stim.edata_trial_online_counter(tid,1) = 1;
@@ -920,6 +1030,17 @@ if strcmp(expsetup.stim.esetup_exp_version{tid}, 'delay increase') || strcmp(exp
         expsetup.stim.edata_trial_online_counter(tid,1) = 2;
     end
     %=========
+elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase') || ...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable')
+    %==========
+    if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
+        expsetup.stim.edata_trial_online_counter(tid,1) = 1;
+    elseif strcmp(expsetup.stim.edata_error_code{tid}, 'broke fixation') || strcmp(expsetup.stim.edata_error_code{tid}, 'experimenter terminated the trial')
+        expsetup.stim.edata_trial_online_counter(tid,1) = 2;
+    end
+    %=========
+else
+    error ('Condition for correct/error trial tracking not specified')
 end
 
 
@@ -1041,7 +1162,7 @@ else % Error trials
     trial_duration = expsetup.stim.trial_dur_intertrial_error;
 end
 
-if strcmp(char,'x') || strcmp(char,'r')
+if strcmp(char,'x') || strcmp(char,'r') || strcmp(char,'c') || strcmp(char,'p') || strcmp(char,'space')
     endloop_skip = 1;
 else
     endloop_skip = 0;
@@ -1058,7 +1179,7 @@ while endloop_skip == 0
     end
     
     % Give reward
-    if (strcmp(char,'space') || strcmp(char,'r'))
+    if strcmp(char,'space') || strcmp(char,'r')
         
         % Prepare reward signal
         if expsetup.general.reward_on==1
@@ -1079,6 +1200,11 @@ while endloop_skip == 0
             expsetup.stim.edata_reward_size_ms(tid,1)=expsetup.stim.reward_size_ms;
             expsetup.stim.edata_reward_size_ml(tid,1)=expsetup.stim.reward_size_ml;
         end
+        
+        % End loop
+        endloop_skip=1;
+        
+    elseif strcmp(char,'x') || strcmp(char,'p') || strcmp(char,'c')
         
         % End loop
         endloop_skip=1;

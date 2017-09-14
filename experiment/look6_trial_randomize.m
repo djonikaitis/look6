@@ -23,7 +23,7 @@ else
     end
 end
 
-var_copy = struct;
+var_copy = struct; % This structure exists for training purposes only
 
 %% Which exp version is running?
 
@@ -57,18 +57,28 @@ elseif tid>1
     else
         ind = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
     end
-    if sum(ind) < expsetup.stim.number_of_trials_per_block
+    if sum(ind) < expsetup.stim.number_of_trials_per_block % Same block
         expsetup.stim.esetup_block_cond(tid) = expsetup.stim.esetup_block_cond(tid-1);
         expsetup.stim.esetup_block_no(tid) = expsetup.stim.esetup_block_no(tid-1);
-    elseif sum(ind) >= expsetup.stim.number_of_trials_per_block
+    elseif sum(ind) >= expsetup.stim.number_of_trials_per_block % New block
         expsetup.stim.esetup_block_no(tid) = expsetup.stim.esetup_block_no(tid-1)+1;
         i1 = expsetup.stim.esetup_block_no(tid);
         expsetup.stim.esetup_block_cond(tid) = expsetup.stim.main_cond_reps(i1);
     end
 end
 
+%% If it's look only or avoid only task training, replace conditions
+
+if strcmp(expsetup.stim.exp_version_temp, 'look luminance change') ||...
+        strcmp(expsetup.stim.exp_version_temp, 'look luminance equal')
+    expsetup.stim.esetup_block_cond(tid) = 1;
+elseif strcmp(expsetup.stim.exp_version_temp, 'avoid luminance change') || ...
+        strcmp(expsetup.stim.exp_version_temp, 'avoid luminance equal')
+    expsetup.stim.esetup_block_cond(tid) = 2;
+end
 
 %%  Background color
+
 if expsetup.stim.esetup_block_cond(tid) == 1
     expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task1;
 elseif expsetup.stim.esetup_block_cond(tid) == 2
@@ -128,18 +138,36 @@ expsetup.stim.esetup_fixation_acquire_duration(tid,1) = temp1(1);
 % Fixation maintain duration varies as a stage of training
 
 %============
+% Modified part for two contingencies
 ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
 ind1 = find(ind0==1);
-ind0 = strcmp(expsetup.stim.training_stage_matrix, 'delay increase');
-ind2 = find(ind0==1);
-if ind1>ind2
-    temp1 = Shuffle(expsetup.stim.fixation_maintain_duration);
-elseif ind1==ind2
+%==========
+% For fix duration increase training
+%=========
+if strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase')
+    
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'fix duration increase');
+    ind2 = find(ind0==1);
+    
     temp1 = Shuffle(tv1(1).temp_var_current);
     var_copy.esetup_fixation_maintain_duration = temp1(1); % Copy variable for error trials
-elseif ind1<ind2
-    temp1 = Shuffle(expsetup.stim.fixation_maintain_duration_ini);
+    
+    %==========
+    % For fix delay duration increase training
+    %=========
+else
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'delay increase');
+    ind2 = find(ind0==1);
+    if ind1>ind2
+        temp1 = Shuffle(expsetup.stim.fixation_maintain_duration);
+    elseif ind1==ind2
+        temp1 = Shuffle(tv1(1).temp_var_current);
+        var_copy.esetup_fixation_maintain_duration = temp1(1); % Copy variable for error trials
+    elseif ind1<ind2
+        temp1 = Shuffle(expsetup.stim.fixation_maintain_duration_ini);
+    end
 end
+
 %=============
 expsetup.stim.esetup_fixation_maintain_duration(tid,1) = temp1(1);
 
@@ -196,17 +224,30 @@ expsetup.stim.esetup_target_size_eyetrack(tid,1:4) = [0, 0, temp1(1), temp1(1)];
 
 % Look, avoid
 if expsetup.stim.esetup_block_cond(tid) == 1 || expsetup.stim.esetup_block_cond(tid) == 2
-    temp1 = Shuffle(expsetup.stim.target_number); % Select 1 or 2 targets
-    if strcmp(expsetup.stim.esetup_exp_version{tid}, 'delay increase')
-        expsetup.stim.esetup_target_number(tid) = 2;
-    else
-        expsetup.stim.esetup_target_number(tid) = temp1(1);
+    
+    %=========
+    % Modified part
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+    ind1 = find(ind0==1);
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'added probe trials');
+    ind2 = find(ind0==1);
+    if ind1>ind2
+        temp1 = Shuffle(expsetup.stim.target_number); % Select 1 or 2 targets
+    elseif ind1==ind2
+        temp1 = Shuffle(expsetup.stim.target_number);
+    elseif ind1<ind2
+        temp1 = 2; % Before probe trials, it's two targets
     end
+    %===========
+    expsetup.stim.esetup_target_number(tid) = temp1(1);
+    
+elseif expsetup.stim.esetup_block_cond(tid) >= 3
+    error('Target number not defined')
 end
 
 % SOA
-temp1 = Shuffle(expsetup.stim.response_distractor_soa);
-expsetup.stim.esetup_distractor_soa(tid) = temp1(1);
+temp1 = Shuffle(expsetup.stim.response_soa);
+expsetup.stim.esetup_response_soa(tid) = temp1(1);
 
 
 %% Stimuli positions
@@ -224,63 +265,68 @@ a = Shuffle(1:size(expsetup.stim.response_t3_coord,1));
 temp1 = expsetup.stim.response_t3_coord(a,:);
 st3 = temp1(1,1:2);
 
-
-% ST2 color, varies as a stage of training
+% ST2 color, varies as a stage of training. For look/avoid task ST2 color
+% level and step is the same.
 %=========
-ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
-ind1 = find(ind0==1);
-ind0 = strcmp(expsetup.stim.training_stage_matrix, 'luminance change');
-ind2 = find(ind0==1);
-if ind1>ind2
-    temp1 = Shuffle(expsetup.stim.st2_color_level);
-elseif ind1==ind2
+if strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance change') ||...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') ||...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change')
     temp1 = Shuffle(tv1(1).temp_var_current);
     var_copy.esetup_st2_color_level = temp1(1); % Copy variable for error trials
-elseif ind1<ind2
+else
     temp1 = Shuffle(expsetup.stim.st2_color_level);
 end
+
+% End of fixed part
 %===========
 expsetup.stim.esetup_st2_color_level(tid) = temp1(1);
     
     
 % Initialize different colors and shapes, based on block_cond
 if expsetup.stim.esetup_block_cond(tid,1) == 1 && expsetup.stim.esetup_target_number(tid,1) == 2
+    
     expsetup.stim.esetup_st1_coord(tid,1:2) = st_mem;
     expsetup.stim.esetup_st2_coord(tid,1:2) = st_nonmem;
     expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t1_color_task1;
+    expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_task1;
+    
     % ST2 color level changes
-    if strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change')
-        %====
+    if strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance change') ||...
+            strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') ||...
+            strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change')
+        % Calculate ST2 level
         c1 = expsetup.stim.response_t2_color_task1;
         d1 = expsetup.stim.esetup_background_color(tid,1:3) - c1;
         a1 = c1 + d1 * expsetup.stim.esetup_st2_color_level(tid);
         expsetup.stim.esetup_st2_color(tid,1:3) = a1;
         var_copy.esetup_st2_color = expsetup.stim.esetup_st2_color(tid,1:3); % Copy variable for error trials
-        %====
     else
         c1 = expsetup.stim.response_t2_color_task1;
         expsetup.stim.esetup_st2_color(tid,1:3) = c1;
     end
 
-    expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_task1;
 elseif expsetup.stim.esetup_block_cond(tid,1) == 2 && expsetup.stim.esetup_target_number(tid,1) == 2
+    
     expsetup.stim.esetup_st1_coord(tid,1:2) = st_nonmem;
     expsetup.stim.esetup_st2_coord(tid,1:2) = st_mem;
     expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t2_color_task2;
+    expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_task2;
+    
     % ST2 color level changes
-    if strcmp(expsetup.stim.esetup_exp_version{tid}, 'luminance change')
-        %===
+    if strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance change') ||...
+            strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') ||...
+            strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change')
+        % Calculate ST2 level
         c1 = expsetup.stim.response_t1_color_task2;
         d1 = expsetup.stim.esetup_background_color(tid,1:3) - c1;
         a1 = c1 + d1 * expsetup.stim.esetup_st2_color_level(tid);
         expsetup.stim.esetup_st2_color(tid,1:3) = a1;
         var_copy.esetup_st2_color = expsetup.stim.esetup_st2_color(tid,1:3); % Copy variable for error trials
-        %====
     else
         c1 = expsetup.stim.response_t1_color_task1;
         expsetup.stim.esetup_st2_color(tid,1:3) = c1;
     end
-    expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_task2;
+    
 elseif expsetup.stim.esetup_block_cond(tid,1) == 1 && expsetup.stim.esetup_target_number(tid,1) == 1
     expsetup.stim.esetup_st1_coord(tid,1:2) = st3;
     expsetup.stim.esetup_st2_coord(tid,1:2) = NaN;
@@ -296,6 +342,97 @@ elseif expsetup.stim.esetup_block_cond(tid,1) == 2 && expsetup.stim.esetup_targe
 end
 expsetup.stim.esetup_target_pen_width(tid,1) = expsetup.stim.response_pen_width;
 
+%% Distractor
+
+% Distractor position
+
+%============
+% Modified part
+ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+ind1 = find(ind0==1);
+ind0 = strcmp(expsetup.stim.training_stage_matrix, 'distractor train position');
+ind2 = find(ind0==1);
+if ind1>ind2
+    a = Shuffle(1:size(expsetup.stim.distractor_coord,1));
+    temp1 = expsetup.stim.distractor_coord(a,:);
+    expsetup.stim.esetup_distractor_coord(tid,1:2) = temp1(1,1:2);
+elseif ind1==ind2
+    temp1 = Shuffle(tv1(1).temp_var_current);
+    var_copy.esetup_distractor_coord(1,1:2) = [temp1(1),0]; % Copy variable for error trials
+    var_copy.esetup_distractor_coord_x(1,1) = temp1(1); % Copy variable for error trials
+    expsetup.stim.esetup_distractor_coord(tid,1:2) = [temp1(1),0];
+    expsetup.stim.esetup_distractor_coord_x(tid,1) = temp1(1);
+elseif ind1<ind2
+    temp1 = Shuffle(expsetup.stim.distractor_coord_x_ini);
+    expsetup.stim.esetup_distractor_coord(tid,1:2) = [temp1(1),0];
+    expsetup.stim.esetup_distractor_coord_x(tid,1) = temp1(1);
+end
+%=============
+
+
+% Distractor probability
+if strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train luminance') || ...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train position')
+    b = round(expsetup.stim.distractor_probability_ini * 100); % Distractor probability during training
+    a = [];
+    a (1:b) = 1; % Probabilty of event = 1
+    if b < 100
+        a(b+1 : 1 : 100) = 0; % Probability of event == 0
+    end
+    temp1 = Shuffle(a);
+elseif  strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor on')
+    b = round(expsetup.stim.distractor_probability * 100); % Distractor probability after training
+    a = [];
+    a (1:b) = 1; % Probabilty of event = 1
+    if b < 100
+        a(b+1 : 1 : 100) = 0; % Probability of event == 0
+    end
+    temp1 = Shuffle(a);
+else
+    temp1 = 0; % No distractor
+end
+expsetup.stim.esetup_distractor_probability(tid) = temp1(1);
+
+
+% Distractor color level
+%============
+% Fixed part
+ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+ind1 = find(ind0==1);
+ind0 = strcmp(expsetup.stim.training_stage_matrix, 'distractor train luminance');
+ind2 = find(ind0==1);
+if ind1>ind2
+    temp1 = Shuffle(expsetup.stim.distractor_color_level);
+elseif ind1==ind2
+    temp1 = Shuffle(tv1(1).temp_var_current);
+    var_copy.esetup_distractor_color_level = temp1(1); % Copy variable for error trials
+elseif ind1<ind2
+    temp1 = Shuffle(expsetup.stim.distractor_color_level);
+end
+%=============
+expsetup.stim.esetup_distractor_color_level(tid,1) = temp1(1);
+
+
+% Distractor color level changes
+if strcmp(expsetup.stim.esetup_exp_version{tid}, 'distractor train luminance')
+    % Calculate distractor level
+    c1 = expsetup.stim.distractor_color;
+    d1 = expsetup.stim.esetup_background_color(tid,1:3) - c1;
+    a1 = c1 + d1 * expsetup.stim.esetup_distractor_color_level(tid);
+    expsetup.stim.esetup_distractor_color(tid,1:3) = a1;
+    var_copy.esetup_distractor_color = expsetup.stim.esetup_distractor_color(tid,1:3); % Copy variable for error trials
+else
+    c1 = expsetup.stim.distractor_color;
+    expsetup.stim.esetup_distractor_color(tid,1:3) = c1;
+end
+
+% Distractor duration
+temp1 = Shuffle(expsetup.stim.distractor_duration);
+expsetup.stim.esetup_distractor_duration(tid) = temp1(1);
+
+% Distractor onset time
+temp1 = Shuffle(expsetup.stim.distractor_on_time);
+expsetup.stim.esetup_distractor_on_time(tid) = temp1(1);
 
 %%  Memory delay duration
 
@@ -322,7 +459,23 @@ if expsetup.stim.esetup_target_number(tid,1)==2 % Two target trials
     %===========
     
 elseif expsetup.stim.esetup_target_number(tid,1)==1 % Single target trials
-    temp1 = Shuffle(expsetup.stim.memory_delay_duration_probe);
+    
+    % Memory duration, varies as a stage of training
+    %=========
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+    ind1 = find(ind0==1);
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'delay increase');
+    ind2 = find(ind0==1);
+    if ind1>ind2
+        temp1 = Shuffle(expsetup.stim.memory_delay_duration_probe);
+    elseif ind1==ind2
+        temp1 = Shuffle(tv1(2).temp_var_current);
+        var_copy.esetup_memory_delay = temp1(1); % Copy variable for error trials
+    elseif ind1<ind2
+        temp1 = Shuffle(expsetup.stim.memory_delay_duration_ini);
+    end
+    %===========
+    
 end
 expsetup.stim.esetup_memory_delay(tid) = temp1(1);
 
@@ -375,7 +528,7 @@ if tid>1
     end
 end
 
-%=======================
+%% Training protocol update
 % If previous trial was an error, some stimulus properties are not copied
 % (very important, else task will not get easier)
 
