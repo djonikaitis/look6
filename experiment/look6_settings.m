@@ -76,9 +76,9 @@ stim.fixation_maintain_duration_ini_step = -0.1;
 % Stages with 'luminance change' in the name
 % Use stimulus luminance for interleaving blocks
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.st2_color_level_ini = 0.9;
+    stim.st2_color_level_ini = 0.5;
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
-    stim.st2_color_level_ini = 0.3;
+    stim.st2_color_level_ini = 0.5;
 else
     stim.st2_color_level_ini = 0.9;
 end
@@ -87,6 +87,7 @@ stim.st2_color_level_ini_step = -0.1;
 % Stage 'distractor train luminance'
 stim.distractor_color_level_ini = 0.9;
 stim.distractor_color_level_ini_step = -0.1;
+stim.distractor_color_level = 0;
 stim.distractor_probability_ini = 1; % How likely is distractor to appear
 
 % Stage 'distractor train position'
@@ -103,14 +104,14 @@ stim.fix_duration_increase_ini_step = 0.1;
 %% Quick settings
 
 % Specify target coordinates based on a RF mapping
-x = -5;
-y = -3;
+x = -2;
+y = -8;
 stim.target_spacing_arc = 90;
 
 % Defaults
-stim.main_cond = [1,2]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
+stim.main_cond = [2,1]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
-stim.target_number(97:100)= 1; % Number of probes (= 1 or 2)
+stim.target_number(95:100)= 1; % Number of probes (= 1 or 2)
 stim.memory_delay_duration = [1.8:0.01:2.2]; % How long memory delay lasts
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
 stim.number_of_trials_per_block = 200;
@@ -133,7 +134,7 @@ target_radius = [repmat(stim.target_radius, 1, length(target_arc))];
 
 % Save coordintes
 stim.response_target_coord = [xc',yc'];
-stim.response_t3_coord  = stim.response_target_coord;
+stim.response_t3_coord  = stim.response_target_coord(1,:);
 stim.distractor_coord = stim.response_target_coord;
 
 %%  Reward
@@ -142,7 +143,7 @@ stim.distractor_coord = stim.response_target_coord;
 stim.reward_coeff1 = [881.4887   -3.3301]; % Pump reward measure as of 10.19.2016
 
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.reward_size_ml = 0.28; % Typical reward to start with
+    stim.reward_size_ml = 0.26; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
     stim.reward_size_ml = 0.16; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'jw')
@@ -275,7 +276,6 @@ stim.response_remove_t2 = 1; % 1 - removes second target once first target is fi
 
 %=============
 % Distractor
-stim.distractor_color_level = 0;
 stim.distractor_shape = 'square';
 stim.distractor_color = [250, 250, 250];
 stim.distractor_pen_width = 5; % If empty shapes are drawn
@@ -306,7 +306,7 @@ stim.trial_dur_intertrial_error = 2; % Blank screen at the end
 
 %================
 % Staircase
-stim.trial_online_counter = 3; % How many trials to count for updating task difficulty
+stim.trial_online_counter_gradual = 3; % How many trials to count for updating task difficulty
 stim.trial_correct_goal_up = 3; % What is accuracy to make task harder
 stim.trial_correct_goal_down = 2; % What is accuracy to make task harder
 

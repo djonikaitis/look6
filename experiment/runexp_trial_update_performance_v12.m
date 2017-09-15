@@ -40,12 +40,17 @@ elseif tid>1
     fprintf('Running task version: %s\n', expsetup.stim.exp_version_temp)
 end
 
+expsetup.stim.exp_version_update_next_trial
 
 %% Determine how to update the task to next stage
 
 % Initialize tv1 structure
 u1 = sprintf('%s_trial_update_stimuli', expsetup.general.expname); % Path to file containing trial settings
 eval (u1);
+
+try
+tv1(1).update
+end
 
 % Select which update is being done
 if isfield(tv1(1), 'update')
@@ -55,19 +60,17 @@ if isfield(tv1(1), 'update')
     elseif strcmp(tv1(1).update, 'step') % Step update
         trial_online_counter = expsetup.stim.trial_online_counter_single_step;
         update_var = 2;
-    else
+    elseif strcmp(tv1(1).update, 'none') 
         % No updating
         fprintf('This task does not update\n')
         update_var = 0;
-        tv1 = struct; % Over-write structure empty;
-        trial_online_counter = 1000;
+        trial_online_counter = expsetup.stim.trial_online_counter_gradual;
     end
 else
     % No updating
     fprintf('This task does not update\n')
     update_var = 0;
-    tv1 = struct; % Over-write structure empty;
-    trial_online_counter = 1000;
+    trial_online_counter = expsetup.stim.trial_online_counter_gradual;
 end
 
 

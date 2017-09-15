@@ -16,10 +16,10 @@ global ni
 
 %% General settings to run the code
 
-expsetup.general.expname = 'look6';
-expsetup.general.exp_location = 'dj'; % 'dj'; 'mbox'; 'edoras'; 'citadel';
-expsetup.general.debug = 0; % 0: default; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
-expsetup.general.human_exp = 1; % 1 - human; 2 - monkey
+expsetup.general.expname = 'look6'; 
+expsetup.general.exp_location = 'edoras'; % 'dj'; 'mbox'; 'dan'; 'edoras'; 'citadel';
+expsetup.general.debug = 0; % 0: no debugging; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
+expsetup.general.human_exp = 0; % 1 - human; 2 - monkey
 
 % Devices and routines
 expsetup.general.record_plexon = 0;  % 0 - no recording; 1 - yes recording;
@@ -43,7 +43,7 @@ expsetup.general.trials_before_saving = 10; % How many trials to run before savi
 % Plexon events
 expsetup.general.plex_event_start = 1; % Code saved as trial start
 expsetup.general.plex_event_end = 2; % Code saved as trial start
-expsetup.general.plex_trial_timeout_sec = 60; % How many seconds before plexon stops checking data
+expsetup.general.plex_trial_timeout_sec = 30; % How many seconds before plexon stops checking data
 expsetup.general.plex_data_rate = []; % At which rate data is collected (40000 Hz), determined during tcpip connection
 
 % Get subject name
@@ -57,10 +57,11 @@ else
     expsetup.general.subject_id = input('Enter subject name:  ', 's');
 end
 
+
 % Get file name for computer settings
 n1 = sprintf('%s_computer_settings_v22_%s', expsetup.general.expname, expsetup.general.exp_location);
 expsetup.general.code_computer_setup = n1; % Path to file containing computer settings
-    
+ 
 
 % Plexon events
 if expsetup.general.plexon_online_spikes == 1 % Get channel number used in the recording
@@ -510,9 +511,9 @@ while endexp1==0
         time_tstart_1 = GetSecs;
 
         % Run trials
-        fprintf('\nCurrent trial number is %i\n', tid);
-        eval(expsetup.general.code_trial)
-        
+        fprintf('\nTrial number is %i\n', tid);
+        eval(expsetup.general.code_trial)        
+
         
         % Save data structure if more than tno trials were run (does not save early terminations)
         if tid>tno1
@@ -521,7 +522,7 @@ while endexp1==0
             d1 = sprintf('%s%s', dir1, f_name);
             save (d1, 'expsetup');
         end
-        
+       
     catch
         
         fprintf('\nCrashed on trial %i\n\n', tid);

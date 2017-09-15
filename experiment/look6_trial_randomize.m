@@ -209,7 +209,7 @@ elseif expsetup.stim.esetup_block_cond(tid) == 5
 end
 
 % Memory duration
-expsetup.sim.esetup_memory_duration(tid) = expsetup.stim.memory_duration;
+expsetup.stim.esetup_memory_duration(tid) = expsetup.stim.memory_duration;
 
 %% Response size
 
@@ -483,7 +483,7 @@ expsetup.stim.esetup_memory_delay(tid) = temp1(1);
 % If memory probe is shown, add it to the fixation maintenance duration
 expsetup.stim.esetup_total_fixation_duration(tid) = ...
     expsetup.stim.esetup_fixation_maintain_duration(tid) + ...
-    expsetup.sim.esetup_memory_duration(tid) + ...
+    expsetup.stim.esetup_memory_duration(tid) + ...
     expsetup.stim.esetup_memory_delay(tid);
 
 

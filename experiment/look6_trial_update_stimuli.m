@@ -5,7 +5,6 @@
 tv1 = struct; % Temporary Variable (TV)
 tv1(1).update = 'none';
 
-
 % Select variables to be modified
 if strcmp(expsetup.stim.exp_version_temp, 'fix duration increase')
     tv1(1).temp_var_final = nanmean(expsetup.stim.fixation_maintain_duration_ini);
@@ -62,5 +61,6 @@ if strcmp(expsetup.stim.exp_version_temp, 'distractor train position')
     tv1(1).temp_var_current = NaN; % This value will be filed up
     tv1(1).update = 'gradual';
 end
+
 
 
