@@ -11,18 +11,12 @@ end
 
 %% Different training stages have different stim durations
 
-stim.exp_version_temp = 'look luminance change'; % Version you want to run
-
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.training_stage_matrix = {...
-    'fix duration increase', 'fix duration stable', ...
-    'look luminance change', 'look luminance equal', ...
-    'avoid luminance change', 'avoid luminance equal',...
-    'delay increase', 'added probe trials',...
-    'task switch luminance change'};
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
 else
-    stim.training_stage_matrix = {...
+end
+
+stim.training_stage_matrix = {...
     'fix duration increase', 'fix duration stable', ...
     'look luminance change', 'look luminance equal', ...
     'avoid luminance change', 'avoid luminance equal',...
@@ -30,7 +24,6 @@ else
     'task switch luminance change', 'task switch luminance equal', ...
     'distractor train luminance', 'distractor train position', 'distractor on'...
     'final version'};
-end
 
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
 
@@ -85,7 +78,7 @@ stim.fixation_maintain_duration_ini_step = -0.1;
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
     stim.st2_color_level_ini = 0.5;
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
-    stim.st2_color_level_ini = 0.3;
+    stim.st2_color_level_ini = 0.5;
 else
     stim.st2_color_level_ini = 0.9;
 end
@@ -94,6 +87,7 @@ stim.st2_color_level_ini_step = -0.1;
 % Stage 'distractor train luminance'
 stim.distractor_color_level_ini = 0.9;
 stim.distractor_color_level_ini_step = -0.1;
+stim.distractor_color_level = 0;
 stim.distractor_probability_ini = 1; % How likely is distractor to appear
 
 % Stage 'distractor train position'
@@ -115,7 +109,7 @@ y = -8;
 stim.target_spacing_arc = 90;
 
 % Defaults
-stim.main_cond = [1,1,1,1]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
+stim.main_cond = [2,1]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(95:100)= 1; % Number of probes (= 1 or 2)
 stim.memory_delay_duration = [1.8:0.01:2.2]; % How long memory delay lasts
@@ -149,7 +143,7 @@ stim.distractor_coord = stim.response_target_coord;
 stim.reward_coeff1 = [881.4887   -3.3301]; % Pump reward measure as of 10.19.2016
 
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.reward_size_ml = 0.27; % Typical reward to start with
+    stim.reward_size_ml = 0.26; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
     stim.reward_size_ml = 0.16; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'jw')
@@ -282,7 +276,6 @@ stim.response_remove_t2 = 1; % 1 - removes second target once first target is fi
 
 %=============
 % Distractor
-stim.distractor_color_level = 0;
 stim.distractor_shape = 'square';
 stim.distractor_color = [250, 250, 250];
 stim.distractor_pen_width = 5; % If empty shapes are drawn

@@ -209,7 +209,7 @@ elseif expsetup.stim.esetup_block_cond(tid) == 5
 end
 
 % Memory duration
-expsetup.sim.esetup_memory_duration(tid) = expsetup.stim.memory_duration;
+expsetup.stim.esetup_memory_duration(tid) = expsetup.stim.memory_duration;
 
 %% Response size
 

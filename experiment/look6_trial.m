@@ -8,12 +8,14 @@ window = expsetup.screen.window;
 % tasks only
 
 if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'task switch luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'task switch luminance equal'))
+    % ind is number of trials in this block
     if expsetup.stim.trial_error_repeat == 1
         ind = strcmp(expsetup.stim.edata_error_code, 'correct') & expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
     else
         ind = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
     end
-    if sum(ind) == expsetup.stim.number_of_trials_per_block % If current block is new block, change task version
+    % If current block is new block, change task version
+    if sum(ind) == expsetup.stim.number_of_trials_per_block 
         a = expsetup.stim.esetup_exp_version{tid-1};
         ind1 = strcmp(expsetup.stim.training_stage_matrix, a);
         ind1 = find(ind1==1);
@@ -37,7 +39,7 @@ if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'task switch lumina
 end
 
 
-%% Training stage in the experiment
+%% Training stage of the experiment
 
 runexp_trial_update_performance_v12
 
