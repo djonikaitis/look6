@@ -19,13 +19,8 @@ global ni
 expsetup.general.expname = 'look6';
 expsetup.general.exp_location = 'edoras'; % 'dj'; 'mbox'; 'edoras'; 'citadel';
 expsetup.general.debug = 0; % 0: default; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
-<<<<<<< HEAD
-<<<<<<< HEAD
 expsetup.general.human_exp = 0; % 1 - human; 2 - monkey
-=======
->>>>>>> parent of 4472caa... improved functionality
-=======
->>>>>>> parent of 4472caa... improved functionality
+
 
 % Devices and routines
 expsetup.general.record_plexon = 1;  % 0 - no recording; 1 - yes recording;
