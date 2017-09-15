@@ -40,12 +40,17 @@ elseif tid>1
     fprintf('Running task version: %s\n', expsetup.stim.exp_version_temp)
 end
 
+expsetup.stim.exp_version_update_next_trial
 
 %% Determine how to update the task to next stage
 
 % Initialize tv1 structure
 u1 = sprintf('%s_trial_update_stimuli', expsetup.general.expname); % Path to file containing trial settings
 eval (u1);
+
+try
+tv1(1).update
+end
 
 % Select which update is being done
 if isfield(tv1(1), 'update')
