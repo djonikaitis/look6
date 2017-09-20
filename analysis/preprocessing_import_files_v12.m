@@ -2,7 +2,7 @@
 % V1.0 - October 10, 2016. Neurophysiology setup.
 % V1.1 - November 4, 2016. Neurophys setup. Small bug fixes.
 % V2.0 - February 2, 2017. Psychophysics setup. Creates one file per session
-% V1.2 - August 23, 2017. Neurophys setup. Re-written experiment design.
+% V1.2 - September 14, 2017. Neurophys setup. Re-written experiment design.
 % Converted into function.
 %
 % Output - saved structures in 'temp2' folder:
@@ -54,7 +54,7 @@ for i_subj = 1:length(settings.subjects)
     date_used = session_init.index_unique_dates(ind);
     
     % Analysis for each separate day
-    for i_date = 1:length(date_used)
+    for i_date = 1:numel(date_used)
         settings.date_current = date_used(i_date);
         import_data(settings)
     end

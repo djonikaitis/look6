@@ -363,27 +363,28 @@ end
 % Concatenate the fields of eyelink data (done by default)
 % One row - one trial
 if exist('S', 'var')
+    
     temp1 = S.eye_data;
     f1 = fieldnames(temp1);
     
-    for j=1:length(f1)
+    for i2=1:length(f1)
         
         % Extract dimensions from each field
-        dim1=NaN(size(S.session,1),1); 
-        dim2=NaN(size(S.session,1),1); 
-        dim3=NaN(size(S.session,1),1);
+        dim1_a=NaN(size(S.session,1),1); 
+        dim1_b=NaN(size(S.session,1),1); 
+        dim_s=NaN(size(S.session,1),1);
         for rep1=1:size(S.session,1)
-            if ndims(temp1.(f1{j}){rep1})==2 % Get the size
-                [dim1(rep1), dim2(rep1)] = size(temp1.(f1{j}){rep1});
+            if ndims(temp1.(f1{i2}){rep1})==2 % Get the size
+                [dim1_a(rep1), dim1_b(rep1)] = size(temp1.(f1{i2}){rep1});
             else
                 error('Combining sessions not written for 3D matrix')
             end
-            dim3(rep1) = size(S.session{rep1},1);
+            dim_s(rep1) = size(S.session{rep1},1);
         end
         
         % If the field size matches session size, concatenate it
-        if dim1==dim3
-            temp1.(f1{j})= cat(1, temp1.(f1{j}){:});
+        if dim1_a==dim_s
+            temp1.(f1{i2})= cat(1, temp1.(f1{i2}){:});
         end
         
     end
@@ -402,36 +403,36 @@ if exist('S', 'var')
     temp1 = S.eyelink_events;
     f1 = fieldnames(temp1);
     
-    for j=1:length(f1)
+    for i2=1:length(f1)
         
         % Extract dimensions from each field
-        dim1=NaN(size(S.session,1),1); 
-        dim2=NaN(size(S.session,1),1); 
-        dim3=NaN(size(S.session,1),1);
+        dim1_a=NaN(size(S.session,1),1); 
+        dim1_b=NaN(size(S.session,1),1); 
+        dim_s=NaN(size(S.session,1),1);
         for rep1=1:size(S.session,1)
-            if ndims(temp1.(f1{j}){rep1})==2 % Get the size
-                [dim1(rep1), dim2(rep1)] = size(temp1.(f1{j}){rep1});
+            if ndims(temp1.(f1{i2}){rep1})==2 % Get the size
+                [dim1_a(rep1), dim1_b(rep1)] = size(temp1.(f1{i2}){rep1});
             else
                 error('Combining sessions not written for 3D matrix')
             end
-            dim3(rep1) = size(S.session{rep1},1);
+            dim_s(rep1) = size(S.session{rep1},1);
         end
         
         % If the field size matches session size, concatenate it
-        if dim1==dim3
-            temp1.(f1{j})= cat(1, temp1.(f1{j}){:});
+        if dim1_a==dim_s
+            temp1.(f1{i2})= cat(1, temp1.(f1{i2}){:});
         end
         
         % If particular messages are missing, still concatenate by creating empty field
-        if any(dim1==0)
-            for i=1:length(dim1)
-                if dim1(i)==0 && ismatrix(temp1.(f1{j}){i})
-                    temp1.(f1{j}){i}=NaN(dim3(i),1);
-                elseif dim1(i)==0 && iscell(temp1.(f1{j}){i})
-                    temp1.(f1{j}){i}=cell(dim3(i),1);
+        if any(dim1_a==0)
+            for i=1:length(dim1_a)
+                if dim1_a(i)==0 && ismatrix(temp1.(f1{i2}){i})
+                    temp1.(f1{i2}){i}=NaN(dim_s(i),1);
+                elseif dim1_a(i)==0 && iscell(temp1.(f1{i2}){i})
+                    temp1.(f1{i2}){i}=cell(dim_s(i),1);
                 end
             end
-            temp1.(f1{j})= cat(1, temp1.(f1{j}){:});
+            temp1.(f1{i2})= cat(1, temp1.(f1{i2}){:});
         end
         
         
@@ -463,6 +464,7 @@ if exist ('S', 'var')
             dim1_c = NaN(size(S.session,1),1);
             dim_s = NaN(size(S.session,1),1);
             
+            % Get size of the variable
             for rep1=1:num_s
                 if ndims(mat1{rep1})<=3 % Get the size
                     [dim1_a(rep1), dim1_b(rep1), dim1_c(rep1)] = size(mat1{rep1});
@@ -470,43 +472,45 @@ if exist ('S', 'var')
                     error('Combining sessions is only possible 3D, not 4D matrix/structure')
                 end
                 dim_s(rep1) = size(mat_s{rep1},1);
-                
-                
-                % If the field size matches session size, concatenate it
-                if dim1_a == dim_s % Combine vertically
-                    if length(unique(dim1_b))==1 && length(unique(dim1_c))==1
-                        S.(f0).(f1{i2}) = cat(1, mat1{:});
-                    else
-                        S.(f0).(f1{i2}) = mat1; % No combining
-                    end
-                elseif dim1_b == dim_s % Combine horizontally
-                    if length(unique(dim1_a))==1 && length(unique(dim1_c))==1
-                        S.(f0).(f1{i2})= cat(2, mat1{:})'; % Flip to vertical, to keep up with conventions
-                    else
-                        S.(f0).(f1{i2}) = mat1; % No combining
-                    end
-                end
-                
-                % If particular fields are missing, still concatenate by creating empty field
-                if any(dim1_a==0)
-                    for i=1:length(dim1_a)
-                        if dim1_a(i)==0 && ismatrix(S.(f0).(f1{i2}){i})
-                            S.(f0).(f1{i2}){i}=NaN(dim3(i),1);
-                        elseif dim1_a(i)==0 && iscell(S.(f0).(f1{i2}){i})
-                            S.(f0).(f1{i2}){i}=cell(dim3(i),1);
-                        end
-                    end
-                    S.(f0).(f1{j})= cat(1, S.(f0).(f1{j}){:});
-                end
-
             end
-                       
-        end            
-     
+            
+            % If the field size matches session size, concatenate it
+            if dim1_a == dim_s % Combine vertically
+                if length(unique(dim1_b))==1 && length(unique(dim1_c))==1
+                    S.(f0).(f1{i2}) = cat(1, mat1{:});
+                else
+                    S.(f0).(f1{i2}) = mat1; % No combining
+                end
+            elseif dim1_b == dim_s % Combine horizontally
+                if length(unique(dim1_a))==1 && length(unique(dim1_c))==1
+                    S.(f0).(f1{i2})= cat(2, mat1{:})'; % Flip to vertical, to keep up with conventions
+                else
+                    S.(f0).(f1{i2}) = mat1; % No combining
+                end
+            end
+            
+            % If particular fields are missing, still concatenate by creating empty field
+            if any(dim1_a==0)
+                for i=1:length(dim1_a)
+                    if dim1_a(i)==0 && ismatrix(S.(f0).(f1{i2}){i})
+                        S.(f0).(f1{i2}){i}=NaN(dim_s(i),1);
+                    elseif dim1_a(i)==0 && iscell(S.(f0).(f1{i2}){i})
+                        S.(f0).(f1{i2}){i}=cell(dim_s(i),1);
+                    end
+                end
+                S.(f0).(f1{i2})= cat(1, S.(f0).(f1{i2}){:});
+            end
+            
+        end
+        % End of analysis for each field
+        
     end
+    % End of analysis for each struct array
     
+    % Concatenate special cases:
     S.session = cat(1,S.session{1:end});
     S.date = cat(1,S.date{1:end});
+    
 end
 
 %% Convert cells with repetitions into cells for each trial

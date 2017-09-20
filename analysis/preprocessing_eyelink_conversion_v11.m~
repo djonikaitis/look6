@@ -64,38 +64,36 @@ for i_subj = 1:length(settings.subjects)
         folder_name = sprintf ('%s%d', settings.subject_current, settings.date_current);
         % Output file
         file_name_out = sprintf ('%s%s', folder_name, '.mat');
-        path1_out = [settings.path_data_combined_subject, folder_name, '/', file_name_out];
-        path1_out_folder = [settings.path_data_combined_subject, folder_name, '/'];
+        path1 = [settings.path_data_combined_subject, folder_name, '/', file_name_out];
+        path1_folder = [settings.path_data_combined_subject, folder_name, '/'];
         % Input file
         file_name_in = sprintf ('%s%s', folder_name, '_settings.mat');
-        path1_settings_in = [settings.path_data_temp_2_subject, folder_name, '/', file_name_in];
+        path0 = [settings.path_data_temp_2_subject, folder_name, '/', file_name_in];
         % Raw data
         file_name_raw = sprintf ('%s%s', folder_name, '_eye_traces.mat');
-        path1_raw_in = [settings.path_data_temp_2_subject, folder_name, '/', file_name_raw];
-        path1_raw_out = [settings.path_data_combined_subject, folder_name, '/', file_name_raw];
-
+        path_raw = [settings.path_data_temp_2_subject, folder_name, '/', file_name_raw];
         % Figure path
         path1_fig = [settings.path_figures, settings.figure_folder_name, '/', settings.subject_current, '/'];
         if ~isdir(path1_fig)
             mkdir(path1_fig)
         end
         
-        if ~exist(path1_out, 'file') || settings.overwrite==1
+        if ~exist(path1, 'file') || settings.overwrite==1
             
             % Create directory for the data
-            if isdir(path1_out_folder)
-                rmdir(path1_out_folder, 's')
+            if isdir(path1_folder)
+                rmdir(path1_folder, 's')
                 fprintf('\nPreprocessing folder already exists, contents cleared\n')
-                mkdir(path1_out_folder);
+                mkdir(path1_folder);
             else
                 fprintf('Created new directory for converted eyelink data\n')
-                mkdir(path1_out_folder);
+                mkdir(path1_folder);
             end
             fprintf('\nPreparing matrix %s which stores all settings and data\n', file_name_out)
             
             % Load structure of interest
-            var1 = load_struct(path1_settings_in);
-            var2 = load_struct(path1_raw_in);
+            var1 = load_struct(path0);
+            var2 = load_struct(path_raw);
             
             if isempty(fieldnames(var1)) || isempty(fieldnames(var2))
                 fprintf('Data for given date does not exist, possible debugging mode recorded only\n')
@@ -116,26 +114,26 @@ for i_subj = 1:length(settings.subjects)
                 var2 = rmfield(var2, 'eye_raw');
                 var2 = rmfield(var2, 'eye_preblink');
             end
-            
-            % Drift correction
-            if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2))
-                [var1, var2, var3] = drift_corr(settings, var1, var2);
-                drift_plot(settings, var1, var2, var3, path1_fig);
-            end
-            
-            % Extract only some structure fields (to save on space)
-            if ~isempty(fieldnames(var1))
-                var1 = extract_fields(var1);
-            end
-                        
-            % Save data
-            if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2))
-                S = var1;
-                save (eval('path1_out'), 'S')
-                % Save raw data
-                SR = var2;
-                save (eval('path1_raw_out'), 'SR')
-            end
+%             
+%             % Drift correction
+%             if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2))
+%                 [var1, var2, var3] = drift_corr(settings, var1, var2);
+%                 drift_plot(settings, var1, var2, var3, path1_fig);
+%             end
+%             
+%             % Extract only some structure fields (to save on space)
+%             if ~isempty(fieldnames(var1))
+%                 var1 = extract_fields(var1);
+%             end
+%                         
+%             % Save data
+%             if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2))
+%                 S = var1;
+%                 save (eval('path1'), 'S')
+%                 % Save raw data
+%                 SR = var2;
+%                 save (eval('path_raw'), 'SR')
+%             end
             
             
         else
