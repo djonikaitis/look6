@@ -88,7 +88,7 @@ if ~isfield(settings, 'overwrite')
 end
 
 % Run settings file:
-eval(sprintf('%s_settings', settings.exp_name)); % Load general settings
+eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
 % Output
 y = settings;

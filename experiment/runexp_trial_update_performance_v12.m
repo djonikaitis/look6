@@ -48,10 +48,6 @@ expsetup.stim.exp_version_update_next_trial
 u1 = sprintf('%s_trial_update_stimuli', expsetup.general.expname); % Path to file containing trial settings
 eval (u1);
 
-try
-tv1(1).update
-end
-
 % Select which update is being done
 if isfield(tv1(1), 'update')
     if strcmp(tv1(1).update, 'gradual') % Gradual update
@@ -255,5 +251,13 @@ if update_var==2
     
 end
 
+<<<<<<< HEAD
 
+=======
+%% Do not update the task
+
+if update_var==0
+    expsetup.stim.exp_version_update_next_trial = 0;
+end
+>>>>>>> master
 
