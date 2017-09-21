@@ -6,7 +6,7 @@ clear all;
 clc;
 close all;
 
-settings.subjects = 'hb'; % Subject name
+settings.subjects = 'aq'; % Subject name
 settings.exp_name = 'look6'; % Epxeriment name
 eval(sprintf('%s_settings', settings.exp_name)); % Load general settings
 
@@ -28,7 +28,7 @@ end
 % Creates a folder "combined". Combines settings and saccades files into one file; 
 % reset saccades to degrees of visual angle; do drift correction
 settings.preprocessing_eyelink_conversion = 1;
-settings.overwrite = 1  ; % If 1, runs analysis again even if it was done 
+settings.overwrite = 0  ; % If 1, runs analysis again even if it was done 
 if settings.preprocessing_eyelink_conversion == 1
     preprocessing_eyelink_conversion_v11(settings);
 end

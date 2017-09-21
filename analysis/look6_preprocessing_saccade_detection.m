@@ -56,7 +56,7 @@ for i_subj=1:length(settings.subjects)
     end
     
     % Get index of every folder for a given subject
-    path1 = settings.path_data_temp_3_subject;
+    path1 = settings.path_data_combined_subject;
     session_init = get_path_dates_v20(path1, settings.subject_current);
     if isempty(session_init.index_dates)
         fprintf('\nNo files detected, no data analysis done. Directory checked was:\n')
