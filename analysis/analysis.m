@@ -6,7 +6,7 @@ clear all;
 clc;
 close all;
 
-settings.subjects = 'hb'; % Subject name
+settings.subjects = 'aq'; % Subject name
 settings.exp_name = 'look6'; % Epxeriment name
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 

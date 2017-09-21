@@ -251,13 +251,10 @@ if update_var==2
     
 end
 
-<<<<<<< HEAD
 
-=======
 %% Do not update the task
 
 if update_var==0
     expsetup.stim.exp_version_update_next_trial = 0;
 end
->>>>>>> master
 

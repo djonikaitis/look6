@@ -37,7 +37,7 @@ end
 % Settings for preprocessing (conversion of edf, plexon files)
 settings.preprocessing_sessions_used = 2; % 1 - all sessions used; 2 - selected session used (denoted as date: 20161231); 3 - last session used;
 if settings.preprocessing_sessions_used ==2
-    settings.preprocessing_day_id = 20170821; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
+    settings.preprocessing_day_id = 20170914; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
 
 
