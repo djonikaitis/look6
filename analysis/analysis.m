@@ -40,23 +40,23 @@ end
 % % if settings.preprocessing_plexon_import == 1
 % %     look5_preprocessing_plexon_import;
 % % end
-% 
-% % % Match plexon events with psychtoolbox events. Creates matrix
-% % % events_matched
-% % settings.preprocessing_plexon_match_events = 0;
-% % settings.overwrite = 1; % If 1, runs analysis again even if it was done 
-% % if settings.preprocessing_plexon_match_events == 1
-% %     look5_preprocessing_plexon_match_events;
-% %     look5_preprocessing_plexon_match_plot;
-% % end
-% % 
-% % % Export plexon spiking data into processed matrices. Reset time of spikes to match
-% % % psychtoolbox timing. 
-% % settings.preprocessing_plexon_spikes = 0;
-% % settings.overwrite = 1; % If 1, runs analysis again even if it was done 
-% % if settings.preprocessing_plexon_spikes == 1
-% %     look5_preprocessing_plexon_spikes;
-% % end
+
+% Match plexon events with psychtoolbox events. Creates matrix
+% events_matched
+settings.preprocessing_plexon_match_events = 1;
+settings.overwrite = 1; % If 1, runs analysis again even if it was done 
+if settings.preprocessing_plexon_match_events == 1
+    look6_preprocessing_plexon_match_events;
+    look6_preprocessing_plexon_match_plot;
+end
+
+% Export plexon spiking data into processed matrices. Reset time of spikes to match
+% psychtoolbox timing. 
+settings.preprocessing_plexon_spikes = 0;
+settings.overwrite = 1; % If 1, runs analysis again even if it was done 
+if settings.preprocessing_plexon_spikes == 1
+    look6_preprocessing_plexon_spikes;
+end
 
 
 %% Preprocessing: saccades
@@ -97,7 +97,7 @@ end
 % % settings.analysis_spikes_timecourse = 0;
 % % settings.overwrite = 1;
 % % if settings.analysis_spikes_timecourse==1
-% %     look5_analysis_spikes_timecourse;
+% %     look6_analysis_spikes_timecourse;
 % % end
 % 
 % % % Spiking rates for different conditions

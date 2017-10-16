@@ -113,11 +113,11 @@ settings.figsize_1col=[0, 0, 2.2, 2.2];
 settings.figsize_2col=[0, 0, 2.2, 4.4];
 
 % Settings for doing sliding window analysis
-settings.timestep=25;
+settings.timestep=50;
 settings.intervalbins_tex=[-200:settings.timestep:450]; % Bins locked to cue
-settings.intervalbins_mem=[-200:settings.timestep:1000]; % Bins locked to memory
+settings.intervalbins_mem=[-200:settings.timestep:1800]; % Bins locked to memory
 settings.intervalbins_sacc=[-700:settings.timestep:100]; % Bins locked to saccade cue
-settings.bin_length=40; % Milisecconds used for each time bin (for sliding window size)
+settings.bin_length=80; % Milisecconds used for each time bin (for sliding window size)
 settings.baseline_bin_count = 3; % How many time bins to use for moving average analysis
 
 settings.colormap = 'magma';
