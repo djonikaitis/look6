@@ -37,7 +37,7 @@ end
 % Settings for preprocessing (conversion of edf, plexon files)
 settings.preprocessing_sessions_used = 2; % 1 - all sessions used; 2 - selected session used (denoted as date: 20161231); 3 - last session used;
 if settings.preprocessing_sessions_used ==2
-    settings.preprocessing_day_id = 20170914; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
+    settings.preprocessing_day_id = 20170918; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
 
 
@@ -76,11 +76,10 @@ path_spec_names{3} = {'data_psychtoolbox'; settings.path_baseline_data};
 path_spec_names{4} = {'data_eyelink_edf'; settings.path_baseline_data};
 path_spec_names{5} = {'data_temp_1';  settings.path_baseline_data}; % Converted into .asc and .dat files
 path_spec_names{6} = {'data_temp_2'; settings.path_baseline_data}; % Combine saccades + psychtoolbox into one file
-path_spec_names{7} = {'data_temp_3'; settings.path_baseline_data}; % Converted eyelink data into deg
-path_spec_names{8} = {'data_plexon_mat'; settings.path_baseline_plexon};
-path_spec_names{9} = {'data_plexon_raw'; settings.path_baseline_plexon};
-path_spec_names{10} = {'data_combined_plexon'; settings.path_baseline_data};
-path_spec_names{11} = {'data_spikes'; settings.path_baseline_data};
+path_spec_names{7} = {'data_plexon_mat'; settings.path_baseline_plexon};
+path_spec_names{8} = {'data_plexon_raw'; settings.path_baseline_plexon};
+path_spec_names{9} = {'data_combined_plexon'; settings.path_baseline_data};
+path_spec_names{10} = {'data_spikes'; settings.path_baseline_data};
 
 % Generate path names
 for i=1:numel(path_spec_names)

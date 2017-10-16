@@ -63,9 +63,10 @@ end
 
 % Detect saccades
 settings.overwrite = 0;
-settings.preprocessing_saccade_detection = 1;
+settings.preprocessing_saccade_detection = 0;
 if settings.preprocessing_saccade_detection == 1
     look6_preprocessing_saccade_detection;
+    look6_preprocessing_plot_saccade_detection;
 end
 
 

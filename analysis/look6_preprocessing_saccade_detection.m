@@ -48,10 +48,12 @@ for i_subj=1:length(settings.subjects)
     % Initialize subject specific folders where data is stored
     f1 = fieldnames(settings);
     ind = strncmp(f1,'path_data_', 10);
+    ind_s = strfind(f1, '_subject');
     for i = 1:numel(ind)
-        if ind(i)==1
-            v1 = sprintf('%s%s', f1{i}, '_subject');
-            settings.(v1) = sprintf('%s%s/', settings.(f1{i}), settings.subject_current);
+        if ind(i)==1 && isempty(ind_s{i})
+            v1 = sprintf('%s%s', f1{i}, '_subject'); % Fieldname
+            v2 = sprintf('%s%s/', settings.(f1{i}), settings.subject_current); % Path
+            settings.(v1) = v2;
         end
     end
     
@@ -122,7 +124,6 @@ for i_subj=1:length(settings.subjects)
             
             
             %% Saccade made to correct target
-            
             
             saccade_matrix = NaN(size(sacc1,1),7); % Only one saccade is taken
             trial_accepted = cell(numel(S.START), 1); % Initialize matrix which will track rejected saccades
