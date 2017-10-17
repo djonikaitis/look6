@@ -69,18 +69,11 @@ if settings.preprocessing_saccade_detection == 1
     look6_preprocessing_plot_saccade_detection;
 end
 
-
-% % % % Plot grouped eye traces to detect errors in algorithm
-% % % settings.plot_saccade_detection = 1;
-% % % if settings.plot_saccade_detection == 1;
-% % %     look5_plot_saccade_detection;
-% % % end
-
-% % % % Plot eye traces for manual inspection
-% % % settings.plot_saccades_raw = 0;
-% % % if settings.plot_saccades_raw == 0
-% % %     look5_plot_saccades_raw;
-% % % end
+% Plot eye traces for manual inspection
+settings.plot_saccades_raw = 0;
+if settings.plot_saccades_raw == 0
+    look6_preprocessing_plot_saccades_raw;
+end
 
 
 

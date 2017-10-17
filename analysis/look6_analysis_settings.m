@@ -35,9 +35,9 @@ else
 end
 
 % Settings for preprocessing (conversion of edf, plexon files)
-settings.preprocessing_sessions_used = 2; % 1 - all sessions used; 2 - selected session used (denoted as date: 20161231); 3 - last session used;
-if settings.preprocessing_sessions_used ==2
-    settings.preprocessing_day_id = 20170918; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
+settings.data_sessions = 'selected'; % "all"; "last"; "selected" (denoted as date: 20161231);
+if strcmp(settings.data_sessions, 'selected')
+    settings.data_sessions_temp = 20170918; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
 
 
