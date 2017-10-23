@@ -19,17 +19,6 @@ settings.path_baseline_plexon = sprintf('~/data/neurophysiology/Experiments_data
 settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';
 
 
-%%  Which dates to process
-
-
-settings.data_sessions = 'selected';
-if strcmp(settings.data_sessions, 'all')
-elseif strcmp(settings.data_sessions, 'last')
-elseif strcmp(settings.data_sessions, 'selected')
-    settings.data_sessions_temp = 20170918; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
-end
-
-
 %% All subjects used in the task
 
 s1{1}='aq';
@@ -44,6 +33,14 @@ elseif ~iscell(settings.subjects)
     settings.subjects{1} = a;
 else
     % Do nothing
+end
+
+% Settings for preprocessing (conversion of edf, plexon files)
+settings.data_sessions = 'selected';
+if strcmp(settings.data_sessions, 'all')
+elseif strcmp(settings.data_sessions, 'last')
+elseif strcmp(settings.data_sessions, 'selected')
+    settings.data_sessions_temp = 20170918; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
 
 
@@ -203,7 +200,6 @@ marker1{17}='o';
 marker1{18}='o'; 
 marker1{19}='o'; 
 marker1{20}='o';
-
 
 %============
 % All other

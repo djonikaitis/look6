@@ -16,7 +16,7 @@ settings = ini_setup(settings);
 
 % Extra settings
 settings.figure_folder_name = 'preprocessing_drift_correction';
-settings.figsize1 = [0, 0, 10, 8];
+settings.figsize_temp = [0, 0, 10, 8];
 settings.color_map = magma(50);
 
 if ~isfield(settings, 'drift_correction_time')
@@ -674,8 +674,8 @@ f_name = sprintf('%sdate_%d', path1_fig, settings.date_current);
 
 set(gcf, 'PaperPositionMode', 'manual');
 set(gcf, 'PaperUnits', 'inches');
-set(gcf, 'PaperPosition', settings.figsize1)
-set(gcf, 'PaperSize', [settings.figsize1(3),settings.figsize1(4)]);
+set(gcf, 'PaperPosition', settings.figsize_temp)
+set(gcf, 'PaperSize', [settings.figsize_temp(3),settings.figsize_temp(4)]);
 print (f_name, '-dpdf')
 
 close all;

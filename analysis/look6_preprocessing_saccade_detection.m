@@ -1,699 +1,660 @@
 % Detection of correct saccades
-% V1.1: September 19, 2017
+% Latest version: October 23, 2017
 % Donatas Jonikaitis
 
+
+% Show file you are running
 p1 = mfilename;
 fprintf('\n=========\n')
 fprintf('\n Current file:  %s\n', p1)
 fprintf('\n=========\n')
 
-
-%% Initial setup
-
 % Loading the files needed
 if ~exist('settings', 'var')
     settings = struct;
 end
-
-% Setup exp name
-if ~isfield (settings, 'exp_name')
-    settings.exp_name = input ('Type in experiment name: ', 's');
-end
-
-% Default subject number: all subjects
-if ~isfield (settings, 'subjects')
-    settings.subjects = 'all'; % Subject name
-end
-
-% Overwriting analysis defaults
-if ~isfield(settings, 'overwrite')
-    settings.overwrite = 1;
-end
-
-% Run settings file:
-eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
+settings = get_settings_ini_v10(settings);
 
 
-%% Some settings
+%% Extra settings
 
 settings.figure_folder_name = 'saccade_detection';
+settings.figure_size_temp = [0, 0, 4.5, 2];
 
+%% Analysis
 
-%% Run preprocessing
 
 for i_subj=1:length(settings.subjects)
     
-    settings.subject_current = settings.subjects{i_subj}; % Select curent subject
+    % Select curent subject
+    settings.subject_current = settings.subjects{i_subj};
     
-    % Initialize subject specific folders where data is stored
-    f1 = fieldnames(settings);
-    ind = strncmp(f1,'path_data_', 10);
-    ind_s = strfind(f1, '_subject');
-    for i = 1:numel(ind)
-        if ind(i)==1 && isempty(ind_s{i})
-            v1 = sprintf('%s%s', f1{i}, '_subject'); % Fieldname
-            v2 = sprintf('%s%s/', settings.(f1{i}), settings.subject_current); % Path
-            settings.(v1) = v2;
-        end
-    end
-    
-    % Get index of every folder for a given subject
-    path1 = settings.path_data_combined_subject;
-    session_init = get_path_dates_v20(path1, settings.subject_current);
-    if isempty(session_init.index_dates)
-        fprintf('\nNo files detected, no data analysis done. Directory checked was:\n')
-        fprintf('%s\n', path1)
-    end
-    
-    % Save session_init data into settings matrix (needed for preprocessing)
-    f1_data = fieldnames(session_init);
-    for i=1:length(f1_data)
-        settings.(f1_data{i}) = session_init.(f1_data{i});
-    end
-    
-    % Which date to analyse (all days or a single day)
-    if isfield(settings, 'preprocessing_sessions_used')
-        if settings.preprocessing_sessions_used==1
-            ind = 1:length(session_init.index_unique_dates);
-        elseif settings.preprocessing_sessions_used==2
-            ind = find(session_init.index_unique_dates==settings.preprocessing_day_id);
-        elseif settings.preprocessing_sessions_used==3
-            ind = length(session_init.index_unique_dates);
-        end
-    else
-        fprintf('settings.preprocessing_day_id not defined, analyzing all data available\n')
-        ind = 1:length(session_init.index_unique_dates);
-    end
-    date_used = session_init.index_unique_dates(ind);
+    % Get subject folder paths and dates to analyze
+    settings = get_settings_path_and_dates_ini_v10(settings);
+    dates_used = settings.data_sessions_to_analyze;
     
     % Analysis for each day
-    for i_date = 1:numel(date_used)
-        
-        date_current = date_used(i_date);
+    for i_date = 1:numel(dates_used)
         
         % Current folder to be analysed (raw date, with session index)
+        date_current = dates_used(i_date);
         ind = date_current==settings.index_dates;
         folder_name = settings.index_directory{ind};
         
-        %============
-        % Select files to load
-        path1 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '.mat']; % File with settings
-        path2 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_eye_traces.mat']; % File with raw data
-        path3 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_saccades.mat']; % File with raw data
+        % Figure folder
+        path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name);
         
-        if ~exist(path3, 'file') || settings.overwrite==1
+        % Overwrite figure folders
+        if ~isdir(path_fig) || settings.overwrite==1
+            if ~isdir(path_fig)
+                mkdir(path_fig)
+            elseif isdir(path_fig)
+                rmdir(path_fig, 's')
+                mkdir(path_fig)
+            end
+        end
+        
+        % Data folders
+        path1 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '.mat']; 
+        path2 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_eye_traces.mat']; 
+        path3 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_saccades.mat']; 
+        path4 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_individual_saccades.mat']; 
+        
+        % Run analysis
+        if exist(path1, 'file')
+            
+            
+            %% Reshape saccades matrix
             
             % Load all settings
-            var1 = struct; varx = load(path1);
-            f1 = fieldnames(varx);
-            if length(f1)==1
-                var1 = varx.(f1{1});
-            end
+            var1 = get_struct_v10(path1);
             
-            % Load raw saccade data
-            var2 = struct; varx = load(path2);
-            f1 = fieldnames(varx);
-            if length(f1)==1
-                var2 = varx.(f1{1});
-            end
-            
-            % Copy raw data
+            % Initialize few variables
             sacc1 = var1.saccades_EK;
-            saccraw1 = var2.eye_processed;
-            S = var1;
+            saccade_matrix = NaN(size(sacc1,1), 7); % Only one saccade is taken
+            trial_accepted = cell(size(sacc1,1), 1); % Initialize matrix which will track rejected saccades
             
+            %============
+            %============
+            % Restructure saccades matrix into one saccade per row
+            % This is for fast plotting of all saccades observed in the
+            % experiments
             
-%             %% Saccade made to correct target
-%             
-%             saccade_matrix = NaN(size(sacc1,1),7); % Only one saccade is taken
-%             trial_accepted = cell(numel(S.START), 1); % Initialize matrix which will track rejected saccades
-%             
-%             e_dist1=NaN(size(sacc1,1),1); % This is to store endpoint deviation data to the target
-%             e_dist2=NaN(size(sacc1,1),1); % This is to store endpoint deviation data to the distractor
-%             
-%             minlatency_baseline=50; % Min accepted latency
-%             
-%             for tid=1:size(sacc1,1)
-%                 
-%                 % Data to be used
-%                 sx1=sacc1{tid}; % Manipulated data
-%                 sx2=sacc1{tid}; % Raw data
-%                 
-%                 if size(sx1,2)>1 && isempty(trial_accepted{tid})
-%                     
-%                     % Starting position
-%                     arc1 = S.esetup_fixation_arc(tid);
-%                     rad1 = S.esetup_fixation_radius(tid);
-%                     [x,y] = pol2cart(arc1*pi/180, rad1);
-%                     sx1(:,3)=sx1(:,3)-x;
-%                     sx1(:,4)=sx1(:,4)-y;
-%                     
-%                     % Ending position
-%                     xc = S.esetup_st1_coord(tid,1);
-%                     yc = S.esetup_st1_coord(tid,2);
-%                     sx1(:,5)=sx1(:,5)-x;
-%                     sx1(:,6)=sx1(:,6)-y;
-%                     
-%                     if ~isnan(S.target_on(tid))
-%                         
-%                         % Settings on each trial used
-%                         minlatency = S.target_on(tid) + minlatency_baseline;
-%                         maxlatency = S.target_off(tid);
-%                         % Settings on each trial used
-%                         threshold1 = S.esetup_fixation_size_eyetrack(tid,4);
-%                         threshold2 = S.esetup_target_size_eyetrack(tid,4);
-%                         
-%                         % Find distance between wanted and actual sacc position
-%                         startdev1=sqrt((sx1(:,3).^2)+(sx1(:,4).^2));
-%                         enddev1=sqrt((sx1(:,5).^2)+(sx1(:,6).^2));
-%                         starttimes=sx1(:,1);
-%                         
-%                         % index1 is correct saccades
-%                         index1=startdev1<threshold1 & enddev1<threshold2 & starttimes>minlatency & starttimes<maxlatency;
-%                         
-%                         % If such is saccade found, record it
-%                         if sum(index1)==1
-%                             saccade_matrix(tid,:) = sx2(index1,1:7);
-%                             e_dist1(tid) = enddev1(index1); % Distance to the target is saved
-%                         end
-%                         
-%                         % If no saccade is found, record error trial
-%                         if sum(index1)~=1
-%                             % Do nothing
-%                         elseif sum(index1)==1
-%                             trial_accepted{tid} = 'correct';
-%                         end
-%                     end
-%                 end
-%             end
+            ST = struct; % Initalize output matrix
+            temp_data = var1.saccades_EK; % Saccades data
             
+            % Create a matrix with trial numbers (so that data could be re-accessed)
+            mat1 = []; % Output matrix
+            i = 1; % Row counts
+            n = 1; % As many columns as there is data
             
-            %% ALSO FIND SACCADES DIRECTED TO WRONG TARGET
+            for tid = 1:numel(temp_data)
+                
+                [m,~] = size(temp_data{tid}); % One row - one saccade
+                if m>0
+                    mat1(i:i+m-1,1:n) = tid; % Save one row for one saccade
+                elseif m==0
+                    mat1(i,1:n) = tid; % Save one row for one saccade
+                end
+                i = size(mat1,1)+1; % Update number of rows for the next trial
+                
+            end
             
-%             for tid=1:size(sacc1,1)
-%                 
-%                 % Data to be used
-%                 sx1=sacc1{tid}; % Manipulated data
-%                 sx2=sacc1{tid}; % Raw data
-%                 
-%                 if size(sx1,2)>1 && S.esetup_target_number(tid)==2 % Only if two targets were presented
-%                     
-%                     % Starting position
-%                     arc1 = S.esetup_fixation_arc(tid);
-%                     rad1 = S.esetup_fixation_radius(tid);
-%                     [x,y] = pol2cart(arc1*pi/180, rad1);
-%                     sx1(:,3)=sx1(:,3)-x;
-%                     sx1(:,4)=sx1(:,4)-y;
-%                     
-%                     % Ending position
-%                     x = S.esetup_st2_coord(tid,1);
-%                     y = S.esetup_st2_coord(tid,2);
-%                     sx1(:,5)=sx1(:,5)-x;
-%                     sx1(:,6)=sx1(:,6)-y;
-%                     
-%                     if ~isnan(S.distractor_on(tid))
-%                         
-%                         % Settings on each trial used
-%                         minlatency = S.distractor_on(tid) + minlatency_baseline;
-%                         maxlatency = S.distractor_off(tid);
-%                         % Settings on each trial used
-%                         threshold1 = S.esetup_fixation_size_eyetrack(tid,4);
-%                         threshold2 = S.esetup_target_size_eyetrack(tid,4);
-%                         
-%                         % Find distance between wanted and actual sacc position
-%                         startdev1=sqrt((sx1(:,3).^2)+(sx1(:,4).^2));
-%                         enddev1=sqrt((sx1(:,5).^2)+(sx1(:,6).^2));
-%                         starttimes=sx1(:,1);
-%                         
-%                         % index1 is correct saccades
-%                         index1=startdev1<threshold1 & enddev1<threshold2 & starttimes>minlatency & starttimes<maxlatency;
-%                         
-%                         
-%                         % If such is saccade found, record it
-%                         if isempty(trial_accepted{tid}) % Only if that trial is not used already
-%                             if sum(index1)==1
-%                                 saccade_matrix(tid,:) = sx2(index1,1:7);
-%                                 e_dist2(tid)=enddev1(index1); % Distance to the distractor is saved
-%                                 trial_accepted{tid} = 'wrong target';
-%                             end
-%                         elseif strcmp(trial_accepted{tid}, 'correct') % If trial is used already, choose saccade directed to closer object
-%                             if sum(index1) == 1 % If saccade to the distractor is found is found
-%                                 e_dist2(tid) = enddev1(index1); % Distance to the distractor is saved
-%                                 a1=e_dist1(tid); % Distance to the target
-%                                 a2=e_dist2(tid); % Distance to the distractor
-%                                 if a2<a1
-%                                     saccade_matrix(tid,:) = sx2(index1,1:7);
-%                                     trial_accepted{tid} = 'wrong target';
-%                                 end
-%                             end
-%                         end
-%                         
-%                     end
-%                 end
-%             end
+            ST.trial_no = mat1;
             
+            %=================
+            % Create matrix with all settings
             
-            %% Saccade made to memory during delay period
+            f1 = fieldnames(var1);
             
-%             for tid=1:size(sacc1,1)
-%                 
-%                 % Data to be used
-%                 sx1=sacc1{tid}; % Manipulated data
-%                 sx2=sacc1{tid}; % Raw data
-%                 
-%                 if size(sx1,2)>1
-%                     
-%                     % Starting position
-%                     arc1 = S.esetup_fixation_arc(tid);
-%                     rad1 = S.esetup_fixation_radius(tid);
-%                     [x,y] = pol2cart(arc1*pi/180, rad1);
-%                     sx1(:,3)=sx1(:,3)-x;
-%                     sx1(:,4)=sx1(:,4)-y;
-%                     
-%                     % Ending position
-%                     x = S.esetup_memory_coord(tid,1);
-%                     y = S.esetup_memory_coord(tid,2);
-%                     sx1(:,5)=sx1(:,5)-x;
-%                     sx1(:,6)=sx1(:,6)-y;
-%                     
-%                     if ~isnan(S.memory_on(tid)) % If memory was presented
-%                         
-%                         % Settings on each trial used
-%                         minlatency = S.memory_on(tid);
-%                         if ~isnan(S.target_on(tid)) % If response target was presented
-%                             maxlatency = S.target_on(tid) + minlatency_baseline; % Maximum is the appearance of the response target
-%                         elseif isnan(S.target_on(tid)) % If response target was not presented
-%                             maxlatency = S.fixation_off(tid); % Maximum is trial over period
-%                         end
-%                         
-%                         % Settings on each trial used
-%                         threshold1 = S.esetup_fixation_size_eyetrack(tid,4);
-%                         threshold2 = S.esetup_target_size_eyetrack(tid,4);
-%                         
-%                         % Find distance between wanted and actual sacc position
-%                         startdev1=sqrt((sx1(:,3).^2)+(sx1(:,4).^2));
-%                         enddev1=sqrt((sx1(:,5).^2)+(sx1(:,6).^2));
-%                         starttimes=sx1(:,1);
-%                         
-%                         % index1 is correct saccades
-%                         index1=startdev1<threshold1 & enddev1<threshold2 & starttimes>minlatency & starttimes<maxlatency;
-%                         
-%                         % If such is saccade found, record it
-%                         if sum(index1)==1 % Only if that trial is not used already
-%                             saccade_matrix(tid,:) = sx2(index1,1:7);
-%                             trial_accepted{tid} = 'looked at memory during the delay';
-%                         end
-%                         
-%                     end
-%                 end
-%             end
-            
-            
-            
-            
-            %% Aborted trials due to lack of motivation: Fixation not acquired during the trial
-            
-%             for tid=1:size(sacc1,1)
-%                 
-%                 % Time of interest
-%                 if isnan(S.fixation_acquired(tid)) && ~isnan(S.fixation_on(tid)) && ~isnan(S.fixation_off(tid))
-%                     
-%                     % Settings on each trial used
-%                     minlatency = S.fixation_on(tid);
-%                     maxlatency = S.fixation_off(tid);
-%                     
-%                     % Settings on each trial used
-%                     if S.esetup_fixation_drift_correction_on(tid)==1
-%                         threshold1 = S.esetup_fixation_size_drift(tid,4);
-%                     else
-%                         threshold1 = S.esetup_fixation_size_eyetrack(tid,4);
-%                     end
-%                     
-%                     % Starting position
-%                     arc1 = S.esetup_fixation_arc(tid);
-%                     rad1 = S.esetup_fixation_radius(tid);
-%                     [x,y] = pol2cart(arc1*pi/180, rad1);
-%                     
-%                     % Select data of interest
-%                     index1=saccraw1{tid}(:,1)>=minlatency & saccraw1{tid}(:,1)<=maxlatency;
-%                     dat1=saccraw1{tid}(index1,:);
-%                     
-%                     % Reset data relative to fixation
-%                     dat1(:,2)=dat1(:,2)-x;
-%                     dat1(:,3)=dat1(:,3)-y;
-%                     
-%                     startdev1=sqrt((dat1(:,2).^2)+(dat1(:,3).^2));
-%                     index1 = startdev1<threshold1;
-%                     
-%                     if sum(index1)==0
-%                         trial_accepted{tid} = 'aborted: no fixation acquired'; % Fixation not acquired
-%                     end
-%                 end
-%             end
-            
-            
-            
-            %% Aborted trials due to lack of motivation: breaking fixation before stimuli appear
-            
-%             %=============
-%             % Part 1
-%             %=============
-%             
-%             % Breaking fixation before drift is established
-%             for tid=1:size(sacc1,1)
-%                 
-%                 % Data to be used
-%                 if ~strncmp(trial_accepted{tid}, 'aborted', 7)
-%                     
-%                     % Time of interest
-%                     if isnan(S.fixation_drift_maintained(tid))
-%                         
-%                         % Settings on each trial used
-%                         minlatency = S.fixation_on(tid);
-%                         maxlatency = S.fixation_off(tid);
-%                         
-%                         % Settings on each trial used
-%                         if S.esetup_fixation_drift_correction_on(tid)==1
-%                             threshold1 = S.esetup_fixation_size_drift(tid,4);
-%                         else
-%                             threshold1 = S.esetup_fixation_size_eyetrack(tid,4);
-%                         end
-%                         
-%                         % Starting position
-%                         arc1 = S.esetup_fixation_arc(tid);
-%                         rad1 = S.esetup_fixation_radius(tid);
-%                         [x,y] = pol2cart(arc1*pi/180, rad1);
-%                         
-%                         % Select data of interest
-%                         index1 = saccraw1{tid}(:,1)>=minlatency & saccraw1{tid}(:,1)<=maxlatency;
-%                         dat1 = saccraw1{tid}(index1,:);
-%                         
-%                         % Reset data relative to fixation
-%                         dat1(:,2)=dat1(:,2)-x;
-%                         dat1(:,3)=dat1(:,3)-y;
-%                         
-%                         startdev1=sqrt((dat1(:,2).^2)+(dat1(:,3).^2));
-%                         index1 = startdev1>threshold1;
-%                         
-%                         if sum(index1)>0
-%                             trial_accepted{tid} = 'aborted: broke fixation before memory'; % Fixation not acquired
-%                         end
-%                         
-%                     end
-%                 end
-%             end
-%             
-%             
-%             %=============
-%             % Part 2
-%             %=============
-%             
-%             
-%             % On trials with memory target - breaking fixation before memory appears
-%             for tid=1:size(sacc1,1)
-%                 
-%                 % Data to be used
-%                 if ~strncmp(trial_accepted{tid}, 'aborted', 7)
-%                     
-%                     % If memory target appeared
-%                     if ~isnan(S.fixation_drift_maintained (tid)) && ~isnan(S.memory_on(tid)) % If memory target appeared
-%                         
-%                         % Settings on each trial used
-%                         minlatency = S.fixation_drift_maintained (tid);
-%                         maxlatency = S.memory_on(tid);
-%                         
-%                         % Settings on each trial used
-%                         threshold1 = S.esetup_fixation_size_eyetrack(tid,4);
-%                         
-%                         % Starting position
-%                         arc1 = S.esetup_fixation_arc(tid);
-%                         rad1 = S.esetup_fixation_radius(tid);
-%                         [x,y] = pol2cart(arc1*pi/180, rad1);
-%                         
-%                         % Select data of interest
-%                         index1 = saccraw1{tid}(:,1)>=minlatency & saccraw1{tid}(:,1)<=maxlatency;
-%                         dat1 = saccraw1{tid}(index1,:);
-%                         
-%                         % Reset data relative to fixation
-%                         dat1(:,2)=dat1(:,2)-x;
-%                         dat1(:,3)=dat1(:,3)-y;
-%                         
-%                         startdev1=sqrt((dat1(:,2).^2)+(dat1(:,3).^2));
-%                         index1 = startdev1>threshold1;
-%                         
-%                         if sum(index1)>0
-%                             trial_accepted{tid} = 'aborted: broke fixation before memory';
-%                         end
-%                         
-%                         % If memory target did not appear
-%                     elseif ~isnan(S.fixation_drift_maintained (tid)) && isnan(S.memory_on(tid))
-%                         
-%                         % Settings on each trial used
-%                         minlatency = S.fixation_drift_maintained (tid);
-%                         maxlatency = S.memory_on(tid);
-%                         
-%                         % Settings on each trial used
-%                         threshold1 = S.esetup_fixation_size_eyetrack(tid,4);
-%                         
-%                         % Starting position
-%                         arc1 = S.esetup_fixation_arc(tid);
-%                         rad1 = S.esetup_fixation_radius(tid);
-%                         [x,y] = pol2cart(arc1*pi/180, rad1);
-%                         
-%                         % Select data of interest
-%                         index1 = saccraw1{tid}(:,1)>=minlatency & saccraw1{tid}(:,1)<=maxlatency;
-%                         dat1 = saccraw1{tid}(index1,:);
-%                         
-%                         % Reset data relative to fixation
-%                         dat1(:,2)=dat1(:,2)-x;
-%                         dat1(:,3)=dat1(:,3)-y;
-%                         
-%                         startdev1=sqrt((dat1(:,2).^2)+(dat1(:,3).^2));
-%                         index1 = startdev1>threshold1;
-%                         
-%                         if sum(index1)>0
-%                             trial_accepted{tid} = 'aborted: broke fixation before memory';
-%                         end
-%                         
-%                     end
-%                 end
-%             end
+            for fid = 1:numel(f1) % For each data field
+                if ~iscell(var1.(f1{fid}))
+                    
+                    mat1 = []; % Output matrix
+                    i = 1; % Row counts
+                    [~,n] = size(var1.(f1{fid})); % As manu columns as there is data
+                    for tid = 1:numel(temp_data) % For each trial
+                        [m,~] = size(temp_data{tid}); % One row - one saccade
+                        if m>0
+                            mat1(i:i+m-1,1:n) = repmat(var1.(f1{fid})(tid,:),m,1); % Save one row for one saccade
+                        elseif m==0
+                            mat1(i,1:n) = var1.(f1{fid})(tid,:); % Save one row for one saccade
+                        end
+                        i = size(mat1,1)+1; % Update number of rows for the next trial
+                    end
+                    
+                    % Save output
+                    ST.(f1{fid}) = mat1;
+                    
+                end
+            end
             
             %=============
-            % Part 3
+            % Restructure saccades matrix
+            f1 = cell(1);
+            f1{1} = 'sacc1';
+            
+            for fid = 1:numel(f1)
+                
+                %=========
+                % Determine how many columns each trial data contains, as its
+                % necessary for data concatenation
+                temp1 = [];
+                for tid=1:length(temp_data)
+                    temp1(tid) = size(temp_data{tid},2);
+                end
+                n = max(temp1);
+                
+                %========
+                mat1 = []; % Empty output matrix
+                
+                % For each trial extract data and concatenate with previous
+                % trial
+                for tid=1:numel(temp_data)
+                    % If there is data
+                    if ~isempty(temp_data{tid})
+                        % Save each row as an event
+                        for j=1:size(temp_data{tid},1) % One row - one event
+                            m1=temp_data{tid}(j,:);
+                            m=size(mat1,1);
+                            mat1(m+1,1:n)=m1;
+                        end
+                        % Else save as NaN
+                    elseif isempty(temp_data{tid})
+                        % Add an extra line with empty matrix
+                        m=size(mat1,1);
+                        mat1(m+1,1:n)=NaN;
+                    end
+                end
+                % Save output
+                ST.(f1{fid})=mat1;
+            end
+            
+            clear temp_data;
+            
+            %============
+            %  Create matrix to track why saccades were accepted/rejected
+            
+            ST.sacc_classify = cell(numel(ST.START), 1);
+            ST.sacc_classify (1:end) = {'no sorting started'};
+            
+            
+            %%  Calculate some extra variables for data evaluation
+            
+            
             %=============
+            % Saccade onset distance from the fixation
             
-%             % Also check for large saccades during fixation period
-%             threshold1 = 1; % Max allowed saccade size
-%             
-%             for tid=1:size(sacc1,1)
-%                 
-%                 % Data to be used
-%                 sx1=sacc1{tid};
-%                 sx2=sacc1{tid};
-%                 
-%                 if size(sx1,2)>1  && ~isnan(S.target_on(tid))
-%                     
-%                     % Find saccade length
-%                     xsacc=sx1(:,5)-sx1(:,3);
-%                     ysacc=sx1(:,6)-sx1(:,4);
-%                     sacclength=sqrt((xsacc.^2)+(ysacc.^2));
-%                     starttimes=sx1(:,1);
-%                     
-%                     % Settings on each trial used
-%                     minlatency=S.fixation_drift_maintained(tid);
-%                     maxlatency=S.memory_on(tid);
-%                     
-%                     % index1 is correct saccades
-%                     index1 = sacclength>=threshold1 & starttimes>minlatency & starttimes<=maxlatency;
-%                     if sum(index1)>0
-%                         trial_accepted{tid} = 'aborted: broke fixation before memory';
+            sx1 = ST.sacc1;
+            
+            x1=sx1(:,3);
+            y1=sx1(:,4);
+            l1=sqrt((x1.^2)+(y1.^2));
+            ST.sacc_start_fix_dist = l1;
+            
+            %=============
+            % Saccade endpoint distance from the fixation
+            
+            sx1 = ST.sacc1;
+            
+            x1=sx1(:,5);
+            y1=sx1(:,6);
+            l1=sqrt((x1.^2)+(y1.^2));
+            ST.sacc_end_fix_dist = l1;
+            
+            %=============
+            % Calculate saccade amplitude
+            
+            sx1 = ST.sacc1;
+            
+            x1=sx1(:,5) - sx1(:,3);
+            y1=sx1(:,6) - sx1(:,4);
+            l1=sqrt((x1.^2)+(y1.^2));
+            ST.sacc_amp = l1;
+            
+            
+            %================
+            % Calculate saccade start distance from st1
+            
+            sx1 = ST.sacc1;
+                        
+            xc = ST.esetup_st1_coord(:,1);
+            yc = ST.esetup_st1_coord(:,2);
+            x1=sx1(:,3)-xc;
+            y1=sx1(:,4)-yc;
+            l1=sqrt((x1.^2)+(y1.^2));
+            ST.sacc_start_st1_dist = l1;
+
+            %================
+            % Calculate saccade end distance from st1
+            
+            sx1 = ST.sacc1;
+            
+            xc = ST.esetup_st1_coord(:,1);
+            yc = ST.esetup_st1_coord(:,2);
+            x1=sx1(:,5)-xc;
+            y1=sx1(:,6)-yc;
+            l1=sqrt((x1.^2)+(y1.^2));
+            ST.sacc_end_st1_dist = l1;
+            
+            %================
+            % Calculate saccade end distance from st2
+            
+            sx1 = ST.sacc1;
+            
+            xc = ST.esetup_st2_coord(:,1);
+            yc = ST.esetup_st2_coord(:,2);
+            x1=sx1(:,5)-xc;
+            y1=sx1(:,6)-yc;
+            l1=sqrt((x1.^2)+(y1.^2));
+            ST.sacc_end_st2_dist = l1;
+            
+            
+            %% remove outlier saccades
+            
+            index = isnan(ST.sacc1(:,1));
+            ST.sacc_classify(index) =  {'reject - no data'};
+            
+            % Saccades before/after trial 
+            temp1 = ST.first_display;
+            temp2 = ST.loop_over;
+            index = (ST.sacc1(:,1) < temp1) | (ST.sacc1(:,1) > temp2) ;
+            ST.sacc_classify(index) =  {'reject - saccade timing'};
+                        
+            % Distance outliers
+            ind = strcmp(ST.sacc_classify, 'no sorting started');
+            v1 = ST.sacc_start_fix_dist(ind);
+            a_m = nanmean(v1); a_s = nanstd(v1);
+            a_sdev_th = 3;
+            
+            index = ST.sacc_end_fix_dist > a_m + a_s*a_sdev_th; % 3 standard deviations
+            ST.sacc_classify(index) =  {'reject - outlier amplitudes'};
+            
+            
+            %% Figure: outlier saccades
+            
+            % Plot all data
+            h_fig = subplot(1,2,1); hold on
+            
+            % Plot
+            ind = strcmp(ST.sacc_classify, 'no sorting started');
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [0.2, 0.2, 0.2]);
+            ind = strcmp(ST.sacc_classify, 'reject - outlier amplitudes');
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [1, 0.5, 0.5]);
+            
+            % Labels for plotting
+            h_fig = gca;
+            h_fig.XTick = [-25, 0, 25];
+            h_fig.YTick = [-25, 0, 25];
+            h_fig.XLim = [-50, 50];
+            h_fig.YLim = [-50, 50];
+            title ('All data', 'FontSize', settings.fontszlabel)
+            xlabel ('Horizontal', 'FontSize', settings.fontszlabel);
+            ylabel ('Vertical', 'FontSize', settings.fontszlabel);
+            
+            %=================
+            % Plot zoomed in data
+            h_fig = subplot(1,2,2); hold on
+            
+            % Plot
+            ind = strcmp(ST.sacc_classify, 'no sorting started');
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [0.2, 0.2, 0.2]);
+            ind = strcmp(ST.sacc_classify, 'reject - outlier amplitudes');
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [1, 0.5, 0.5]);
+            
+            % Labels for plotting
+            h_fig = gca;
+            h_fig.XTick = [-10, 0, 10];
+            h_fig.YTick = [-10, 0, 10];
+            h_fig.XLim = [-15, 15];
+            h_fig.YLim = [-15, 15];
+            title ('Zoom in', 'FontSize', settings.fontszlabel)
+            xlabel ('Horizontal', 'FontSize', settings.fontszlabel);
+            ylabel ('Vertical', 'FontSize', settings.fontszlabel);
+            
+            % Save data
+            plot_set.figure_size = settings.figure_size_temp;
+            plot_set.figure_save_name = 'sacc';
+            plot_set.path_figure = path_fig;
+            plot_helper_save_figure;
+
+            
+            %% aborted - fixation not acquired
+            
+            % sacc endpoint threshold
+            th1 = NaN(numel(ST.START), 1);
+            ind = ST.esetup_fixation_drift_correction_on == 1;
+            th1(ind) = ST.esetup_fixation_size_drift(ind,4);
+            ind = ST.esetup_fixation_drift_correction_on == 0;
+            th1(ind) = ST.esetup_fixation_size_eyetrack(ind,4);
+            
+            %=============
+            % Saccade does not end in fixation area
+            ind = isnan(ST.fixation_acquired) & ~isnan(ST.fixation_on) & ~isnan(ST.fixation_off) & ...
+                ST.sacc1(:,1) >= ST.fixation_on & ST.sacc1(:,1) <= ST.fixation_off & ST.sacc_end_fix_dist>th1;
+            
+            trial_select_code = 'aborted - fixation not acquired';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>=0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+            
+            %=============
+            % OK saccades before fixation acquired
+            ind = isnan(ST.fixation_acquired) & ~isnan(ST.fixation_on) & ~isnan(ST.fixation_off) & ...
+                ST.sacc1(:,1) >= ST.fixation_on & ST.sacc1(:,1) <= ST.fixation_off & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            
+            %% aborted before drift maintained
+            
+            % sacc endpoint threshold
+            th1 = NaN(numel(ST.START), 1);
+            ind = ST.esetup_fixation_drift_correction_on == 1;
+            th1(ind) = ST.esetup_fixation_size_drift(ind,4);
+            ind = ST.esetup_fixation_drift_correction_on == 0;
+            th1(ind) = ST.esetup_fixation_size_eyetrack(ind,4);
+            
+            %=============
+            % Too large saccades before drift maintained
+            ind = ~isnan(ST.fixation_acquired) & isnan(ST.fixation_drift_maintained) & ...
+                ~isnan(ST.fixation_on) & ~isnan(ST.fixation_off) & ...
+                ST.sacc1(:,1) >= ST.fixation_acquired & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist>=th1;
+            
+            trial_select_code = 'aborted - broke fixation before drift';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+
+            %=============
+            % OK saccades before drift maintained
+            ind = ~isnan(ST.fixation_acquired) & isnan(ST.fixation_drift_maintained) & ...
+                ~isnan(ST.fixation_on) & ~isnan(ST.fixation_off) & ...
+                ST.sacc1(:,1) >= ST.fixation_acquired & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            
+            
+            %% aborted: broke fixation before memory
+            
+            % sacc endpoint threshold
+            th1 = NaN(numel(ST.START), 1);
+            th1 = ST.esetup_fixation_size_eyetrack(:,4);
+            
+            %=============
+            % Broke fixation before memory (memory didnt appear)
+            ind = ~isnan(ST.fixation_drift_maintained) & isnan(ST.memory_on) & ...
+                ST.sacc1(:,1) >= ST.fixation_drift_maintained & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist>=th1;
+            
+            trial_select_code = 'aborted - broke fixation before memory';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+            
+            %===============
+            % Correct saccades before memory target (memory didnt appear)
+            ind = ~isnan(ST.fixation_drift_maintained) & isnan(ST.memory_on) & ...
+                ST.sacc1(:,1) >= ST.fixation_drift_maintained & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            
+            %=============
+            % Broke fixation before memory (memory appeared)
+            ind = ~isnan(ST.fixation_drift_maintained) & ~isnan(ST.memory_on) & ...
+                ST.sacc1(:,1) >= ST.fixation_drift_maintained & ST.sacc1(:,1) <= ST.memory_on &...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist>=th1;
+            
+            trial_select_code = 'aborted - broke fixation before memory';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+            
+            %===============
+            % Correct saccades before memory target (memory appeared)
+            ind = ~isnan(ST.fixation_drift_maintained) & ~isnan(ST.memory_on) & ...
+                ST.sacc1(:,1) >= ST.fixation_drift_maintained & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            
+            %% aborted: broke fixation during memory delay
+
+            % sacc endpoint threshold
+            th1 = NaN(numel(ST.START), 1);
+            th1 = ST.esetup_fixation_size_eyetrack(:,4);
+            
+            %=============
+            % Broke fixation before st1 (st1 didnt appear)
+            ind = ~isnan(ST.memory_on) & isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist>=th1;
+            
+            trial_select_code = 'broke fixation during memory';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+            
+            %===============
+            % Correct saccades before st1 (st1 didnt appear)
+            ind = ~isnan(ST.memory_on) & isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            
+            %=============
+            % Broke fixation before st1 (st appeared)
+            ind = ~isnan(ST.memory_on) & ~isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.target_on & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist>=th1;
+            
+            trial_select_code = 'broke fixation during memory';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+            
+            %==============
+            % Correct saccades before st1 (st1 appeared)
+            ind = ~isnan(ST.memory_on) & isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.target_on & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+              
+            %=================
+            % Plot correct/error saccades during memory delay
+            close all
+            h_fig = subplot(1,2,1); hold on
+            
+            % Plot
+            ind = ~isnan(ST.memory_on) & isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off &...
+                ~strcmp (ST.sacc_classify, 'reject - outlier amplitudes');
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [0.2, 0.2, 0.2]);
+            ind = ~isnan(ST.memory_on) & ~isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off;
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [1, 0.5, 0.5]);
+            
+            % Labels for plotting
+            h_fig = gca;
+            h_fig.XTick = [-10, 0, 10];
+            h_fig.YTick = [-10, 0, 10];
+            h_fig.XLim = [-15, 15];
+            h_fig.YLim = [-15, 15];
+            title ('Memory delay saccades', 'FontSize', settings.fontszlabel)
+            xlabel ('Horizontal', 'FontSize', settings.fontszlabel);
+            ylabel ('Vertical', 'FontSize', settings.fontszlabel);
+            
+            % Save data
+            plot_set.figure_size = settings.figure_size_temp;
+            plot_set.figure_save_name = 'memory_delay';
+            plot_set.path_figure = path_fig;
+            plot_helper_save_figure;
+            
+            
+            %% detect target saccades
+            
+            % sacc endpoint threshold
+            th0 = NaN(numel(ST.START), 1);
+            th1 = NaN(numel(ST.START), 1);
+            th0 = ST.esetup_fixation_size_eyetrack(:,4);
+            th1 = ST.esetup_target_size_eyetrack(:,4);
+            
+            %=================
+            % Correct saccades
+            ind = strcmp(ST.sacc_classify, 'no sorting started') & ...
+                ~isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.target_on & ST.sacc1(:,1) <= ST.target_off & ...
+                ST.sacc_start_fix_dist <= th0 & ST.sacc_end_st1_dist <= th1 & ...
+                ST.sacc_end_st1_dist<=ST.sacc_end_st2_dist;
+            
+            trial_select_code = 'correct target';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                    temp_data = ST.sacc1(ind);
+                    temp_ind = find (strcmp (ST.sacc_classify(ind), trial_select_code)==1);
+                    saccade_matrix(tid,:) = temp_data(temp_ind(1),:);
+                end
+            end
+            
+            %==================
+            % Saccades to wrong target
+            ind = strcmp(ST.sacc_classify, 'no sorting started') & ...
+                ~isnan(ST.target_on) & ~isnan(ST.st2_on) &...
+                ST.sacc1(:,1) >= ST.target_on & ST.sacc1(:,1) <= ST.target_off & ...
+                ST.sacc_start_fix_dist <= th0 & ST.sacc_end_st2_dist <= th1 & ...
+                ST.sacc_end_st2_dist<=ST.sacc_end_st1_dist;
+            
+            trial_select_code = 'wrong target';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                    temp_data = ST.sacc1(ind);
+                    temp_ind = find (strcmp (ST.sacc_classify(ind), trial_select_code)==1);
+                    saccade_matrix(tid,:) = temp_data(temp_ind(1),:);
+                end
+            end
+            
+            
+            %% No response saccade detected
+                        
+            trial_select_code = 'no response saccade detected';
+            
+%             tic
+%             for tid = 1:numel(var1.START)
+%                 sx1 = var1.saccades_EK{tid};
+%                 if ~isempty(sx1)
+%                     ind = sx1(:,1)>var1.target_on(tid) & sx1(:,1)<var1.loop_over(tid);
+%                     if sum(ind==0)
+%                         trial_accepted{tid} = trial_select_code;
 %                     end
+%                 else
+%                     trial_accepted{tid} = trial_select_code;
 %                 end
-%                 
 %             end
+%             toc
             
-            
-            %% No saccades executed during the response period
-            
-            threshold1 = 1; % Max allowed saccade size
-            
-            for tid=1:size(sacc1,1)
-                
-                % Data to be used
-                sx1=sacc1{tid};
-                sx2=sacc1{tid};
-                
-                if size(sx1,2)>1  && ~isnan(S.target_on(tid)) && ~isnan(S.target_off(tid)) && isempty(trial_accepted{tid})
-                    
-                    % Find saccade length
-                    xsacc=sx1(:,5)-sx1(:,3);
-                    ysacc=sx1(:,6)-sx1(:,4);
-                    sacclength=sqrt((xsacc.^2)+(ysacc.^2));
-                    starttimes=sx1(:,1);
-                    
-                    % Settings on each trial used
-                    minlatency=S.target_on(tid);
-                    maxlatency=S.target_off(tid);
-                    
-                    % index1 is correct saccades
-                    index1 = sacclength>=threshold1 & starttimes>minlatency & starttimes<=maxlatency;
-                    if sum(index1)==0
-                        trial_accepted{tid} = 'no saccade during response period';
-                    end
-                    
-                elseif size(sx1,2)==1 && ~isnan(S.target_on(tid)) && isempty(trial_accepted{tid})
-                    trial_accepted{tid} = 'no saccade during response period';
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid & ...
+                    ST.sacc1(:,1)>ST.target_on & ST.sacc1(:,1)<ST.loop_over &...
+                    ST.sacc_amp > 1;
+                if sum(ind==0)
+                    trial_accepted{tid} = trial_select_code;
                 end
-                
-            end
+            end 
             
             
-            %% Incorrect saccades during response period
+            %% Blink during the trial
             
-            threshold1 = 1; % Max allowed saccade size
-            
-            for tid=1:size(sacc1,1)
-                
-                % Data to be used
-                sx1=sacc1{tid};
-                sx2=sacc1{tid};
-                
-                if size(sx1,2)>1  && ~isnan(S.target_on(tid)) && ~isnan(S.target_off(tid)) && isempty(trial_accepted{tid})
-                    
-                    % Find saccade length
-                    xsacc=sx1(:,5)-sx1(:,3);
-                    ysacc=sx1(:,6)-sx1(:,4);
-                    sacclength=sqrt((xsacc.^2)+(ysacc.^2));
-                    starttimes=sx1(:,1);
-                    
-                    % Settings on each trial used
-                    minlatency=S.target_on(tid);
-                    maxlatency=S.target_off(tid);
-                    
-                    % index1 is correct saccades
-                    index1=sacclength>=threshold1 & starttimes>minlatency & starttimes<=maxlatency;
-                    if sum(index1)>0
-                        trial_accepted{tid} = 'incorrect saccade';
+            for tid = 1:numel(var1.START)
+                sx1 = var1.saccades_EK{tid};
+                if ~isempty(sx1)
+                    ind = sx1(:,1)>var1.target_on(tid) & sx1(:,1)<var1.loop_over(tid);
+                    if sum(ind==0)
+                        trial_accepted{tid} = trial_select_code;
                     end
-                end
-                
-            end
-            
-            
-            %% Incorrect saccades between memory onset and saccade target onset
-            
-            threshold1 = 2; % Max allowed saccade size
-            
-            for tid=1:size(sacc1,1)
-                
-                % Data to be used
-                sx1=sacc1{tid}; % Manipulated data
-                sx2=sacc1{tid}; % Raw data
-                
-                % If memory appeared and then saccade target appeared (even if trial would be accepted otherwise)
-                if size(sx1,2)>1  && ~isnan(S.memory_on(tid)) && ~isnan(S.target_on(tid)) && ~strcmp(trial_accepted{tid}, 'looked at memory during the delay')
-                    
-                    % Find saccade length
-                    xsacc=sx1(:,5)-sx1(:,3);
-                    ysacc=sx1(:,6)-sx1(:,4);
-                    sacclength=sqrt((xsacc.^2)+(ysacc.^2));
-                    starttimes=sx1(:,1);
-                    
-                    % Settings on each trial used
-                    minlatency=S.memory_on(tid);
-                    maxlatency=S.target_on(tid);
-                    
-                    % index1 is correct saccades
-                    index1=sacclength>=threshold1 & starttimes>minlatency & starttimes<=maxlatency;
-                    if sum(index1)>0
-                        trial_accepted{tid} = 'broke fixation during the delay';
-                    end
-                    
-                    % If memory appeared but then saccade target did not appear
-                elseif size(sx1,2)>1  && ~isnan(S.memory_on(tid)) && isnan(S.target_on(tid)) && isempty(trial_accepted{tid}) && ~strcmp(trial_accepted{tid}, 'looked at memory during the delay')
-                    
-                    % Find saccade length
-                    xsacc=sx1(:,5)-sx1(:,3);
-                    ysacc=sx1(:,6)-sx1(:,4);
-                    sacclength=sqrt((xsacc.^2)+(ysacc.^2));
-                    starttimes=sx1(:,1);
-                    
-                    % Settings on each trial used
-                    minlatency=S.memory_on(tid);
-                    maxlatency=S.fixation_off(tid);
-                    
-                    % index1 is correct saccades
-                    index1=sacclength>=threshold1 & starttimes>minlatency & starttimes<=maxlatency;
-                    if sum(index1)>0
-                        trial_accepted{tid} = 'broke fixation during the delay';
-                    end
-                    
-                end
-                
-            end
-            
-            
-            %% Remove trials if a blink occured
-            
-            threshold1 = 0; % How many ms of blink within specific time frame is tolerated
-            
-            for tid=1:size(sacc1,1)
-                
-                % Time of interest
-                if ~isnan(S.fixation_drift_maintained(tid))
-                    
-                    minlatency = S.fixation_drift_maintained(tid);
-                    maxlatency = S.target_off(tid); % Its saved on each trial, even if t1 didnt appear
-                    
-                    index1 = saccraw1{tid}(:,1)>=minlatency & saccraw1{tid}(:,1)<=maxlatency;
-                    dat1 = saccraw1{tid}(index1,:); % Select data of interest
-                    index2 = dat1(:,4)==0;
-                    
-                    if sum(index2)>threshold1
-                        trial_accepted{tid} = 'blinks';
-                    end
-                    
-                elseif isnan(S.fixation_drift_maintained(tid)) % Blink during fixation period
-                    
-                    minlatency = S.fixation_on(tid);
-                    maxlatency = S.fixation_on(tid); % T1 off is registered on each trial
-                    
-                    index1 = saccraw1{tid}(:,1)>=minlatency & saccraw1{tid}(:,1)<=maxlatency;
-                    dat1 = saccraw1{tid}(index1,:); % Select data of interest
-                    index2 = dat1(:,4)==0;
-                    
-                    if sum(index2)>threshold1
-                        trial_accepted{tid} = 'blinks';
-                    end
-                    
+                else
+                    trial_accepted{tid} = trial_select_code;
                 end
             end
             
             
+            %% Final trial_accepted matrix
             
-            %% Save unknown errors
-            
-            for tid=1:size(sacc1,1)
+                    
+            for tid=1:size(var1.START,1)
                 if isempty(trial_accepted{tid})
                     trial_accepted{tid} = 'unknown error';
                 end
             end
-
+            
+            
             %% Save errors into text file
-            
-            path1 = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name) ;
-            if isdir(path1)
-                rmdir(path1, 's')
-                mkdir(path1)
-            else
-                mkdir(path1)
-            end
-            
+           
             %================
             % Initialize empty file
             
-            f_name = sprintf('%s%s.txt', path1, folder_name);
+            f_name = sprintf('%s%s.txt', path_fig, folder_name);
             fclose('all');
             fout = fopen(f_name,'w');
             
@@ -702,7 +663,7 @@ for i_subj=1:length(settings.subjects)
             fprintf(targettext);
             fprintf(fout, targettext);
 
-            a=size(saccade_matrix,1); % a-total number of trials
+            a=numel(trial_accepted); % a-total number of trials
             targettext='Total trials tested: %d; \n\n';
             fprintf(targettext, a);
             fprintf(fout, targettext, a);
@@ -716,7 +677,7 @@ for i_subj=1:length(settings.subjects)
             end
             
             
-            %% Save saccades into new matrix
+            %% Save sacc1
             
             sacc1 = struct;
             sacc1.saccade_matrix = saccade_matrix;
@@ -724,6 +685,15 @@ for i_subj=1:length(settings.subjects)
             save (eval('path3'), 'sacc1')
             targettext='Saved saccades data: %s; \n\n';
             fprintf(targettext, path3);
+            
+            
+            %% Save ST structure
+            
+            sacc2 = struct;
+            sacc2.trial_no = ST.trial_no;
+            sacc2.sacc_classify = ST.sacc_classify;
+            sacc2.sacc1 = ST.sacc1;
+            save (eval('path4'), 'sacc2')
             
             
         end

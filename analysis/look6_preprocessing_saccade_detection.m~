@@ -1,5 +1,5 @@
 % Detection of correct saccades
-% Latest version: October 16, 2017
+% Latest version: October 23, 2017
 % Donatas Jonikaitis
 
 
@@ -551,7 +551,7 @@ for i_subj=1:length(settings.subjects)
             th1 = ST.esetup_target_size_eyetrack(:,4);
             
             %=================
-            % Find correct saccades
+            % Correct saccades
             ind = strcmp(ST.sacc_classify, 'no sorting started') & ...
                 ~isnan(ST.target_on) & ...
                 ST.sacc1(:,1) >= ST.target_on & ST.sacc1(:,1) <= ST.target_off & ...
@@ -573,7 +573,7 @@ for i_subj=1:length(settings.subjects)
             end
             
             %==================
-            % Find error saccades
+            % Saccades to wrong target
             ind = strcmp(ST.sacc_classify, 'no sorting started') & ...
                 ~isnan(ST.target_on) & ~isnan(ST.st2_on) &...
                 ST.sacc1(:,1) >= ST.target_on & ST.sacc1(:,1) <= ST.target_off & ...
@@ -613,7 +613,6 @@ for i_subj=1:length(settings.subjects)
 %             end
 %             toc
             
-            tic
             for tid = 1:numel(var1.START)
                 ind = ST.trial_no==tid & ...
                     ST.sacc1(:,1)>ST.target_on & ST.sacc1(:,1)<ST.loop_over &...
@@ -621,8 +620,10 @@ for i_subj=1:length(settings.subjects)
                 if sum(ind==0)
                     trial_accepted{tid} = trial_select_code;
                 end
-            end
-            toc
+            end 
+            
+            
+            %% Blink during the trial
             
             
             
