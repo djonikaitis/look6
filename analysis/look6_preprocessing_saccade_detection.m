@@ -190,123 +190,123 @@ for i_subj=1:length(settings.subjects)
             
             %% ALSO FIND SACCADES DIRECTED TO WRONG TARGET
             
-            for tid=1:size(sacc1,1)
-                
-                % Data to be used
-                sx1=sacc1{tid}; % Manipulated data
-                sx2=sacc1{tid}; % Raw data
-                
-                if size(sx1,2)>1 && S.esetup_target_number(tid)==2 % Only if two targets were presented
-                    
-                    % Starting position
-                    arc1 = S.esetup_fixation_arc(tid);
-                    rad1 = S.esetup_fixation_radius(tid);
-                    [x,y] = pol2cart(arc1*pi/180, rad1);
-                    sx1(:,3)=sx1(:,3)-x;
-                    sx1(:,4)=sx1(:,4)-y;
-                    
-                    % Ending position
-                    x = S.esetup_st2_coord(tid,1);
-                    y = S.esetup_st2_coord(tid,2);
-                    sx1(:,5)=sx1(:,5)-x;
-                    sx1(:,6)=sx1(:,6)-y;
-                    
-                    if ~isnan(S.distractor_on(tid))
-                        
-                        % Settings on each trial used
-                        minlatency = S.distractor_on(tid) + minlatency_baseline;
-                        maxlatency = S.distractor_off(tid);
-                        % Settings on each trial used
-                        threshold1 = S.esetup_fixation_size_eyetrack(tid,4);
-                        threshold2 = S.esetup_target_size_eyetrack(tid,4);
-                        
-                        % Find distance between wanted and actual sacc position
-                        startdev1=sqrt((sx1(:,3).^2)+(sx1(:,4).^2));
-                        enddev1=sqrt((sx1(:,5).^2)+(sx1(:,6).^2));
-                        starttimes=sx1(:,1);
-                        
-                        % index1 is correct saccades
-                        index1=startdev1<threshold1 & enddev1<threshold2 & starttimes>minlatency & starttimes<maxlatency;
-                        
-                        
-                        % If such is saccade found, record it
-                        if isempty(trial_accepted{tid}) % Only if that trial is not used already
-                            if sum(index1)==1
-                                saccade_matrix(tid,:) = sx2(index1,1:7);
-                                e_dist2(tid)=enddev1(index1); % Distance to the distractor is saved
-                                trial_accepted{tid} = 'wrong target';
-                            end
-                        elseif strcmp(trial_accepted{tid}, 'correct') % If trial is used already, choose saccade directed to closer object
-                            if sum(index1) == 1 % If saccade to the distractor is found is found
-                                e_dist2(tid) = enddev1(index1); % Distance to the distractor is saved
-                                a1=e_dist1(tid); % Distance to the target
-                                a2=e_dist2(tid); % Distance to the distractor
-                                if a2<a1
-                                    saccade_matrix(tid,:) = sx2(index1,1:7);
-                                    trial_accepted{tid} = 'wrong target';
-                                end
-                            end
-                        end
-                        
-                    end
-                end
-            end
+%             for tid=1:size(sacc1,1)
+%                 
+%                 % Data to be used
+%                 sx1=sacc1{tid}; % Manipulated data
+%                 sx2=sacc1{tid}; % Raw data
+%                 
+%                 if size(sx1,2)>1 && S.esetup_target_number(tid)==2 % Only if two targets were presented
+%                     
+%                     % Starting position
+%                     arc1 = S.esetup_fixation_arc(tid);
+%                     rad1 = S.esetup_fixation_radius(tid);
+%                     [x,y] = pol2cart(arc1*pi/180, rad1);
+%                     sx1(:,3)=sx1(:,3)-x;
+%                     sx1(:,4)=sx1(:,4)-y;
+%                     
+%                     % Ending position
+%                     x = S.esetup_st2_coord(tid,1);
+%                     y = S.esetup_st2_coord(tid,2);
+%                     sx1(:,5)=sx1(:,5)-x;
+%                     sx1(:,6)=sx1(:,6)-y;
+%                     
+%                     if ~isnan(S.distractor_on(tid))
+%                         
+%                         % Settings on each trial used
+%                         minlatency = S.distractor_on(tid) + minlatency_baseline;
+%                         maxlatency = S.distractor_off(tid);
+%                         % Settings on each trial used
+%                         threshold1 = S.esetup_fixation_size_eyetrack(tid,4);
+%                         threshold2 = S.esetup_target_size_eyetrack(tid,4);
+%                         
+%                         % Find distance between wanted and actual sacc position
+%                         startdev1=sqrt((sx1(:,3).^2)+(sx1(:,4).^2));
+%                         enddev1=sqrt((sx1(:,5).^2)+(sx1(:,6).^2));
+%                         starttimes=sx1(:,1);
+%                         
+%                         % index1 is correct saccades
+%                         index1=startdev1<threshold1 & enddev1<threshold2 & starttimes>minlatency & starttimes<maxlatency;
+%                         
+%                         
+%                         % If such is saccade found, record it
+%                         if isempty(trial_accepted{tid}) % Only if that trial is not used already
+%                             if sum(index1)==1
+%                                 saccade_matrix(tid,:) = sx2(index1,1:7);
+%                                 e_dist2(tid)=enddev1(index1); % Distance to the distractor is saved
+%                                 trial_accepted{tid} = 'wrong target';
+%                             end
+%                         elseif strcmp(trial_accepted{tid}, 'correct') % If trial is used already, choose saccade directed to closer object
+%                             if sum(index1) == 1 % If saccade to the distractor is found is found
+%                                 e_dist2(tid) = enddev1(index1); % Distance to the distractor is saved
+%                                 a1=e_dist1(tid); % Distance to the target
+%                                 a2=e_dist2(tid); % Distance to the distractor
+%                                 if a2<a1
+%                                     saccade_matrix(tid,:) = sx2(index1,1:7);
+%                                     trial_accepted{tid} = 'wrong target';
+%                                 end
+%                             end
+%                         end
+%                         
+%                     end
+%                 end
+%             end
             
             
             %% Saccade made to memory during delay period
             
-            for tid=1:size(sacc1,1)
-                
-                % Data to be used
-                sx1=sacc1{tid}; % Manipulated data
-                sx2=sacc1{tid}; % Raw data
-                
-                if size(sx1,2)>1
-                    
-                    % Starting position
-                    arc1 = S.esetup_fixation_arc(tid);
-                    rad1 = S.esetup_fixation_radius(tid);
-                    [x,y] = pol2cart(arc1*pi/180, rad1);
-                    sx1(:,3)=sx1(:,3)-x;
-                    sx1(:,4)=sx1(:,4)-y;
-                    
-                    % Ending position
-                    x = S.esetup_memory_coord(tid,1);
-                    y = S.esetup_memory_coord(tid,2);
-                    sx1(:,5)=sx1(:,5)-x;
-                    sx1(:,6)=sx1(:,6)-y;
-                    
-                    if ~isnan(S.memory_on(tid)) % If memory was presented
-                        
-                        % Settings on each trial used
-                        minlatency = S.memory_on(tid);
-                        if ~isnan(S.target_on(tid)) % If response target was presented
-                            maxlatency = S.target_on(tid) + minlatency_baseline; % Maximum is the appearance of the response target
-                        elseif isnan(S.target_on(tid)) % If response target was not presented
-                            maxlatency = S.fixation_off(tid); % Maximum is trial over period
-                        end
-                        
-                        % Settings on each trial used
-                        threshold1 = S.esetup_fixation_size_eyetrack(tid,4);
-                        threshold2 = S.esetup_target_size_eyetrack(tid,4);
-                        
-                        % Find distance between wanted and actual sacc position
-                        startdev1=sqrt((sx1(:,3).^2)+(sx1(:,4).^2));
-                        enddev1=sqrt((sx1(:,5).^2)+(sx1(:,6).^2));
-                        starttimes=sx1(:,1);
-                        
-                        % index1 is correct saccades
-                        index1=startdev1<threshold1 & enddev1<threshold2 & starttimes>minlatency & starttimes<maxlatency;
-                        
-                        % If such is saccade found, record it
-                        if sum(index1)==1 % Only if that trial is not used already
-                            saccade_matrix(tid,:) = sx2(index1,1:7);
-                            trial_accepted{tid} = 'looked at memory during the delay';
-                        end
-                        
-                    end
-                end
-            end
+%             for tid=1:size(sacc1,1)
+%                 
+%                 % Data to be used
+%                 sx1=sacc1{tid}; % Manipulated data
+%                 sx2=sacc1{tid}; % Raw data
+%                 
+%                 if size(sx1,2)>1
+%                     
+%                     % Starting position
+%                     arc1 = S.esetup_fixation_arc(tid);
+%                     rad1 = S.esetup_fixation_radius(tid);
+%                     [x,y] = pol2cart(arc1*pi/180, rad1);
+%                     sx1(:,3)=sx1(:,3)-x;
+%                     sx1(:,4)=sx1(:,4)-y;
+%                     
+%                     % Ending position
+%                     x = S.esetup_memory_coord(tid,1);
+%                     y = S.esetup_memory_coord(tid,2);
+%                     sx1(:,5)=sx1(:,5)-x;
+%                     sx1(:,6)=sx1(:,6)-y;
+%                     
+%                     if ~isnan(S.memory_on(tid)) % If memory was presented
+%                         
+%                         % Settings on each trial used
+%                         minlatency = S.memory_on(tid);
+%                         if ~isnan(S.target_on(tid)) % If response target was presented
+%                             maxlatency = S.target_on(tid) + minlatency_baseline; % Maximum is the appearance of the response target
+%                         elseif isnan(S.target_on(tid)) % If response target was not presented
+%                             maxlatency = S.fixation_off(tid); % Maximum is trial over period
+%                         end
+%                         
+%                         % Settings on each trial used
+%                         threshold1 = S.esetup_fixation_size_eyetrack(tid,4);
+%                         threshold2 = S.esetup_target_size_eyetrack(tid,4);
+%                         
+%                         % Find distance between wanted and actual sacc position
+%                         startdev1=sqrt((sx1(:,3).^2)+(sx1(:,4).^2));
+%                         enddev1=sqrt((sx1(:,5).^2)+(sx1(:,6).^2));
+%                         starttimes=sx1(:,1);
+%                         
+%                         % index1 is correct saccades
+%                         index1=startdev1<threshold1 & enddev1<threshold2 & starttimes>minlatency & starttimes<maxlatency;
+%                         
+%                         % If such is saccade found, record it
+%                         if sum(index1)==1 % Only if that trial is not used already
+%                             saccade_matrix(tid,:) = sx2(index1,1:7);
+%                             trial_accepted{tid} = 'looked at memory during the delay';
+%                         end
+%                         
+%                     end
+%                 end
+%             end
             
             
             
@@ -483,35 +483,35 @@ for i_subj=1:length(settings.subjects)
             % Part 3
             %=============
             
-            % Also check for large saccades during fixation period
-            threshold1 = 1; % Max allowed saccade size
-            
-            for tid=1:size(sacc1,1)
-                
-                % Data to be used
-                sx1=sacc1{tid};
-                sx2=sacc1{tid};
-                
-                if size(sx1,2)>1  && ~isnan(S.target_on(tid))
-                    
-                    % Find saccade length
-                    xsacc=sx1(:,5)-sx1(:,3);
-                    ysacc=sx1(:,6)-sx1(:,4);
-                    sacclength=sqrt((xsacc.^2)+(ysacc.^2));
-                    starttimes=sx1(:,1);
-                    
-                    % Settings on each trial used
-                    minlatency=S.fixation_drift_maintained(tid);
-                    maxlatency=S.memory_on(tid);
-                    
-                    % index1 is correct saccades
-                    index1 = sacclength>=threshold1 & starttimes>minlatency & starttimes<=maxlatency;
-                    if sum(index1)>0
-                        trial_accepted{tid} = 'aborted: broke fixation before memory';
-                    end
-                end
-                
-            end
+%             % Also check for large saccades during fixation period
+%             threshold1 = 1; % Max allowed saccade size
+%             
+%             for tid=1:size(sacc1,1)
+%                 
+%                 % Data to be used
+%                 sx1=sacc1{tid};
+%                 sx2=sacc1{tid};
+%                 
+%                 if size(sx1,2)>1  && ~isnan(S.target_on(tid))
+%                     
+%                     % Find saccade length
+%                     xsacc=sx1(:,5)-sx1(:,3);
+%                     ysacc=sx1(:,6)-sx1(:,4);
+%                     sacclength=sqrt((xsacc.^2)+(ysacc.^2));
+%                     starttimes=sx1(:,1);
+%                     
+%                     % Settings on each trial used
+%                     minlatency=S.fixation_drift_maintained(tid);
+%                     maxlatency=S.memory_on(tid);
+%                     
+%                     % index1 is correct saccades
+%                     index1 = sacclength>=threshold1 & starttimes>minlatency & starttimes<=maxlatency;
+%                     if sum(index1)>0
+%                         trial_accepted{tid} = 'aborted: broke fixation before memory';
+%                     end
+%                 end
+%                 
+%             end
             
             
             %% No saccades executed during the response period

@@ -23,7 +23,7 @@ settings.figure_folder_name = 'saccades_raw_traces';
 settings.fig_size_current = [0, 0, 6, 2.5]; % Unique figure size settings in this case
 
 % How many trials per error type to plot?
-trials_to_plot = 10;
+trials_to_plot = 25;
 % trials_to_plot = 'all';
 
 
@@ -109,6 +109,9 @@ for i_subj=1:length(settings.subjects)
             % Data to be used in the trial
             sx1 = saccraw1.eye_processed{tid}; % Raw eye-traces
             sx2 = S.saccades_EK{tid}; % Saccades data
+            ind = sacc1_individual.trial_no==tid;
+            s_class = sacc1_individual.sacc_classify(ind);
+            
             
             h = subplot(1,3,[1]);
             hold on;
@@ -268,17 +271,28 @@ for i_subj=1:length(settings.subjects)
                 % Radius
                 xc = S.esetup_st1_coord(tid, 1);
                 yc = S.esetup_st1_coord(tid, 2);
+                amp1 = sqrt(xc^2 + yc^2);
                 
                 if strncmp(sacc1.trial_accepted{tid}, 'aborted', 7)
+                    set(gca,'YTick',[-25, 0, 25]);
+                    set(gca,'XTick',[-25, 0, 25]);
                     set(gca,'XLim',[-40,40]);
                     set(gca,'YLim',[-40,40]);
                 else
-                    set(gca,'YLim',[-17,17]);
-                    set(gca,'XLim',[-17,17]);
+                    set(gca,'YLim',[-12,12]);
+                    set(gca,'XLim',[-12,12]);
+                    set(gca,'YTick',[-round(amp1), 0, round(amp1)]);
+                    set(gca,'XTick',[-round(amp1), 0, round(amp1)]);
                 end
                 
-                set(gca,'YTick',[yc]);
-                set(gca,'XTick',[xc]);
+                 
+                if S.esetup_block_cond(tid)==1
+                    title ('Look', 'FontSize', settings.fontszlabel)
+                elseif S.esetup_block_cond(tid)==2
+                    title ('Avoid', 'FontSize', settings.fontszlabel)
+                else
+                    title ('Unknown task', 'FontSize', settings.fontszlabel)
+                end
                 
                 
                 %% Position in time
@@ -439,17 +453,29 @@ for i_subj=1:length(settings.subjects)
                         index1=sx1(:,1)>=sx2(i,1) & sx1(:,1)<=sx2(i,2);
                         x1=sx1(index1,2); y1=sx1(index1,3); % Convert to eye position in space
                         eyecoord1 = sqrt(x1.^2 + y1.^2); % Convert to position in space
-                        h=plot(sx1(index1,1), eyecoord1, 'Color', [0.2, 0.2, 0.8],  'LineWidth', 1);
+                        
+                        % Determine color of each saccade
+                        if strcmp(s_class(i), 'correct')
+                            color1 = [0.5, 0.5, 0.8];
+                        elseif strcmp(s_class(i), 'correct target') || strcmp(s_class(i), 'wrong target')
+                            color1 = [0.2, 0.8, 0.2];
+                        elseif strcmp(s_class(i), 'no sorting started')
+                            color1 = [0.8, 0.8, 0.2];
+                        else
+                            color1 = [0.5, 0.5, 0.8];
+                        end
+                        
+                        h=plot(sx1(index1,1), eyecoord1, 'Color', color1,  'LineWidth', 1);
                     end
                 end
                 
-                % Plot saccade of interest
-                if size(sx1,2)>1
-                    index1=sx1(:,1)>=sacc1.saccade_matrix(tid,1) & sx1(:,1)<=sacc1.saccade_matrix(tid,2);
-                    x1=sx1(index1,2); y1=sx1(index1,3); % Convert to eye position in space
-                    eyecoord1 = sqrt(x1.^2 + y1.^2); % Convert to position in space
-                    h=plot(sx1(index1,1), eyecoord1, 'Color', [0.2, 1, 0.2], 'LineWidth', 1);
-                end
+%                 % Plot saccade of interest
+%                 if size(sx1,2)>1
+%                     index1=sx1(:,1)>=sacc1.saccade_matrix(tid,1) & sx1(:,1)<=sacc1.saccade_matrix(tid,2);
+%                     x1=sx1(index1,2); y1=sx1(index1,3); % Convert to eye position in space
+%                     eyecoord1 = sqrt(x1.^2 + y1.^2); % Convert to position in space
+%                     h=plot(sx1(index1,1), eyecoord1, 'Color', [0.2, 1, 0.2], 'LineWidth', 1);
+%                 end
                 
                 
                 % X Lim

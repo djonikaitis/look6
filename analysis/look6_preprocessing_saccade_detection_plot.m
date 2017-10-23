@@ -19,7 +19,7 @@ settings = get_settings_ini_v10(settings);
 %% Extra settings
 
 settings.figure_folder_name = 'saccade_detection';
-
+settings.figure_size_temp = [0, 0, 4.5, 2];
 
 %% Analysis
 
@@ -178,9 +178,8 @@ for i_subj=1:length(settings.subjects)
             ST.sacc_classify = cell(numel(ST.START), 1);
             ST.sacc_classify (1:end) = {'no sorting started'};
             
-            %============
-            %============
-            % Calculate some extra variables for data evaluation
+            
+            %%  Calculate some extra variables for data evaluation
             
             
             %=============
@@ -202,6 +201,16 @@ for i_subj=1:length(settings.subjects)
             y1=sx1(:,6);
             l1=sqrt((x1.^2)+(y1.^2));
             ST.sacc_end_fix_dist = l1;
+            
+            %=============
+            % Calculate saccade amplitude
+            
+            sx1 = ST.sacc1;
+            
+            x1=sx1(:,5) - sx1(:,3);
+            y1=sx1(:,6) - sx1(:,4);
+            l1=sqrt((x1.^2)+(y1.^2));
+            ST.sacc_amp = l1;
             
             
             %================
@@ -259,19 +268,58 @@ for i_subj=1:length(settings.subjects)
             a_sdev_th = 3;
             
             index = ST.sacc_end_fix_dist > a_m + a_s*a_sdev_th; % 3 standard deviations
-            ST.sacc_classify(index) =  {'reject1'};
+            ST.sacc_classify(index) =  {'reject - outlier amplitudes'};
             
-                        
-            %% Figure 1: all saccade endpoints
             
-            h = figure; hold on
+            %% Figure: outlier saccades
+            
+            % Plot all data
+            h_fig = subplot(1,2,1); hold on
+            
+            % Plot
             ind = strcmp(ST.sacc_classify, 'no sorting started');
-            plot(ST.sacc1(ind,5), ST.sacc1(ind,6), '.k')
-            ind = strcmp(ST.sacc_classify, 'reject1');
-            plot(ST.sacc1(ind,5), ST.sacc1(ind,6), '.r')
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [0.2, 0.2, 0.2]);
+            ind = strcmp(ST.sacc_classify, 'reject - outlier amplitudes');
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [1, 0.5, 0.5]);
+            
+            % Labels for plotting
+            h_fig = gca;
+            h_fig.XTick = [-25, 0, 25];
+            h_fig.YTick = [-25, 0, 25];
+            h_fig.XLim = [-50, 50];
+            h_fig.YLim = [-50, 50];
+            title ('All data', 'FontSize', settings.fontszlabel)
+            xlabel ('Horizontal', 'FontSize', settings.fontszlabel);
+            ylabel ('Vertical', 'FontSize', settings.fontszlabel);
+            
+            %=================
+            % Plot zoomed in data
+            h_fig = subplot(1,2,2); hold on
+            
+            % Plot
+            ind = strcmp(ST.sacc_classify, 'no sorting started');
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [0.2, 0.2, 0.2]);
+            ind = strcmp(ST.sacc_classify, 'reject - outlier amplitudes');
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [1, 0.5, 0.5]);
+            
+            % Labels for plotting
+            h_fig = gca;
+            h_fig.XTick = [-10, 0, 10];
+            h_fig.YTick = [-10, 0, 10];
+            h_fig.XLim = [-15, 15];
+            h_fig.YLim = [-15, 15];
+            title ('Zoom in', 'FontSize', settings.fontszlabel)
+            xlabel ('Horizontal', 'FontSize', settings.fontszlabel);
+            ylabel ('Vertical', 'FontSize', settings.fontszlabel);
+            
+            % Save data
+            plot_set.figure_size = settings.figure_size_temp;
+            plot_set.figure_save_name = 'sacc';
+            plot_set.path_figure = path_fig;
+            plot_helper_save_figure;
 
             
-            %% aborted: no fixation
+            %% aborted - fixation not acquired
             
             % sacc endpoint threshold
             th1 = NaN(numel(ST.START), 1);
@@ -280,18 +328,68 @@ for i_subj=1:length(settings.subjects)
             ind = ST.esetup_fixation_drift_correction_on == 0;
             th1(ind) = ST.esetup_fixation_size_eyetrack(ind,4);
             
-            % Check for saccades
+            %=============
+            % Saccade does not end in fixation area
             ind = isnan(ST.fixation_acquired) & ~isnan(ST.fixation_on) & ~isnan(ST.fixation_off) & ...
-                ST.sacc1(:,1) >= ST.fixation_on & ST.sacc1(:,1) <= ST.fixation_off & ST.sacc_end_fix_dist>=th1;
+                ST.sacc1(:,1) >= ST.fixation_on & ST.sacc1(:,1) <= ST.fixation_off & ST.sacc_end_fix_dist>th1;
             
-            ST.sacc_classify(ind) = {'aborted - no fixation acquired'};
+            trial_select_code = 'aborted - fixation not acquired';
+            ST.sacc_classify(ind) = {trial_select_code};
             
-            % Check for saccades
-            ind = isnan(ST.fixation_drift_maintained) & ~isnan(ST.fixation_acquired) & ~isnan(ST.fixation_on) & ~isnan(ST.fixation_off) & ...
-                ST.sacc1(:,1) >= ST.fixation_acquired & ST.sacc1(:,1) <= ST.fixation_off & ST.sacc_end_fix_dist>=th1;
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>=0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
             
-            ST.sacc_classify(ind) = {'aborted - broke fixation before memory'};
-           
+            %=============
+            % OK saccades before fixation acquired
+            ind = isnan(ST.fixation_acquired) & ~isnan(ST.fixation_on) & ~isnan(ST.fixation_off) & ...
+                ST.sacc1(:,1) >= ST.fixation_on & ST.sacc1(:,1) <= ST.fixation_off & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            
+            %% aborted before drift maintained
+            
+            % sacc endpoint threshold
+            th1 = NaN(numel(ST.START), 1);
+            ind = ST.esetup_fixation_drift_correction_on == 1;
+            th1(ind) = ST.esetup_fixation_size_drift(ind,4);
+            ind = ST.esetup_fixation_drift_correction_on == 0;
+            th1(ind) = ST.esetup_fixation_size_eyetrack(ind,4);
+            
+            %=============
+            % Too large saccades before drift maintained
+            ind = ~isnan(ST.fixation_acquired) & isnan(ST.fixation_drift_maintained) & ...
+                ~isnan(ST.fixation_on) & ~isnan(ST.fixation_off) & ...
+                ST.sacc1(:,1) >= ST.fixation_acquired & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist>=th1;
+            
+            trial_select_code = 'aborted - broke fixation before drift';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+
+            %=============
+            % OK saccades before drift maintained
+            ind = ~isnan(ST.fixation_acquired) & isnan(ST.fixation_drift_maintained) & ...
+                ~isnan(ST.fixation_on) & ~isnan(ST.fixation_off) & ...
+                ST.sacc1(:,1) >= ST.fixation_acquired & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
             
             
             %% aborted: broke fixation before memory
@@ -300,81 +398,243 @@ for i_subj=1:length(settings.subjects)
             th1 = NaN(numel(ST.START), 1);
             th1 = ST.esetup_fixation_size_eyetrack(:,4);
             
-            % Check for saccades
+            %=============
+            % Broke fixation before memory (memory didnt appear)
             ind = ~isnan(ST.fixation_drift_maintained) & isnan(ST.memory_on) & ...
-                ST.sacc1(:,1) >= ST.fixation_drift_maintained & ST.sacc1(:,1) <= ST.fixation_off & ST.sacc_end_fix_dist>=th1;
+                ST.sacc1(:,1) >= ST.fixation_drift_maintained & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist>=th1;
             
-            ST.sacc_classify(ind) = {'aborted - broke fixation before memory'};
+            trial_select_code = 'aborted - broke fixation before memory';
+            ST.sacc_classify(ind) = {trial_select_code};
             
-            % Check for saccades
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+            
+            %===============
+            % Correct saccades before memory target (memory didnt appear)
+            ind = ~isnan(ST.fixation_drift_maintained) & isnan(ST.memory_on) & ...
+                ST.sacc1(:,1) >= ST.fixation_drift_maintained & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            
+            %=============
+            % Broke fixation before memory (memory appeared)
             ind = ~isnan(ST.fixation_drift_maintained) & ~isnan(ST.memory_on) & ...
-                ST.sacc1(:,1) >= ST.fixation_drift_maintained & ST.sacc1(:,1) <= ST.memory_on & ST.sacc_end_fix_dist>=th1;
+                ST.sacc1(:,1) >= ST.fixation_drift_maintained & ST.sacc1(:,1) <= ST.memory_on &...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist>=th1;
             
-            ST.sacc_classify(ind) = {'aborted - broke fixation before memory'};
+            trial_select_code = 'aborted - broke fixation before memory';
+            ST.sacc_classify(ind) = {trial_select_code};
             
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+            
+            %===============
+            % Correct saccades before memory target (memory appeared)
+            ind = ~isnan(ST.fixation_drift_maintained) & ~isnan(ST.memory_on) & ...
+                ST.sacc1(:,1) >= ST.fixation_drift_maintained & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            
+            %% aborted: broke fixation during memory delay
+
+            % sacc endpoint threshold
+            th1 = NaN(numel(ST.START), 1);
+            th1 = ST.esetup_fixation_size_eyetrack(:,4);
+            
+            %=============
+            % Broke fixation before st1 (st1 didnt appear)
+            ind = ~isnan(ST.memory_on) & isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist>=th1;
+            
+            trial_select_code = 'broke fixation during memory';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+            
+            %===============
+            % Correct saccades before st1 (st1 didnt appear)
+            ind = ~isnan(ST.memory_on) & isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            
+            %=============
+            % Broke fixation before st1 (st appeared)
+            ind = ~isnan(ST.memory_on) & ~isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.target_on & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist>=th1;
+            
+            trial_select_code = 'broke fixation during memory';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+            
+            %==============
+            % Correct saccades before st1 (st1 appeared)
+            ind = ~isnan(ST.memory_on) & isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.target_on & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist<=th1;
+            
+            trial_select_code = 'correct';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+              
+            %=================
+            % Plot zoomed in data
+            close all
+            h_fig = subplot(1,2,1); hold on
+            
+            % Plot
+            ind = ~isnan(ST.memory_on) & isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off;
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [0.2, 0.2, 0.2]);
+            ind = ~isnan(ST.memory_on) & ~isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off;
+            hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [1, 0.5, 0.5]);
+            
+            % Labels for plotting
+            h_fig = gca;
+            h_fig.XTick = [-10, 0, 10];
+            h_fig.YTick = [-10, 0, 10];
+            h_fig.XLim = [-15, 15];
+            h_fig.YLim = [-15, 15];
+            title ('Memory delay saccades', 'FontSize', settings.fontszlabel)
+            xlabel ('Horizontal', 'FontSize', settings.fontszlabel);
+            ylabel ('Vertical', 'FontSize', settings.fontszlabel);
+            
+            % Save data
+            plot_set.figure_size = settings.figure_size_temp;
+            plot_set.figure_save_name = 'memory_delay';
+            plot_set.path_figure = path_fig;
+            plot_helper_save_figure;
             
             
             %% detect target saccades
             
             % sacc endpoint threshold
+            th0 = NaN(numel(ST.START), 1);
             th1 = NaN(numel(ST.START), 1);
-            th1 = ST.esetup_fixation_size_eyetrack(:,4);
+            th0 = ST.esetup_fixation_size_eyetrack(:,4);
+            th1 = ST.esetup_target_size_eyetrack(:,4);
             
-            % Check for saccades
-            ind = ~isnan(ST.target_on) & ...
-                ST.sacc1(:,1) >= ST.target_on & ST.sacc1(:,1) <= ST.target_off & ST.sacc_end_st1_dist <= th1;
+            %=================
+            % Find correct saccades
+            ind = strcmp(ST.sacc_classify, 'no sorting started') & ...
+                ~isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.target_on & ST.sacc1(:,1) <= ST.target_off & ...
+                ST.sacc_start_fix_dist <= th0 & ST.sacc_end_st1_dist <= th1 & ...
+                ST.sacc_end_st1_dist<=ST.sacc_end_st2_dist;
             
-            ST.sacc_classify(ind) = {'correct'};
+            trial_select_code = 'correct target';
+            ST.sacc_classify(ind) = {trial_select_code};
             
-%             h = figure; hold on;
-%             plot(ST.sacc1(ind,5), ST.sacc1(ind,6), '.k')
-            
-            
-            %             % Check for saccades
-            %             ind = ~isnan(ST.st2_on) & ~isnan(ST.st2_off) &...
-            %                 ST.sacc1(:,1) >= ST.st2_on & ST.sacc1(:,1) <= ST.st2_off & ST.sacc_end_st2_dist <= th1;
-            %
-            %             ST.sacc_classify(ind) = {'error: saccade to st2'};
-            %
-            %
-            %             plot(ST.sacc1(ind,5), ST.sacc1(ind,6), '.r')
-            
-            
-            
-            %% detect fixation saccades during delay
-            
-            % sacc endpoint threshold
-            th1 = NaN(numel(ST.START), 1);
-            th1 = ST.esetup_fixation_size_eyetrack(:,4);
-            
-            % Check for saccades
-            ind = ~isnan(ST.memory_on) & ~isnan(ST.target_on) &...
-                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.target_on & ST.sacc_end_fix_dist <= th1;
-            
-            ST.sacc_classify(ind) = {'fixation saccade'};
-            
-% %             h = figure; hold on;
-% %             plot(ST.sacc1(ind,5), ST.sacc1(ind,6), '.r')
-           
-            
-            %% Output into trial_accepted matrix
-            
-            
-            % Save correct trials
+            % Save trial accepted
             for tid = 1:numel(var1.START)
                 ind = ST.trial_no==tid;
-                a = 'correct';
-                if sum(strcmp (ST.sacc_classify(ind), a))>0
-                    trial_accepted{tid} = a;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                    temp_data = ST.sacc1(ind);
+                    temp_ind = find (strcmp (ST.sacc_classify(ind), trial_select_code)==1);
+                    saccade_matrix(tid,:) = temp_data(temp_ind(1),:);
+                end
+            end
+            
+            %==================
+            % Find error saccades
+            ind = strcmp(ST.sacc_classify, 'no sorting started') & ...
+                ~isnan(ST.target_on) & ~isnan(ST.st2_on) &...
+                ST.sacc1(:,1) >= ST.target_on & ST.sacc1(:,1) <= ST.target_off & ...
+                ST.sacc_start_fix_dist <= th0 & ST.sacc_end_st2_dist <= th1 & ...
+                ST.sacc_end_st2_dist<=ST.sacc_end_st1_dist;
+            
+            trial_select_code = 'wrong target';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
+                    trial_accepted{tid} = trial_select_code;
+                    temp_data = ST.sacc1(ind);
+                    temp_ind = find (strcmp (ST.sacc_classify(ind), trial_select_code)==1);
+                    saccade_matrix(tid,:) = temp_data(temp_ind(1),:);
                 end
             end
             
             
+            %% No response saccade detected
+                        
+            trial_select_code = 'no response saccade detected';
+            
+%             tic
+%             for tid = 1:numel(var1.START)
+%                 sx1 = var1.saccades_EK{tid};
+%                 if ~isempty(sx1)
+%                     ind = sx1(:,1)>var1.target_on(tid) & sx1(:,1)<var1.loop_over(tid);
+%                     if sum(ind==0)
+%                         trial_accepted{tid} = trial_select_code;
+%                     end
+%                 else
+%                     trial_accepted{tid} = trial_select_code;
+%                 end
+%             end
+%             toc
+            
+            tic
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid & ...
+                    ST.sacc1(:,1)>ST.target_on & ST.sacc1(:,1)<ST.loop_over &...
+                    ST.sacc_amp > 1;
+                if sum(ind==0)
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
+            toc
+            
+            
+            
+            %% Final trial_accepted matrix
+            
+                    
             for tid=1:size(var1.START,1)
                 if isempty(trial_accepted{tid})
                     trial_accepted{tid} = 'unknown error';
                 end
             end
+            
             
             %% Save errors into text file
            

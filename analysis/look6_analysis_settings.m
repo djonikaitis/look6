@@ -6,6 +6,7 @@
 
 % "analysis" code is stored in:
 settings.path_baseline_code = sprintf('~/proj/experiments/');
+settings.path_baseline_figures = sprintf('~/Dropbox/Experiments/');
 
 % "Experiments_data" folder with eyelink and psychtoolbox data:
 settings.path_baseline_data = sprintf('~/Dropbox/Experiments_data/');
@@ -70,7 +71,7 @@ end
 %%  Folders where different data is stored
 
 % Names of folders
-path_spec_names{1} = {'figures'; settings.path_baseline_code};
+path_spec_names{1} = {'figures'; settings.path_baseline_figures};
 path_spec_names{2} = {'data_combined'; settings.path_baseline_data};
 path_spec_names{3} = {'data_psychtoolbox'; settings.path_baseline_data};
 path_spec_names{4} = {'data_eyelink_edf'; settings.path_baseline_data};
