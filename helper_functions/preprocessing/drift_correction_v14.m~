@@ -28,12 +28,11 @@
 
 %% Settings
 
-function [drift1] = drift_correction_v14 (sacc1, saccraw1, avg_mat, t_start, t_end, saccade_amp_threshold)
+function [y_drift_mat, y, y_raw] = drift_correction_v14 (sacc1, saccraw1, threshold1, t_start, t_end, saccade_amp_threshold)
 
 
 % For drift correction initialize empty matrix
-drift_output = cell(numel(sacc1),1);
-drift_factor_xy = NaN(numel(sacc1),2);
+drift_correct = NaN(numel(sacc1),4);
 
 
 %% Do drift correction
@@ -71,13 +70,12 @@ for tid=1:numel(saccraw1)
         %===========
         % Do drift correction
         
-        if ~isnan(avg_mat(tid)) && avg_mat(tid)~=0 && sum(sacc_amp_index)==0
+        if ~isnan(threshold1(tid)) && threshold1(tid)~=0 && sum(sacc_amp_index)==0
             
             % Determine how much to reset data
             a = nanmean(raw_dist); % Current trial mean/median
-            b = avg_mat(tid); % mean/median position of x trials
+            b = threshold1(tid); % mean/median position of x trials
             c = (b/a); % Proportion to reset (for example, 10%)
-            c = 1;
             
             % Change saccraw data
             saccraw1{tid}(:,2) = saccraw1{tid}(:,2) - nanmean(raw_x)*c;
@@ -91,22 +89,24 @@ for tid=1:numel(saccraw1)
                 sacc1{tid}(:,6) = sacc1{tid}(:,6) - nanmean(raw_y)*c;
             end
             
-            % Save output
-            drift_output{tid} = 'drift on';
-            drift_factor_xy(tid,1) = nanmean(raw_x)*c;
-            drift_factor_xy(tid,2) = nanmean(raw_y)*c;
+            % Save correction factor
+            drift_correct(tid,1) = 1;
+            drift_correct(tid,2) = nanmean(raw_x)*c;
+            drift_correct(tid,3) = nanmean(raw_y)*c;
+            drift_correct(tid,4) = threshold1(tid);
             
-        elseif sum(sacc_amp_index)>0
-            drift_output{tid} = 'drift off - saccade';
         else
-            drift_output{tid} = 'drift off';
+            % Save factor of correction
+            drift_correct(tid,1) = 0;
+            drift_correct(tid,2) = nanmean(raw_x);
+            drift_correct(tid,3) = nanmean(raw_y);
+            drift_correct(tid,4) = nanmean(raw_dist);
         end
         
     end
 end
 
-drift1.drift_output = drift_output;
-drift1.drift_factor_xy = drift_factor_xy; 
-drift1.saccraw1 = saccraw1; 
-drift1.sacc1 = sacc1;
+y_drift_mat = drift_correct;
+y_raw = saccraw1;
+y = sacc1;
 

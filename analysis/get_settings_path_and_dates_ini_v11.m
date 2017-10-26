@@ -1,7 +1,13 @@
+% v1.0 September, 2017. Basic version
+% v1.1 Octover 24, 2017. Added extra input to specify path name to check
 
-function settings = get_settings_path_and_dates_ini_v10(settings, varx1)
+function settings = get_settings_path_and_dates_ini_v11(settings, varargin)
 
-i
+if length(varargin)>=1
+    varx1 = varargin{1};
+else
+    varx1 = 'path_data_combined_subject';
+end
 
 
 % Check whether current subject exists
@@ -23,7 +29,7 @@ for i = 1:numel(ind_d)
 end
 
 % Get index of every folder for a given subject
-path1 = settings.path_data_combined_subject;
+path1 = settings.(varx1);
 session_init = get_path_dates_v20(path1, settings.subject_current);
 if isempty(session_init.index_dates)
     fprintf('\nNo files detected, no data analysis done. Directory checked was:\n')
