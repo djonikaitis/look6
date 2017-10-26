@@ -68,6 +68,7 @@ for i_subj=1:length(settings.subjects)
             
             % Load all settings
             var1 = get_struct_v10(path1);
+            sacc1_raw = get_struct_v10(path2);
             
             % Initialize few variables
             sacc1 = var1.saccades_EK;
@@ -249,6 +250,51 @@ for i_subj=1:length(settings.subjects)
             l1=sqrt((x1.^2)+(y1.^2));
             ST.sacc_end_st2_dist = l1;
             
+            %===============
+            % Calculate saccade angle from st1
+            
+            sx1 = ST.sacc1;
+            temp1 = [];
+            
+            % Calculate st1 angle
+            a=atan2(ST.esetup_st1_coord(:,2), ST.esetup_st1_coord(:,1)); % Angle of saccade endpoint
+            index = a>=0; % Convert PI angle into degrees
+            a(index)=180*(a(index)/pi);
+            index = a<0; % Convert PI angle into degrees
+            a(index)=360+(180*a(index)/pi);
+            ST.st1_angle = a;
+            
+            % Rotate st1 angle?
+            var11=90; % Goal of rotation
+            displace1 = var11 - ST.st1_angle;
+            
+            % Calculate resetting angles
+            displace1(displace1>=360)=displace1(displace1>=360)-360;
+            displace1(displace1<0)=displace1(displace1<0)+360;
+            
+            % Start position rotation
+            angle = displace1; x=sx1(:,3); y=sx1(:,4);
+            xn = cosd(angle).*x - sind(angle).*y;
+            yn = sind(angle).*x + cosd(angle).*y;
+            temp1(:,3)=xn; temp1(:,4)=yn;
+            
+            % End position rotation
+            angle=displace1; x=sx1(:,5); y=sx1(:,6);
+            xn = cosd(angle).*x - sind(angle).*y;
+            yn = sind(angle).*x + cosd(angle).*y;
+            temp1(:,5)=xn; temp1(:,6)=yn;
+            
+            % Calculate the angle of the rotated data endpoints
+            a=atan2(temp1(:,6), temp1(:,5)); % Angle of saccade endpoint
+            index = a>=0; % Convert PI angle into degrees
+            a(index)=180*(a(index)/pi);
+            index = a<0; % Convert PI angle into degrees
+            a(index)=360+(180*a(index)/pi);
+            temp1(:,7) = a; % Save as column number 7
+            
+            % Rotated output is saved into ST.rotated_t1
+            ST.sacc1_rotated_to_st1 = temp1;
+            
             
             %% remove outlier saccades
             
@@ -338,8 +384,7 @@ for i_subj=1:length(settings.subjects)
             
             % Save trial accepted
             for tid = 1:numel(var1.START)
-                ind = ST.trial_no==tid;
-                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>=0
+                if isnan(var1.fixation_acquired(tid))
                     trial_accepted{tid} = trial_select_code;
                 end
             end
@@ -511,15 +556,17 @@ for i_subj=1:length(settings.subjects)
             trial_select_code = 'correct';
             ST.sacc_classify(ind) = {trial_select_code};
             
-              
+            %%  Plot memory delay saccades
+            
             %=================
-            % Plot zoomed in data
+            % Plot correct/error saccades during memory delay
             close all
             h_fig = subplot(1,2,1); hold on
             
             % Plot
             ind = ~isnan(ST.memory_on) & isnan(ST.target_on) & ...
-                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off;
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off &...
+                ~strcmp (ST.sacc_classify, 'reject - outlier amplitudes');
             hfig = scatter(ST.sacc1(ind,5), ST.sacc1(ind,6), 1, [0.2, 0.2, 0.2]);
             ind = ~isnan(ST.memory_on) & ~isnan(ST.target_on) & ...
                 ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off;
@@ -535,11 +582,81 @@ for i_subj=1:length(settings.subjects)
             xlabel ('Horizontal', 'FontSize', settings.fontszlabel);
             ylabel ('Vertical', 'FontSize', settings.fontszlabel);
             
-            % Save data
-            plot_set.figure_size = settings.figure_size_temp;
-            plot_set.figure_save_name = 'memory_delay';
-            plot_set.path_figure = path_fig;
-            plot_helper_save_figure;
+            %==============
+            h_fig = subplot(1,2,2); hold on
+            
+            plot_set.color1(1,:) = [0.2, 0.2, 0.2];
+            plot_set.color1(2,:) = [1, 0.5, 0.5];
+            plot_set.var1_group_name{1} = 'Correct';
+            plot_set.var1_group_name{2} = 'Error';
+            mat1=[]; plot_bins=[];
+
+            
+            % Plot rejected trials
+            ind = ~isnan(ST.memory_on) & isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off &...
+                ~strcmp (ST.sacc_classify, 'reject - outlier amplitudes');
+            [mat1(:,:,2), plot_bins(:,:,2)] = hist(ST.sacc_amp(ind), 50);
+            
+            % Plot correct trials
+            ind = ~isnan(ST.memory_on) & ~isnan(ST.target_on) & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off;
+            [mat1(:,:,1), plot_bins(:,:,1)] = hist(ST.sacc_amp(ind), 50);
+            
+            % Normalize data
+            for i=1:size(mat1,3)
+                mat1(:,:,i)=mat1(:,:,i)/max(mat1(:,:,i));
+            end
+            
+            % Plot
+            for i=1:size(mat1,3)
+                h=plot(plot_bins(:,:,i), mat1(:,:,i));
+                graphcond=i;
+                set (h(end), 'LineWidth', settings.wlinegraph, 'Color', plot_set.color1(graphcond,:))
+            end
+            
+            
+            %==============
+            % Legend
+            
+            % Determine y position for the legend
+            for k=1:size(mat1,3)
+                if size(mat1,1)>1
+                    t_max(k)=max(nanmean(plot_bins(:,:,k)));
+                else
+                    t_max(k)=max(plot_bins(:,:,k));
+                end
+            end
+            ax_max = max(t_max);
+            
+            % Set coordinates for legend
+            legend1 = plot_set.var1_group_name;
+            legend_pos_x = repmat(ax_max, numel(legend1), 1);
+            legend_pos_y = [1.1, 1.3];
+            
+            % Plot legend text
+            for i=1:length(legend1)
+                graphcond = i;
+                text(legend_pos_x(i), legend_pos_y(i), legend1{i}, 'Color', plot_set.color1(graphcond,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'right')
+            end
+%             
+%             
+% %             % Labels for plotting
+% %             h_fig = gca;
+            h_fig.XTick = [0: 10 : ax_max];
+            h_fig.YTick = [0, 0.5, 1];
+            h_fig.XLim = [-0.5, ax_max+ax_max*0.05];
+            h_fig.YLim = [-0.01, 1.4];
+% %             title ('Memory delay saccades', 'FontSize', settings.fontszlabel)
+%             xlabel ('Saccade amplitude', 'FontSize', settings.fontszlabel);
+%             ylabel ('Saccade frequency', 'FontSize', settings.fontszlabel);
+%             
+%             
+%             % Save data
+%             plot_set.figure_size = settings.figure_size_temp;
+%             plot_set.figure_save_name = 'memory_delay';
+%             plot_set.path_figure = path_fig;
+%             plot_helper_save_figure;
             
             
             %% detect target saccades
@@ -552,6 +669,7 @@ for i_subj=1:length(settings.subjects)
             
             %=================
             % Correct saccades
+            tic
             ind = strcmp(ST.sacc_classify, 'no sorting started') & ...
                 ~isnan(ST.target_on) & ...
                 ST.sacc1(:,1) >= ST.target_on & ST.sacc1(:,1) <= ST.target_off & ...
@@ -560,13 +678,14 @@ for i_subj=1:length(settings.subjects)
             
             trial_select_code = 'correct target';
             ST.sacc_classify(ind) = {trial_select_code};
+            toc
             
             % Save trial accepted
             for tid = 1:numel(var1.START)
                 ind = ST.trial_no==tid;
                 if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
                     trial_accepted{tid} = trial_select_code;
-                    temp_data = ST.sacc1(ind);
+                    temp_data = ST.sacc1(ind,:);
                     temp_ind = find (strcmp (ST.sacc_classify(ind), trial_select_code)==1);
                     saccade_matrix(tid,:) = temp_data(temp_ind(1),:);
                 end
@@ -588,7 +707,7 @@ for i_subj=1:length(settings.subjects)
                 ind = ST.trial_no==tid;
                 if sum(strcmp (ST.sacc_classify(ind), trial_select_code))>0
                     trial_accepted{tid} = trial_select_code;
-                    temp_data = ST.sacc1(ind);
+                    temp_data = ST.sacc1(ind,:);
                     temp_ind = find (strcmp (ST.sacc_classify(ind), trial_select_code)==1);
                     saccade_matrix(tid,:) = temp_data(temp_ind(1),:);
                 end
@@ -599,32 +718,44 @@ for i_subj=1:length(settings.subjects)
                         
             trial_select_code = 'no response saccade detected';
             
-%             tic
-%             for tid = 1:numel(var1.START)
-%                 sx1 = var1.saccades_EK{tid};
-%                 if ~isempty(sx1)
-%                     ind = sx1(:,1)>var1.target_on(tid) & sx1(:,1)<var1.loop_over(tid);
-%                     if sum(ind==0)
-%                         trial_accepted{tid} = trial_select_code;
-%                     end
-%                 else
-%                     trial_accepted{tid} = trial_select_code;
-%                 end
-%             end
-%             toc
-            
             for tid = 1:numel(var1.START)
-                ind = ST.trial_no==tid & ...
-                    ST.sacc1(:,1)>ST.target_on & ST.sacc1(:,1)<ST.loop_over &...
-                    ST.sacc_amp > 1;
-                if sum(ind==0)
+                sx1 = var1.saccades_EK{tid};
+                if ~isempty(sx1)
+                    a1 = ST.sacc_amp(ST.trial_no==tid);
+                    ind = sx1(:,1)>var1.target_on(tid) & sx1(:,1)<var1.loop_over(tid) & a1>1;
+                    if sum(ind)==0 && ~isnan(var1.target_on(tid))
+                        trial_accepted{tid} = trial_select_code;
+                    end
+                else
                     trial_accepted{tid} = trial_select_code;
                 end
-            end 
+            end
             
             
             %% Blink during the trial
             
+            trial_select_code = 'blink during the trial';
+            
+            for tid = 1:numel(var1.START)
+                sx1 = sacc1_raw.eye_processed{tid};
+                if ~isempty(sx1)
+                    ind = sx1(:,1)>var1.fixation_drift_maintained(tid) & sx1(:,1)<var1.target_off(tid) & sx1(:,4)==0;
+                    if sum(ind)>0
+                        trial_accepted{tid} = trial_select_code;
+                    end
+                end
+            end
+        
+            
+            %% Experimenter terminated the trial
+            
+            trial_select_code = 'experimenter terminated the trial';
+
+            for tid=1:size(var1.START,1)
+                if strcmp(var1.edata_error_code{tid}, trial_select_code)
+                    trial_accepted{tid} = trial_select_code;
+                end
+            end
             
             
             %% Final trial_accepted matrix

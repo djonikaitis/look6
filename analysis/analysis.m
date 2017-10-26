@@ -28,7 +28,7 @@ end
 % Creates a folder "combined". Combines settings and saccades files into one file; 
 % reset saccades to degrees of visual angle; do drift correction
 settings.preprocessing_eyelink_conversion = 1;
-settings.overwrite = 1; % If 1, runs analysis again even if it was done 
+settings.overwrite = 0; % If 1, runs analysis again even if it was done 
 if settings.preprocessing_eyelink_conversion == 1
     preprocessing_eyelink_conversion_v11(settings);
 end
@@ -61,12 +61,12 @@ end
 
 %% Preprocessing: saccades
 
-% % Detect saccades
-% settings.overwrite = 1;
-% settings.preprocessing_saccade_detection = 0;
-% if settings.preprocessing_saccade_detection == 1
-%     look6_preprocessing_saccade_detection;
-% end
+% Detect saccades
+settings.overwrite = 1;
+settings.preprocessing_saccade_detection = 1;
+if settings.preprocessing_saccade_detection == 1
+    look6_preprocessing_saccade_detection;
+end
 
 % % Plot eye traces for manual inspection
 % settings.plot_saccades_raw = 0;
