@@ -80,15 +80,15 @@ for tid=1:numel(saccraw1)
             c = 1;
             
             % Change saccraw data
-            saccraw1{tid}(:,2) = saccraw1{tid}(:,2) - nanmean(raw_x)*c;
-            saccraw1{tid}(:,3) = saccraw1{tid}(:,3) - nanmean(raw_y)*c;
+            saccraw1{tid}(:,2) = saccraw1{tid}(:,2) - 0; %nanmean(raw_x)*c;
+            saccraw1{tid}(:,3) = saccraw1{tid}(:,3) - 1.5; %nanmean(raw_y)*c;
             
             % Correct individual saccades
             if length(sx2)>1
-                sacc1{tid}(:,3) = sacc1{tid}(:,3) - nanmean(raw_x)*c;
-                sacc1{tid}(:,5) = sacc1{tid}(:,5) - nanmean(raw_x)*c;
-                sacc1{tid}(:,4) = sacc1{tid}(:,4) - nanmean(raw_y)*c;
-                sacc1{tid}(:,6) = sacc1{tid}(:,6) - nanmean(raw_y)*c;
+                sacc1{tid}(:,3) = sacc1{tid}(:,3) - 0; %nanmean(raw_x)*c;
+                sacc1{tid}(:,5) = sacc1{tid}(:,5) - 0; %nanmean(raw_x)*c;
+                sacc1{tid}(:,4) = sacc1{tid}(:,4) - 1.5; %nanmean(raw_y)*c;
+                sacc1{tid}(:,6) = sacc1{tid}(:,6) - 1.5; %nanmean(raw_y)*c;
             end
             
             % Save output

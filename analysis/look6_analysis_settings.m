@@ -104,7 +104,7 @@ settings.drift_correction_time = 'fixation_drift_maintained'; % Field used for d
 settings.drift_correction_tstart = -110;
 settings.drift_correction_tend = -10;
 settings.drift_correction_trials = 10; % How many trials to use for drift correction
-settings.drift_correction_method = 'median'; % 'mean' or 'median'
+settings.drift_correction_method = 'each trial'; % 'mean' or 'median' or 'each trial'
 
 
 %% Shared settings for analysis

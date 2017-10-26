@@ -160,14 +160,14 @@ for i_subj = 1:length(settings.subjects)
                 S = cell2struct([struct2cell(mat1); struct2cell(mat2); struct2cell(mat3); struct2cell(mat4)], names, 1);
             end
                         
-            % Save data
-            if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2))
-                S = var1;
-                save (eval('path1_out'), 'S')
-                % Save raw data
-                SR = var2;
-                save (eval('path1_raw_out'), 'SR')
-            end
+%             % Save data
+%             if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2))
+%                 S = var1;
+%                 save (eval('path1_out'), 'S')
+%                 % Save raw data
+%                 SR = var2;
+%                 save (eval('path1_raw_out'), 'SR')
+%             end
             
             
         else
