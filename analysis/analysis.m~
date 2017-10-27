@@ -77,30 +77,27 @@ end
 
 %% Data analysis
 
-% Plot day to day trials accepted/rejected
-settings.analysis_errors_timecourse = 1;
-settings.overwrite = 1;
-if settings.analysis_errors_timecourse==1
-    look6_analysis_plot_last_day_performance;
-end
 
-% % Plot day to day trials accepted/rejected
-% settings.analysis_errors_timecourse = 1;
-% settings.overwrite = 1;
-% if settings.analysis_errors_timecourse==1
-%     look6_analysis_errors_timecourse;
-% end
-
-% % Spiking rates for different conditions
-% settings.analysis_spikes_timecourse = 0;
-% settings.overwrite = 1;
-% if settings.analysis_spikes_timecourse==1
-%     look6_analysis_spikes_timecourse;
-% end
-
-% % Spiking rates for different conditions
-% settings.analysis_orientation_profile = 1;
-% settings.overwrite = 1;
-% if settings.analysis_orientation_profile==1
-%     look5_analysis_orientation_profile;
-% end
+% % % % Plot day to day trials accepted/rejected
+% % % settings.analysis_errors_timecourse = 1;
+% % % settings.overwrite = 1;
+% % % if settings.analysis_errors_timecourse==1
+% % %     look5_analysis_errors_timecourse;
+% % % end
+% % 
+% % % % Spiking rates for different conditions
+% % % settings.analysis_spikes_timecourse = 0;
+% % % settings.overwrite = 1;
+% % % if settings.analysis_spikes_timecourse==1
+% % %     look6_analysis_spikes_timecourse;
+% % % end
+% % 
+% % % % Spiking rates for different conditions
+% % % settings.analysis_orientation_profile = 1;
+% % % settings.overwrite = 1;
+% % % if settings.analysis_orientation_profile==1
+% % %     look5_analysis_orientation_profile;
+% % % end
+% % % 
+% % % 
+% % % 

@@ -44,9 +44,9 @@ for i_subj = 1:length(settings.subjects)
         date_current = dates_used(i_date);
         settings.date_current = date_current; % Variable needed for data import
         ind = date_current==settings.index_dates;
-        folder_name = settings.index_directory{ind};
+        folder_name = [settings.subject_current, num2str(settings.date_current)];
         
-        path1 = [settings.path_data_temp_2_subject, folder_name, '/', folder_name, '_settings.mat'];
+        path1 = [settings.path_data_temp_2_subject, folder_name, '/' folder_name, '_settings.mat'];
         
         if ~exist(path1, 'file') || settings.overwrite==1
             fprintf('\nStarting file conversion and combining for the folder name %s\n', folder_name)
@@ -55,7 +55,7 @@ for i_subj = 1:length(settings.subjects)
             preprocessing_psych_eye_combine_v23 (settings, 'stim');
             %===========
         else
-            fprintf('\nFolder name %s already exists, skipping pre-processing\n', folder_name)
+            fprintf('\nFolder name %s already exists, skipping file import\n', folder_name)
             % Do nothing
         end
         

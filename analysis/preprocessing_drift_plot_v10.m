@@ -1,4 +1,4 @@
-% Plot drift correction outcime
+% Plot drift correction outcome
 
 % Eye position for drift correction
 sacc1 = var1.eye_data.saccades_EK;
@@ -20,14 +20,16 @@ elseif size(a,2)==1
     amp_threshold = a;
 end
 
-%===============
-% Dispersion of eye positions around the fixation
+% Set threhsold for plotting
+plot_lim_x = max(amp_threshold);
+plot_lim_y = max(amp_threshold);
+
+
+%% Post-drift eye position
 
 dist_mat_post = NaN(numel(sacc1),1);
-x_mat_post = NaN(numel(sacc1),1);
-y_mat_post = NaN(numel(sacc1),1);
+xy_mat_post = NaN(numel(sacc1),2);
 
- 
 for tid = 1:numel(saccraw1)
     
     sx1 = saccraw1{tid};
@@ -48,42 +50,51 @@ for tid = 1:numel(saccraw1)
             
             % Save output
             dist_mat_post(tid)=nanmean(eyecoord1);
-            x_mat_post(tid)=nanmean(x1);
-            y_mat_post(tid)=nanmean(y1);
+            xy_mat_post(tid,1)=nanmean(x1);
+            xy_mat_post(tid,2)=nanmean(y1);
         end
-        
+                
     end
 end
 
 
-%=================
-%=================
+%% Pre-drift eye position
 
-% Set threhsold for plotting
-plot_lim_x = max(amp_threshold);
-plot_lim_y = max(amp_threshold);
 
-%=============
-%=============
-% Plot 1
+temp1 = var1.eye_data.predrift_xy;
+x1 = temp1(:,1); y1 = temp1(:,2);
+dist_mat_pre = sqrt(x1.^2 + y1.^2);
+
+temp1 = var1.eye_data.predrift_xy_average;
+x1 = temp1(:,1); y1 = temp1(:,2);
+dist_mat_pre_avg = sqrt(x1.^2 + y1.^2);
+
+xy_mat_pre = var1.eye_data.predrift_xy;
+
+
+%%  Plot 1
 
 for i=1:2
     
     ind = strcmp(drift_output, 'drift on');
+    
     if i==1
         h = subplot(2,3,1); hold on;
         t1 = [1:numel(sacc1)];
         t1 = t1(ind);
-        x1 = var1.eye_data.drift_predrift_xy(ind,1);
-        y1 = var1.eye_data.drift_predrift_xy(ind,2);
+        x1 = xy_mat_pre(ind,1);
+        y1 = xy_mat_pre(ind,2);
     elseif i==2
         h = subplot(2,3,4); hold on;
         t1 = [1:numel(sacc1)];
         t1 = t1(ind);
-        x1 = x_mat_post(ind);
-        y1 = y_mat_post(ind);
+        x1 = xy_mat_post(ind,1);
+        y1 = xy_mat_post(ind,2);
     end
     
+    plot ([-10, 10], [0, 0], 'Color', [0.8, 0.8, 0.8], 'LineWidth', settings.wlineerror)
+    plot ([0, 0], [-10, 10], 'Color', [0.8, 0.8, 0.8], 'LineWidth', settings.wlineerror)
+
     % Plot all trials
     if nansum(abs(x1))>0
         scatter(x1, y1, 1, t1);
@@ -127,29 +138,34 @@ for i=1:2
     
 end
 
-%=================
-%=================
-% Plot 2
+
+
+%%  Plot 2
 
 for i=1:2
     
+    ind = strcmp(drift_output, 'drift on');
+            
     if i==1
         h = subplot(2,3,2); hold on;
-        a_mat = var3.dist_mat;
+        t1 = [1:numel(sacc1)];
+        t1 = t1(ind);
+        ind_mat = dist_mat_pre(ind);
+        avg_mat = dist_mat_pre_avg(ind);
     elseif i==2
         h = subplot(2,3,5); hold on;
-        a_mat = dist_mat_post;
+        t1 = [1:numel(sacc1)];
+        t1 = t1(ind);
+        ind_mat = dist_mat_post(ind);
     end
-    
-    amp1 = amp_threshold; % Max axes value
-    a_mat(a_mat>amp1) = max(amp1); % Clip axes
-    
-    % Plot all trials
-    h = plot(a_mat, 'Color', settings.color1(1,:), 'LineWidth', settings.wlineerror);
+        
+    % Plot individual trials
+    h = plot(t1, ind_mat, 'Color', settings.color1(1,:), 'LineWidth', settings.wlineerror);
     
     % Plot moving average
-    b = movmedian(a_mat, settings.drift_correction_trials, 'omitnan');
-    h = plot(1:length(b), b, 'LineWidth', settings.wlineerror, 'Color', settings.color1(2,:));
+    if i==1
+        h = plot(t1, avg_mat, 'Color', settings.color1(2,:), 'LineWidth', settings.wlineerror);
+    end
     
     % X & Y labels
     sacc1_x_label = 'Trial number';
@@ -158,7 +174,7 @@ for i=1:2
     ylabel (sacc1_y_label, 'FontSize', settings.fontszlabel)
     
     % X ticks
-    a = length(a_mat); % Value to be used for bins
+    a = length(ind_mat); % Value to be used for bins
     bins_total = 5;
     bins_preset = [100, 250, 500, 1000, 2500, 5000];
     ind1 = find (a<=bins_preset);
@@ -182,7 +198,6 @@ for i=1:2
     % Add legend
     text(100, a-a*0.1, 'Individual trials', 'Color', settings.color1(1,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left')
     text(100, a-a*0.2, 'Moving mean/median', 'Color', settings.color1(2,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left')
-
     
     
     % Title
@@ -196,23 +211,20 @@ for i=1:2
 end
 
 
-%=================
-%=================
-% Plot 3
+%%  Plot 3
 
 for i=1:2
     
+    ind = strcmp(drift_output, 'drift on');
+    
     if i==1
         h = subplot(2,3,3); hold on;
-        a_mat = var3.dist_mat;
+        a_mat = dist_mat_pre(ind);
     elseif i==2
         h = subplot(2,3,6); hold on;
-        a_mat = dist_mat_post;
+        a_mat = dist_mat_post(ind);
     end
     
-    amp1 = amp_threshold; % Max axes value
-    a_mat(a_mat>amp1) = max(amp1); % Clip axes
-
     h = histogram(a_mat, 20, 'FaceColor', settings.color1(1,:), 'EdgeColor', settings.color1(1,:));
     
     sacc1_x_label = 'Fix deviation';
@@ -252,16 +264,17 @@ for i=1:2
     
 end
 
+
 %=================
 %=================
 % Save figure
 
-% % Save data
-% plot_set.figure_size = settings.figure_size_temp;
-% plot_set.figure_save_name = 'drift correction';
-% plot_set.path_figure = path_fig;
-% plot_helper_save_figure;
-% 
-% close all;
+% Save data
+plot_set.figure_size = settings.figure_size_temp;
+plot_set.figure_save_name = 'drift correction';
+plot_set.path_figure = path_fig;
+plot_helper_save_figure;
+
+close all;
 
 

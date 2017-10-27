@@ -24,7 +24,7 @@ settings.fig_size_current = [0, 0, 6, 2.5]; % Unique figure size settings in thi
 
 % How many trials per error type to plot?
 trials_to_plot = 25;
-trials_to_plot = 'all';
+% trials_to_plot = 'all';
 
 
 %% Run preprocessing
@@ -35,7 +35,7 @@ for i_subj=1:length(settings.subjects)
     settings.subject_current = settings.subjects{i_subj};
     
     % Get subject folder paths and dates to analyze
-    settings = get_settings_path_and_dates_ini_v10(settings);
+    settings = get_settings_path_and_dates_ini_v11(settings);
     dates_used = settings.data_sessions_to_analyze;
     
     % Analysis for each day
@@ -357,19 +357,14 @@ for i_subj=1:length(settings.subjects)
             %==================
             % Message about drift correction size
             
-            if  ~isnan(S.fixation_drift_maintained(tid))
-                c1 = [0.6, 0.6, 0.6];
-                if S.esetup_fixation_drift_correction_on(tid,1) == 1 && S.drift_correction(tid,1)==1
-                    text(t_start, -9, sprintf ('Drift correction on: %s deg', num2str(round(S.drift_correction(tid,4), 2))), 'Color', c1,  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left');
-                elseif S.esetup_fixation_drift_correction_on(tid,1) == 1 && S.drift_correction(tid,1)==0
-                    text(t_start, -9, sprintf('No drift correction: %s deg', num2str(round(S.drift_correction(tid,4), 2))), 'Color', c1,  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left');
-                elseif S.esetup_fixation_drift_correction_on(tid,1) == 1 && isnan(S.drift_correction(tid,1))
-                    text(t_start, -9, sprintf('Drift correction failed'), 'Color', c1,  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left');
-                elseif S.esetup_fixation_drift_correction_on(tid,1) == 0
-                    text(t_start, -9, sprintf('No drift'), 'Color', c1,  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left');
-                end
+            c1 = [0.6, 0.6, 0.6];
+            if isfield(S, 'drift_output')
+                a = S.predrift_xy_average(tid,:);
+                dist = sqrt(a(1).^2 + a(2).^2);
+                text(t_start, -9, sprintf ('%s: %s deg', S.drift_output{tid}, num2str(round(dist, 2))), 'Color', c1,  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left');
+            else
+                text(t_start, -9, sprintf ('Exp has no drift detection'), 'Color', c1,  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left');
             end
-            
             %============
             % Plot saccade target 1 time window
             if ~isnan(S.target_on(tid)) && ~isnan(S.target_off(tid))

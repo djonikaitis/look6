@@ -97,14 +97,15 @@ end
 %% Drift correction settings
 
 % Drift correction settings
+settings.drift_correction_on = 1;
 settings.drift_correction_window_min = 0.3; % Min eye distance from fixation for drift correction (1/2 fixation size)
 settings.drift_correction_window_max = 'esetup_fixation_size_drift'; % Max eye distance from fixation for drift correction
 settings.drift_correction_sacc_amp = 0.5; % Max eye distance from fixation for drift correction
 settings.drift_correction_time = 'fixation_drift_maintained'; % Field used for drift correction
 settings.drift_correction_tstart = -110;
 settings.drift_correction_tend = -10;
-settings.drift_correction_trials = 10; % How many trials to use for drift correction
-settings.drift_correction_method = 'each trial'; % 'mean' or 'median' or 'each trial'
+settings.drift_correction_trials = 11; % How many trials to use for drift correction
+settings.drift_correction_method = 'median'; % 'mean' or 'median' or 'each trial'
 
 
 %% Shared settings for analysis

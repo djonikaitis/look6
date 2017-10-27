@@ -1,11 +1,12 @@
-% Combine files, extract saccades, extract spikes
+% Convert eye movement data into degrees, do drift correction
 % V1.0 Septeber 6, 2016
 % V1.1 August 26, 2017. Updated to new exp setup. Added drift plotting
 % figures. Made a function.
-% V1.2 October 24, 2017. Drift bug fixes.
+% V1.2 October 24, 2017. Fixed error in drift correction (does not afect
+% earlier experiments).
 % Donatas Jonikaitis
 
-% function  preprocessing_eyelink_conversion_v11(settings)
+function  preprocessing_eyelink_conversion_v12(settings)
 
 % Show file you are running
 p1 = mfilename;
@@ -62,14 +63,15 @@ for i_subj = 1:length(settings.subjects)
         end
         
         % Data file paths
-        path1_out = [settings.path_data_combined_subject, folder_name, '/', folder_name, '.mat'];
         path1_out_folder = [settings.path_data_combined_subject, folder_name, '/'];
+        path1_out = [settings.path_data_combined_subject, folder_name, '/', folder_name, '.mat'];
         path1_settings_in = [settings.path_data_temp_2_subject, folder_name, '/', folder_name, '_settings.mat'];
         path1_raw_in = [settings.path_data_temp_2_subject, folder_name, '/', folder_name, '_eye_traces.mat'];
         path1_raw_out = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_eye_traces.mat'];
         
         % Run analysis
         if ~exist(path1_out, 'file') || settings.overwrite==1
+           
             
             %%  Create directory for the data
             if isdir(path1_out_folder)
@@ -134,9 +136,11 @@ for i_subj = 1:length(settings.subjects)
             
             %% Drift correction
             
-            if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2))
-                [var1, var2] = preprocessing_drift_correction_v10(settings, var1, var2);
-                preprocessing_drift_plot_v10;
+            if settings.drift_correction_on == 1
+                if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2))
+                    [var1, var2] = preprocessing_drift_correction_v10(settings, var1, var2);
+                    preprocessing_drift_plot_v10;
+                end
             end
             
             
@@ -160,18 +164,17 @@ for i_subj = 1:length(settings.subjects)
                 S = cell2struct([struct2cell(mat1); struct2cell(mat2); struct2cell(mat3); struct2cell(mat4)], names, 1);
             end
                         
-%             % Save data
-%             if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2))
-%                 S = var1;
-%                 save (eval('path1_out'), 'S')
-%                 % Save raw data
-%                 SR = var2;
-%                 save (eval('path1_raw_out'), 'SR')
-%             end
+            % Save data
+            if ~isempty(fieldnames(S)) && ~isempty(fieldnames(var2))
+                save (eval('path1_out'), 'S')
+                % Save raw data
+                SR = var2;
+                save (eval('path1_raw_out'), 'SR')
+            end
             
             
         else
-            fprintf('\nFolder name %s already exists, skipping pre-processing\n', folder_name)
+            fprintf('\nFolder name %s already exists, skipping eyelink data conversion\n', folder_name)
             % Do nothing
         end
         

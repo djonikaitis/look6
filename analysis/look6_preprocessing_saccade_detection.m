@@ -30,7 +30,7 @@ for i_subj=1:length(settings.subjects)
     settings.subject_current = settings.subjects{i_subj};
     
     % Get subject folder paths and dates to analyze
-    settings = get_settings_path_and_dates_ini_v10(settings);
+    settings = get_settings_path_and_dates_ini_v11(settings);
     dates_used = settings.data_sessions_to_analyze;
     
     % Analysis for each day
@@ -61,7 +61,7 @@ for i_subj=1:length(settings.subjects)
         path4 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_individual_saccades.mat']; 
         
         % Run analysis
-        if exist(path1, 'file')
+        if exist(path1, 'file') && (~exist(path3, 'file') || settings.overwrite==1)
             
             
             %% Reshape saccades matrix
@@ -818,7 +818,10 @@ for i_subj=1:length(settings.subjects)
             sacc2.sacc1 = ST.sacc1;
             save (eval('path4'), 'sacc2')
             
-            
+        elseif ~exist(path3, 'file')
+            fprintf('\nInput folder %s does not exist, skipping saccade detection\n', folder_name)
+        elseif exist(path1, 'file')
+            fprintf('\nFolder name %s already exists, skipping saccade detection\n', folder_name)
         end
         % End of analysis
         
