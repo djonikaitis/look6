@@ -3,7 +3,6 @@
 % Produces stim structure which contains all stimuli settings and trial
 % definitions
 
-
 if ~isfield (expsetup.general, 'human_exp')
     expsetup.general.human_exp=1;
 end
@@ -25,46 +24,12 @@ stim.training_stage_matrix = {...
     'distractor train luminance', 'distractor train position', 'distractor on'...
     'final version'};
 
-stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
-
-
-%% Select current training stage
-
-if expsetup.general.debug>0
-    stim.exp_version_temp = 'task switch luminance equal'; % Version you want to run
-else
-    a = input ('Select training stage by number. Enter 0 if you want to see the list: ');
-    if a==0
-        for i=1:numel(stim.training_stage_matrix)
-            fprintf ('%d - %s\n', i, stim.training_stage_matrix{i})
-        end
-        b = input ('Select training stage by number: ');
-        if b>numel(stim.training_stage_matrix)
-            stim.exp_version_temp = stim.training_stage_matrix{end};
-        else
-            stim.exp_version_temp = stim.training_stage_matrix{b};
-        end
-    else
-        stim.exp_version_temp = stim.training_stage_matrix{a};
-    end
-end
-
-% In case code wont work, just un-comment and over-write:
-% stim.exp_version_temp = 'single target same orientation one ring'; % Version you want to run
-
 
 %% Variables for different training stages
 
-% Stage 'fixation duration increase/stable'. Learn to fixate while memory target is flashed.
-% Stage 'look luminance change/equal'. Learn to do look task while luminance of st2 changes
-% Stage 'avoid luminance change/equal'. Learn to do avoid task while luminance of st2 changes
-% Stage 'delay increase'. Increase the delay.
-% Stage 'added probe trials'. Adds the probe.
-% Stage 'task switch luminance change/equal'. Tasks interleaved.
-% Stage 'distractor train luminance' - adds distractor, gradually making it brighter
-% Stage 'distractor train position' - gradually moves distractro closer to fovea
-% Stage 'distractor on' - distractor training is finished
-% Stage 'final version'. No changes to the code. Look/avoid tasks interleaved.
+% Stage 'fix duration increase'
+stim.fix_duration_increase_ini = 1;
+stim.fix_duration_increase_ini_step = 0.1;
 
 % Stage 'delay increase'
 % Increase memory delay duration
@@ -95,11 +60,6 @@ stim.distractor_coord_x_ini = [-12];
 stim.distractor_coord_x_ini_step = [1];
 stim.distractor_coord_x = -4;
 
-% Stage 'fix duration increase'
-stim.fix_duration_increase_ini = 1;
-stim.fix_duration_increase_ini_step = 0.1;
-
-
 
 %% Quick settings
 
@@ -109,7 +69,9 @@ y = -7;
 stim.target_spacing_arc = 90;
 
 % Defaults
-stim.main_cond = [1,2]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
+stim.main_cond{1} = 'avoid';
+stim.main_cond{2} = 'look';
+
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(95:100)= 1; % Number of probes (= 1 or 2)
 stim.memory_delay_duration = [2.0:0.01:2.2]; % How long memory delay lasts
@@ -332,7 +294,7 @@ end
 % Specify column names for expmatrix
 stim.esetup_exp_version{1} = NaN; % Which task version participant is doing
 stim.esetup_block_no = NaN; % Which block number (1:number of blocks)
-stim.esetup_block_cond = NaN; % Which blocked condition is presented
+stim.esetup_block_cond{1} = NaN; % Which blocked condition is presented
 
 % Fixation
 stim.esetup_fixation_arc = NaN;  % Fixation x position
@@ -466,6 +428,33 @@ stim.eframes_st2_on{1}(1) = NaN;
 stim.eframes_st2_off{1}(1) = NaN;
 stim.eframes_distractor_on{1}(1) = NaN;
 stim.eframes_distractor_off{1}(1) = NaN;
+
+
+%% Select current training stage
+
+stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
+
+if expsetup.general.debug>0
+    stim.exp_version_temp = 'task switch luminance equal'; % Version you want to run
+else
+    a = input ('Select training stage by number. Enter 0 if you want to see the list: ');
+    if a==0
+        for i=1:numel(stim.training_stage_matrix)
+            fprintf ('%d - %s\n', i, stim.training_stage_matrix{i})
+        end
+        b = input ('Select training stage by number: ');
+        if b>numel(stim.training_stage_matrix)
+            stim.exp_version_temp = stim.training_stage_matrix{end};
+        else
+            stim.exp_version_temp = stim.training_stage_matrix{b};
+        end
+    else
+        stim.exp_version_temp = stim.training_stage_matrix{a};
+    end
+end
+
+% In case code wont work, just un-comment and over-write:
+% stim.exp_version_temp = 'task switch luminance equal'; % Version you want to run
 
 
 
