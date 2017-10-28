@@ -1,0 +1,12 @@
+
+Trials accepted and removed: 
+Total trials tested: 1956; 
+
+aborted: broke fixation before memory: 67 trials (3 percent) 
+aborted: no fixation acquired: 27 trials (1 percent) 
+blinks: 2 trials (0 percent) 
+broke fixation during the delay: 471 trials (24 percent) 
+correct: 31 trials (2 percent) 
+incorrect saccade: 1056 trials (54 percent) 
+looked at memory during the delay: 109 trials (6 percent) 
+unknown error: 193 trials (10 percent) 
