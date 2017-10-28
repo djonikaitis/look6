@@ -40,7 +40,7 @@ elseif tid>1
     fprintf('Running task version: %s\n', expsetup.stim.exp_version_temp)
 end
 
-expsetup.stim.exp_version_update_next_trial
+expsetup.stim.exp_version_update_next_trial;
 
 %% Determine how to update the task to next stage
 

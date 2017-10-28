@@ -76,9 +76,9 @@ stim.fixation_maintain_duration_ini_step = -0.1;
 % Stages with 'luminance change' in the name
 % Use stimulus luminance for interleaving blocks
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.st2_color_level_ini = 0.7;
+    stim.st2_color_level_ini = 0.6;
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
-    stim.st2_color_level_ini = 0.5;
+    stim.st2_color_level_ini = 0.3;
 else
     stim.st2_color_level_ini = 0.9;
 end
@@ -109,13 +109,13 @@ y = -7;
 stim.target_spacing_arc = 90;
 
 % Defaults
-stim.main_cond = [1,1]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
+stim.main_cond = [1,2]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(95:100)= 1; % Number of probes (= 1 or 2)
-stim.memory_delay_duration = [1.8:0.01:2.2]; % How long memory delay lasts
+stim.memory_delay_duration = [2.0:0.01:2.2]; % How long memory delay lasts
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
-stim.number_of_trials_per_block = 200;
-stim.number_of_blocks = 4;
+stim.number_of_trials_per_block = 150;
+stim.number_of_blocks = 6;
 stim.main_cond_shuffle = 2; % 1 - shuffle, 2 - preset order
 
 
@@ -143,7 +143,7 @@ stim.distractor_coord = stim.response_target_coord;
 stim.reward_coeff1 = [881.4887   -3.3301]; % Pump reward measure as of 10.19.2016
 
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.reward_size_ml = 0.25; % Typical reward to start with
+    stim.reward_size_ml = 0.23; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
     stim.reward_size_ml = 0.16; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'jw')
@@ -193,9 +193,9 @@ stim.fixation_size_drift = 5; % Larger fixation window for drift correction
 stim.fixation_drift_maintain_minimum = 0.5; % Drift correction starts
 stim.fixation_drift_maintain_maximum = 0.6; % Drift correction ends
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'aq')
-    stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
+    stim.fixation_size_eyetrack = 3.0; % Window within which to maintain fixation
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'hb')
-    stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
+    stim.fixation_size_eyetrack = 5.5; % Window within which to maintain fixation
 else
     stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
 end

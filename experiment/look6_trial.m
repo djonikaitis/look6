@@ -170,6 +170,7 @@ while loop_over==0
     if ~isnan(t0) && (time_current - t0 >= t1) && nansum(expsetup.stim.eframes_fixation_off{tid}(:, 1))==0
         expsetup.stim.eframes_fixation{tid}(c1_frame_index1:end, 1) = 0;
         expsetup.stim.eframes_fixation_offset{tid}(c1_frame_index1, 1) = 1;
+        time_current
     end
     
     % Changes in fixation (color change)
@@ -366,7 +367,7 @@ while loop_over==0
         if expsetup.general.recordeyes==1
             Eyelink('Message', 'fixation_off');
         end
-        expsetup.stim.edata_fixation_off(tid,1) = time_current;
+        expsetup.stim.edata_fixation_off(tid,1) = time_current
     end
     
     % Record fixation folor change
@@ -970,6 +971,7 @@ end
 expsetup.stim.edata_loop_over(tid,1) = time_current;
 
 % Save eyelink and psychtoolbox events
+expsetup.stim.edata_fixation_off(tid,1)
 if isnan(expsetup.stim.edata_fixation_off(tid,1))
     if expsetup.general.recordeyes==1
         Eyelink('Message', 'fixation_off');
