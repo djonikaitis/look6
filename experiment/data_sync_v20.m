@@ -10,13 +10,13 @@ clear all;
 
 expsetup.general.directory_baseline_data_server = 'Y:\data\RigE\Experiments_data\';
 expsetup.general.directory_baseline_data = 'C:\Users\Rig-E\Desktop\Experiments_data\';
-expsetup.general.expname = 'rf3'; % Experiment name
-expsetup.general.subject_id = 'hb'; % Subject name
+expsetup.general.expname = 'look6'; % Experiment name
+expsetup.general.subject_id = 'all'; % Subject name
 
 path_append = cell(1);
 path_append{1}='data_eyelink_edf';
 path_append{2}='data_psychtoolbox';
-path_append{3}='figures_online_averages';
+% path_append{3}='figures_online_averages';
 
 
 
