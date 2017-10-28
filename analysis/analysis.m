@@ -59,7 +59,7 @@ end
 % end
 
 
-%% Preprocessing: saccades
+%% Preprocessing: detect and plot saccades
 
 % Detect saccades
 settings.overwrite = 0;
@@ -76,7 +76,7 @@ if settings.plot_saccades_raw == 1
 end
 
 
-%% Data analysis
+%% Behavioural data analysis
 
 % Plot day to day trials accepted/rejected
 settings.analysis_plot_training_performance = 1;
@@ -91,6 +91,8 @@ settings.overwrite = 1;
 if settings.analysis_errors_timecourse==1
     look6_analysis_plot_last_day_performance;
 end
+
+%% Neurophysiology data analysis
 
 % % Spiking rates for different conditions
 % settings.analysis_spikes_timecourse = 0;
