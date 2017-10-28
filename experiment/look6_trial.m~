@@ -380,7 +380,7 @@ while loop_over==0
         if expsetup.general.recordeyes==1
             Eyelink('Message', 'fixation_off');
         end
-        expsetup.stim.edata_fixation_off(tid,1) = time_current;
+%         expsetup.stim.edata_fixation_off(tid,1) = time_current
     end
     
     % Record fixation folor change
@@ -984,6 +984,7 @@ end
 expsetup.stim.edata_loop_over(tid,1) = time_current;
 
 % Save eyelink and psychtoolbox events
+expsetup.stim.edata_fixation_off(tid,1)
 if isnan(expsetup.stim.edata_fixation_off(tid,1))
     if expsetup.general.recordeyes==1
         Eyelink('Message', 'fixation_off');
