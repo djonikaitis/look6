@@ -117,7 +117,7 @@ settings.error_bars = 2; % 1 - bootstrap; 2 - sem;
 
 % How big figure is?
 settings.figsize_1col=[0, 0, 2.2, 2.2];
-settings.figsize_2col=[0, 0, 2.2, 4.4];
+settings.figsize_2col=[0, 0, 4.5, 2.2];
 
 % Settings for doing sliding window analysis
 settings.timestep=50;

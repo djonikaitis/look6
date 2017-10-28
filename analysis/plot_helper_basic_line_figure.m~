@@ -1,0 +1,58 @@
+  
+%                         % Other location colors are calculated as a range
+%                         col_min = color1(figcolor2(1),:); % Orientation 0
+%                         col_max = color1(figcolor2(2),:); % Orientation max
+%                         d1 = col_max-col_min;
+%                         stepsz = 1/(length(b));
+%                         for i=1:length(b)
+%                             color1_line(b(i),:)=col_min + (d1*stepsz)*(i);
+%                         end
+  
+hfig = gca;
+set (hfig, 'FontSize', settings.fontsz);
+
+% Y Tick
+if isfield (plot_set, 'YTick')
+    hfig.YTick = plot_set.XTick;
+end
+
+% X Tick
+if isfield (plot_set, 'XTick')
+    hfig.XTick = plot_set.XTick;
+end
+
+% Y Lim
+if isfield (plot_set, 'YLim')
+    hfig.YTick = plot_set.XLim;
+end
+
+% X Lim
+if isfield (plot_set, 'XLim')
+    hfig.XTick = plot_set.XLim;
+end
+
+% X label
+if isfield (plot_set, 'xlabel')
+    xlabel (plot_set.xlabel, 'FontSize', settings.fontszlabel);
+end
+
+% Y label
+if isfield (plot_set, 'ylabel')
+    ylabel (plot_set.ylabel, 'FontSize', settings.fontszlabel);
+end
+
+% Figure title
+if isfield (plot_set, 'figure_title')
+    title (plot_set.figure_title, 'FontSize', settings.fontszlabel)
+end
+
+pbins = plot_set.plot_bins;
+if pbins(end)<=10
+    hfig.XTick = [1,5,10];
+elseif pbins(end)<=20
+    hfig.XTick = [1,5:5:pbins(end)];
+elseif pbins(end)<=50
+    hfig.XTick = [1,10:10:pbins(end)];
+elseif pbins(end)<=100
+    hfig.XTick = [1,20:20:pbins(end)];
+end

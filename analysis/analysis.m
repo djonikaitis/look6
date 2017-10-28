@@ -69,7 +69,8 @@ if settings.preprocessing_saccade_detection == 1
 end
 
 % Plot eye traces for manual inspection
-settings.plot_saccades_raw = 1;
+settings.plot_saccades_raw = 0;
+settings.overwrite = 1;
 if settings.plot_saccades_raw == 1
     look6_preprocessing_plot_saccades_raw;
 end
@@ -78,18 +79,18 @@ end
 %% Data analysis
 
 % Plot day to day trials accepted/rejected
+settings.analysis_plot_training_performance = 1;
+settings.overwrite = 1;
+if settings.analysis_plot_training_performance==1
+    look6_analysis_plot_training_performance;
+end
+
+% Plot day to day trials accepted/rejected
 settings.analysis_errors_timecourse = 1;
 settings.overwrite = 1;
 if settings.analysis_errors_timecourse==1
     look6_analysis_plot_last_day_performance;
 end
-
-% % Plot day to day trials accepted/rejected
-% settings.analysis_errors_timecourse = 1;
-% settings.overwrite = 1;
-% if settings.analysis_errors_timecourse==1
-%     look6_analysis_errors_timecourse;
-% end
 
 % % Spiking rates for different conditions
 % settings.analysis_spikes_timecourse = 0;

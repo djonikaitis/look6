@@ -15,7 +15,7 @@ settings = get_settings_ini_v10(settings);
 
 %% Extra settings
 
-settings.figure_folder_name = 'daily training performance';
+settings.figure_folder_name = 'training performance';
 settings.figure_size_temp = settings.figsize_2col;
 settings.stats_file_name = sprintf('statistics_%s_', settings.figure_folder_name);
 
@@ -27,7 +27,7 @@ for i_subj=1:length(settings.subjects)
     % Get subject folder paths and dates to analyze
     settings = get_settings_path_and_dates_ini_v11(settings);
     dates_used = settings.data_sessions_to_analyze;
-        
+    
     % Analysis for each day
     for i_date = 1:numel(dates_used)
         
@@ -67,11 +67,19 @@ for i_subj=1:length(settings.subjects)
         %===============
                 
         % Determine exp versions used
-        conds1 = unique(S.esetup_exp_version);
+        a=cell(1); a{1} = 'placeholder text'; % Dummy text, removed after
+        for i=1:numel(S.training_stage_matrix)
+            a = cat(2, a, S.training_stage_matrix{i});
+        end
+        a = unique(a);
+        a (strcmp(a, 'placeholder text')) = [];
+        conds1 = a;
         
         % Initialize matrices
-        int_bins = 1:50:numel(S.session);
-        test1 = NaN(1, length(int_bins)-1, numel(conds1), 3);
+        if i_date==1
+            int_bins = 1:50:numel(S.session);
+            test1 = NaN(numel(dates_used), length(int_bins)-1, numel(conds1), 3);
+        end
         
         % Sliding window analysis
         for i = 1:size(test1,1)
@@ -137,7 +145,6 @@ for fig1=1
         
         plot_set.data_color_min = [0.5,0.5,0.5];
         plot_set.data_color_max = settings.color1(42,:);
-        plot_set.data_color = [];
         
         for i=1:size(mat1,3)
            plot_set.legend{i} = conds1{i};
@@ -157,7 +164,7 @@ for fig1=1
         
         % Save data
         plot_set.figure_size = settings.figure_size_temp;
-        plot_set.figure_save_name = 'figure';
+        plot_set.figure_save_name = 'training effects';
         plot_set.path_figure = path_fig;
 
     end
@@ -195,7 +202,6 @@ for fig1=2
         
         plot_set.data_color_min = [0.5,0.5,0.5];
         plot_set.data_color_max = settings.color1(42,:);
-        plot_set.data_color = []; 
         
         for i=1:size(mat1,3)
            plot_set.legend{i} = conds1{i};
@@ -215,7 +221,7 @@ for fig1=2
         
         % Save data
         plot_set.figure_size = settings.figure_size_temp;
-        plot_set.figure_save_name = 'figure';
+        plot_set.figure_save_name = 'training effects';
         plot_set.path_figure = path_fig;
 
     end
@@ -235,10 +241,9 @@ end
 
 % Save data
 plot_set.figure_size = settings.figure_size_temp;
-plot_set.figure_save_name = 'figure';
+plot_set.figure_save_name = 'training effects';
 plot_set.path_figure = path_fig;
 
 plot_helper_save_figure;
-
 close all;
 %===============
