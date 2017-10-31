@@ -11,7 +11,7 @@ clear all;
 expsetup.general.directory_baseline_data_output = '/Users/DJ/Dropbox/Experiments_data/';
 expsetup.general.directory_baseline_data_input = '/Volumes/group/tirin/data/RigE/Experiments_data/';
 expsetup.general.expname = 'look6'; % Experiment name
-expsetup.general.subject_id = 'all'; % Subject name
+expsetup.general.subject_id = 'aq'; % Subject name
 
 path_append = cell(1);
 path_append{1}='data_eyelink_edf';

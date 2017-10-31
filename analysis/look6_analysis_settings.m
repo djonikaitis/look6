@@ -9,7 +9,8 @@ settings.path_baseline_code = sprintf('~/proj/experiments/');
 settings.path_baseline_figures = sprintf('~/Dropbox/Experiments/');
 
 % "Experiments_data" folder with eyelink and psychtoolbox data:
-settings.path_baseline_data = sprintf('~/Dropbox/Experiments_data/');
+settings.path_baseline_data = sprintf('~/proj/experiments_data/');
+% settings.path_baseline_data = sprintf('~/Dropbox/Experiments_data/');
 
 % "Experiments_data" folder, with plexon data:
 % (might differ from other psychtoolbox data folder due to large plexon file sizes)
@@ -18,16 +19,30 @@ settings.path_baseline_plexon = sprintf('~/data/neurophysiology/Experiments_data
 % Path to plexon toolbox
 settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';
 
+% Path to server to download data
+settings.path_baseline_server = '/Volumes/tirin/data/RigE/Experiments_data/';
+
+
 
 %%  Which dates to process
 
 
-settings.data_sessions = 'selected';
+if ~isfield (settings, 'data_sessions')
+    settings.data_sessions = 'last';
+end
+
 if strcmp(settings.data_sessions, 'all')
 elseif strcmp(settings.data_sessions, 'last')
+elseif strcmp (settings.data_sessions, 'before')
+    settings.data_sessions_temp = 20170919; 
+elseif strcmp (settings.data_sessions, 'after')
+    settings.data_sessions_temp = 20171027; 
+elseif strcmp (settings.data_sessions, 'interval')
+    settings.data_sessions_temp = [20171020, 20171028]; 
 elseif strcmp(settings.data_sessions, 'selected')
-    settings.data_sessions_temp = 20170919; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
+    settings.data_sessions_temp = 20171027; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
+
 
 
 %% All subjects used in the task
@@ -86,6 +101,7 @@ path_spec_names{7} = {'data_plexon_mat'; settings.path_baseline_plexon};
 path_spec_names{8} = {'data_plexon_raw'; settings.path_baseline_plexon};
 path_spec_names{9} = {'data_combined_plexon'; settings.path_baseline_data};
 path_spec_names{10} = {'data_spikes'; settings.path_baseline_data};
+
 
 % Generate path names
 for i=1:numel(path_spec_names)

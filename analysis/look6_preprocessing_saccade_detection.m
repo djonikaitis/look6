@@ -21,6 +21,7 @@ settings = get_settings_ini_v10(settings);
 settings.figure_folder_name = 'saccade_detection';
 settings.figure_size_temp = [0, 0, 4.5, 2];
 
+
 %% Analysis
 
 

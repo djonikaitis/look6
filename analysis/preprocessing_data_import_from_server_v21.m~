@@ -1,0 +1,119 @@
+% Synchronize the data with the server
+%
+% v1.0 DJ: August 11, 2016. Basic code.
+% v2.0 DJ: April 2, 2017. Roather quick code, able to work on its own,
+% independent of experiment code. Assumption that data is stored as:
+% exp_name\data_type\subject_name\session_folder\file_name
+% for example: look5\plexon_data\hb\hb_2017_01_01\hb_2017_01_01.pl2
+% Data has to be organized... get over it...
+% V2.1 DJ: October 30, 2017. Can import only specific dates (to make data
+% transfer faster in case one needs only one day)
+
+% Show file you are running
+p1 = mfilename;
+fprintf('\n=========\n')
+fprintf('\n Current file:  %s\n', p1)
+fprintf('\n=========\n')
+
+% Loading the files needed
+if ~exist('settings', 'var')
+    settings = struct;
+end
+settings = get_settings_ini_v10(settings);
+
+% Determine whehter one can connect to server
+if exist (settings.path_baseline_server)==7
+    fprintf ('\nSuccessfully connected to server\n')
+    settings.data_import_from_server = 1;
+else
+    fprintf ('\nCould not connect to server, breaking import\n')
+    fprintf ('%s', settings.path_baseline_server)
+    settings.data_import_from_server = 0;
+    return
+end
+
+
+% Do analysis if one can connect to server
+if settings.data_import_from_server ==1
+    
+    % Run pre-processing for each subject
+    for i_subj = 1:length(settings.subjects)
+        
+        % Select curent subject
+        settings.subject_current = settings.subjects{i_subj};
+        
+        % Setup path
+        settings.path_server_in = sprintf ('%s%s/', settings.path_baseline_server, settings.exp_name); % Link to experiment specific folder ('att1')
+        settings.path_server_out =  sprintf ('%s%s/', settings.path_baseline_data, settings.exp_name);
+        
+        % Determine which data folders exist
+        dir_index = dir(settings.path_server_in);
+        
+        % For each data folder
+        for folder_i = 1:length(dir_index)
+            
+            % Exclude some data if necessary
+            if ~strncmp(dir_index(folder_i).name, '.', 1) && ~strncmp(dir_index(folder_i).name, '..', 2)
+                
+                fprintf('\n============\n')
+                fprintf('Will synchronise following data sub-folder: \n');
+                fprintf('%s\n', settings.path_server_temp)
+                fprintf('============\n\n')
+                
+                settings.path_server_server_in_subject = sprintf('%s%s/%s/%s', settings.path_server_in, dir_index(folder_i).name, settings.subject_current);
+                settings.path_server_server_out_subject = sprintf('%s%s/%s/%s', settings.path_server_out, dir_index(folder_i).name, settings.subject_current);
+
+                settings = get_settings_path_and_dates_ini_v11(settings, 'path_server_server_in_subject');
+                dates_used = settings.data_sessions_to_analyze;
+                
+                % Analysis for each separate day
+                for i_date = 1:length(dates_used)
+                    
+                    % Current folder to be analysed (raw date, with session index)
+                    date_current = dates_used(i_date);
+                    settings.date_current = date_current; % Variable needed for data import
+                    ind_folders = find (date_current==settings.index_dates);
+                    
+                    for i_folder = 1:numel(ind_folders)
+                        
+                        folder_name = settings.index_directory{ind_folders(i_folder)};
+                        path1_temp_inp = sprintf('%s%s/', settings.path_server_server_in_subject, folder_name);
+                        path1_temp_out = sprintf('%s%s/', settings.path_server_server_out_subject, folder_name);
+                        
+                        % Create input folder if it doesn't exist
+                        if ~isdir (path1_temp_out)
+                            mkdir(path1_temp_out);
+                        end
+                        
+                        % Determine folder contents and sync them
+                        index_file = dir(path1_temp_inp);
+                        
+                        for file_i = 1:length(index_file)
+                            if ~strncmp(index_file(file_i).name, '.', 1) && ~strncmp(index_file(file_i).name, '..', 2)
+                                
+                                fprintf('Will synchronise following file %s \n', session_dir_index(file_i).name);
+                                
+                                % Select each session folder
+                                path1_session = sprintf('%s%s%s', path1_subj, session_dir_index(file_i).name, '/');
+                                
+                                
+                            end
+                            % End of checking exp folder exists (exclude '..')
+                        end
+                        % End of analysis for each single file
+                        %======================
+                        
+                    end
+                    % End of analysis for each folder within a date
+                end
+                % End of analysis for each date
+            end
+            % End of checking exp folder exists (exclude '..')
+        end
+        % End of analysis for each data folder (pyschtoolbox, raw etc)        
+    end
+    % End of anlaysis for each subject
+    
+end
+% End of importing
+

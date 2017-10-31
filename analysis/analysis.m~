@@ -6,12 +6,12 @@ clear all;
 clc;
 close all;
 
+settings.subjects = 'hb'; % Subject name
+settings.exp_name = 'look6'; % Epxeriment name
+
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
 settings.data_sessions = 'all'; 
-
-settings.subjects = 'hb'; % 'all' to run all subjects
-settings.exp_name = 'look6';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -130,12 +130,12 @@ if settings.analysis_errors_timecourse==1
     look6_analysis_plot_last_day_performance;
 end
 
-% Bar graph of look/avoid task performance
-settings.analysis_errors_timecourse = 1;
-settings.overwrite = 1;
-if settings.analysis_errors_timecourse==1
-    look6_analysis_saccade_rt_bar;
-end
+% % Bar graph of look/avoid task performance
+% settings.analysis_errors_timecourse = 1;
+% settings.overwrite = 1;
+% if settings.analysis_errors_timecourse==1
+%     look6_analysis_plot_last_day_performance;
+% end
 
 %% Neurophysiology data analysis
 

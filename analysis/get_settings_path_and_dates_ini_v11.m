@@ -46,10 +46,16 @@ end
 if isfield(settings, 'data_sessions')
     if strcmp (settings.data_sessions, 'all')
         ind = 1:length(session_init.index_unique_dates);
-    elseif strcmp (settings.data_sessions, 'selected')
-        ind = find(session_init.index_unique_dates==settings.data_sessions_temp);
     elseif strcmp (settings.data_sessions, 'last')
         ind = length(session_init.index_unique_dates);
+    elseif strcmp (settings.data_sessions, 'before')
+        ind = find(session_init.index_unique_dates<=settings.data_sessions_temp);
+    elseif strcmp (settings.data_sessions, 'after')
+        ind = find(session_init.index_unique_dates>=settings.data_sessions_temp);
+    elseif strcmp (settings.data_sessions, 'interval')
+        ind = find(session_init.index_unique_dates>=settings.data_sessions_temp(1) & session_init.index_unique_dates<=settings.data_sessions_temp(2));
+    elseif strcmp (settings.data_sessions, 'selected')
+        ind = find(session_init.index_unique_dates==settings.data_sessions_temp);
     else
         fprintf('settings.data_sessions_used not defined, analyzing last session recorded\n')
         ind = length(session_init.index_unique_dates);
@@ -58,5 +64,10 @@ else
     fprintf('settings.data_sessions_used not defined, analyzing last session recorded\n')
     ind = length(session_init.index_unique_dates);
 end
-settings.data_sessions_to_analyze = session_init.index_unique_dates(ind);
+
+if numel(ind)>0
+    settings.data_sessions_to_analyze = session_init.index_unique_dates(ind);
+else
+    settings.data_sessions_to_analyze = [];
+end
 

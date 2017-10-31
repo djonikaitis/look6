@@ -275,17 +275,8 @@ for i_subj=1:length(settings.subjects)
                 set(gca,'XTick',[-round(amp1), 0, round(amp1)]);
             end
             
-            
-            if S.esetup_block_cond(tid)==1
-                a = sprintf('Look, %s target(s)', num2str(var1.esetup_target_number(tid)));
-                title (a, 'FontSize', settings.fontszlabel)
-            elseif S.esetup_block_cond(tid)==2
-                a = sprintf('Avoid, %s target(s)', num2str(var1.esetup_target_number(tid)));
-                title (a, 'FontSize', settings.fontszlabel)
-            else
-                title ('Unknown task', 'FontSize', settings.fontszlabel)
-            end
-            
+            a = sprintf('%s, %s target(s)', var1.esetup_block_cond{tid}, num2str(var1.esetup_target_number(tid)));
+            title (a, 'FontSize', settings.fontszlabel)
             
             %% Position in time
             
