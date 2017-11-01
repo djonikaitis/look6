@@ -1,4 +1,5 @@
- 
+% Plots lines and sets up figure settings 
+
 % Calculate colors if it is a range
 if isfield (plot_set, 'data_color_min')
     

@@ -6,12 +6,13 @@ clear all;
 clc;
 close all;
 
+% Which subject to run?
+settings.subjects = 'aq'; % 'all' to run all subjects
+settings.exp_name = 'look6';
+
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'all'; 
-
-settings.subjects = 'hb'; % 'all' to run all subjects
-settings.exp_name = 'look6';
+settings.data_sessions = 'last'; 
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -22,7 +23,7 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 % This step should be default for most experiments
 
 % Connect to server and import data from it
-settings.data_import_from_server = 1;
+settings.data_import_from_server = 0;
 if settings.data_import_from_server == 1
 %     settings.import_folders_include{1} = 'data_eyelink_edf';
 %     settings.import_folders_include{2} = 'data_psychtoolbox';
@@ -34,21 +35,21 @@ end
 
 % Modify raw settings for compatibility between experiments
 settings.overwrite_raw_settings = 1;
-settings.overwrite=0;
+settings.overwrite=1;
 if settings.overwrite_raw_settings == 1
     preprocessing_overwrite_raw_settings_v10(settings);
 end
 
 % Import .mat and .edf files into one folder
 settings.preprocessing_import_files = 1;
-settings.overwrite = 0; % If 1, runs analysis again even if it was done 
+settings.overwrite = 1; % If 1, runs analysis again even if it was done 
 if settings.preprocessing_import_files == 1
     preprocessing_import_files_v12(settings);
 end
 
 % Modify eyelink messages for compatibility between experiments
 settings.overwrite_eyelink_settings = 1;
-settings.overwrite=0;
+settings.overwrite=1;
 if settings.overwrite_eyelink_settings == 1
     preprocessing_overwrite_eyelink_settings_v10(settings);
 end
@@ -56,7 +57,7 @@ end
 % Combine settings and saccades files into one file; 
 % reset saccades to degrees of visual angle; do drift correction
 settings.preprocessing_eyelink_conversion = 1;
-settings.overwrite = 0; % If 1, runs analysis again even if it was done 
+settings.overwrite = 1; % If 1, runs analysis again even if it was done 
 if settings.preprocessing_eyelink_conversion == 1
     preprocessing_eyelink_conversion_v12(settings);
 end
@@ -100,7 +101,7 @@ end
 %% Preprocessing: detect and plot saccades
 
 % Detect saccades
-settings.overwrite = 0;
+settings.overwrite = 1;
 settings.preprocessing_saccade_detection = 1;
 if settings.preprocessing_saccade_detection == 1
     look6_preprocessing_saccade_detection;
