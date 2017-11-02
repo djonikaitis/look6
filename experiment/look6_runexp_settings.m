@@ -33,7 +33,7 @@ stim.fix_duration_increase_ini_step = 0.1;
 
 % Stage 'delay increase'
 % Increase memory delay duration
-stim.memory_delay_duration_ini = 0.4;
+stim.memory_delay_duration_ini = 0.3;
 stim.memory_delay_duration_ini_step = 0.1;
 stim.fixation_maintain_duration_ini = 2.2;
 stim.fixation_maintain_duration_ini_step = -0.1;
@@ -41,7 +41,7 @@ stim.fixation_maintain_duration_ini_step = -0.1;
 % Stages with 'luminance change' in the name
 % Use stimulus luminance for interleaving blocks
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.st2_color_level_ini = 0.6;
+    stim.st2_color_level_ini = 0.5;
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
     stim.st2_color_level_ini = 0.3;
 else
@@ -69,12 +69,13 @@ y = -7;
 stim.target_spacing_arc = 90;
 
 % Defaults
-stim.main_cond{1} = 'avoid';
 stim.main_cond{2} = 'look';
+stim.main_cond{3} = 'avoid';
+stim.main_cond{1} = 'control fixate';
 
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(95:100)= 1; % Number of probes (= 1 or 2)
-stim.memory_delay_duration = [2.0:0.01:2.2]; % How long memory delay lasts
+stim.memory_delay_duration = [2.05:0.01:2.2]; % How long memory delay lasts
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
 stim.number_of_trials_per_block = 150;
 stim.number_of_blocks = 6;
@@ -133,11 +134,14 @@ stim.fixation_pen = 4; % Fixation outline thickness (pixels)
 stim.fixation_blink_frequency = 2; % How many time blinks per second;
 
 % Look task fixation
-stim.fixation_color_task1 = [20,20,200]; % Color of fixation or text on the screen
-stim.fixation_shape_task1 = 'circle';
+stim.fixation_color_look = [20,20,200]; % Color of fixation or text on the screen
+stim.fixation_shape_look = 'circle';
 % Avoid task fixation
-stim.fixation_color_task2 = [20,20,200]; % Color of fixation or text on the screen
-stim.fixation_shape_task2 = 'circle';
+stim.fixation_color_avoid = [20,20,200]; % Color of fixation or text on the screen
+stim.fixation_shape_avoid = 'circle';
+% Avoid task fixation
+stim.fixation_color_control_fixate = [20,20,200]; % Color of fixation or text on the screen
+stim.fixation_shape_control_fixate = 'circle';
 
 % Fixation color change relative to memory target onset
 stim.fixation_color_change_soa = -0.3; % Neg if before memory on, pos if after memory on
@@ -155,9 +159,9 @@ stim.fixation_size_drift = 5; % Larger fixation window for drift correction
 stim.fixation_drift_maintain_minimum = 0.5; % Drift correction starts
 stim.fixation_drift_maintain_maximum = 0.6; % Drift correction ends
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'aq')
-    stim.fixation_size_eyetrack = 3.0; % Window within which to maintain fixation
+    stim.fixation_size_eyetrack = 1.5; % Window within which to maintain fixation
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'hb')
-    stim.fixation_size_eyetrack = 5.5; % Window within which to maintain fixation
+    stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
 else
     stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
 end
@@ -166,33 +170,28 @@ end
 %======================
 % Memory target
 stim.memory_size = [1]; % How big the object shown on the screen should be (DEGREES)
-if ~isfield(stim, 'memory_color_task1')
+if ~isfield(stim, 'memory_color_look')
     if strcmp (expsetup.general.subject_id(1:2), 'hb')
-        stim.memory_color_task1 = [20,20,20]; % Color of the memory object
+        stim.memory_color_look = [20,20,20]; % Color of the memory object
     else
-        stim.memory_color_task1 = [20,200,20]; % Color of the memory object
+        stim.memory_color_look = [20,200,20]; % Color of the memory object
     end
-    stim.memory_shape_task1 = 'empty_square';  % circle, square, empty_circle, empty_quare
-    stim.memory_pen_width_task1 = 10; % If empty shapes are drawn
+    stim.memory_shape_look = 'empty_square';  % circle, square, empty_circle, empty_quare
+    stim.memory_pen_width_look = 10; % If empty shapes are drawn
 end
-if ~isfield(stim, 'memory_color_task2')
+if ~isfield(stim, 'memory_color_avoid')
     if strcmp (expsetup.general.subject_id(1:2), 'hb')
-        stim.memory_color_task2 = [20,200,20]; % Color of the memory object
+        stim.memory_color_avoid = [20,200,20]; % Color of the memory object
     else
-        stim.memory_color_task2 = [20,20,20]; % Color of the memory object
+        stim.memory_color_avoid = [20,20,20]; % Color of the memory object
     end
-    stim.memory_shape_task2 = 'empty_square';  % circle, square, empty_circle, empty_quare
-    stim.memory_pen_width_task2 = 10; % If empty shapes are drawn
+    stim.memory_shape_avoid = 'empty_square';  % circle, square, empty_circle, empty_quare
+    stim.memory_pen_width_avoid = 10; % If empty shapes are drawn
 end
-if ~isfield(stim, 'memory_color_task3')
-    stim.memory_color_task3 = [20,20,20]; % Color of the memory object
-    stim.memory_shape_task3 = 'empty_square';  % circle, square, empty_circle, empty_quare
-    stim.memory_pen_width_task3 = 10; % If empty shapes are drawn
-end
-if ~isfield(stim, 'memory_color_task5')
-    stim.memory_color_task5 = [250,250,250]; % Color of the memory object
-    stim.memory_shape_task5 = 'square';  % circle, square, empty_circle, empty_quare
-    stim.memory_pen_width_task5 = 10; % If empty shapes are drawn
+if ~isfield(stim, 'memory_color_control_fixate')
+    stim.memory_color_control_fixate = [250,250,250]; % Color of the memory object
+    stim.memory_shape_control_fixate = 'square';  % circle, square, empty_circle, empty_quare
+    stim.memory_pen_width_control_fixate = 10; % If empty shapes are drawn
 end
 if ~isfield(stim, 'memory_duration')
     stim.memory_duration = [0.05];
@@ -211,22 +210,21 @@ stim.response_pen_width = 5; % If empty shapes are drawn
 stim.st2_color_level = 0; % No difference between ST1 and ST2
 
 % Look task (T1 and T2, 85% of trials)
-stim.response_shape_task1 = 'circle'; % circle, square, empty_circle, empty_quare
-stim.response_t1_color_task1 = stim.fixation_color_memory_delay; % Memorized
-stim.response_t2_color_task1 = stim.fixation_color_memory_delay; % Non-memorized
+stim.response_shape_look = 'circle'; % circle, square, empty_circle, empty_quare
+stim.response_t1_color_look = [20,20,200]; % Memorized
+stim.response_t2_color_look = [20,20,200]; % Non-memorized
 
 %====================
 % Avoid task (T1 and T2, 85% of trials)
-stim.response_shape_task2 = 'circle'; % circle, square, empty_circle, empty_quare
-stim.response_t1_color_task2 = stim.fixation_color_memory_delay; % Memorized
-stim.response_t2_color_task2 = stim.fixation_color_memory_delay; % Non-memorized
+stim.response_shape_avoid = 'circle'; % circle, square, empty_circle, empty_quare
+stim.response_t1_color_avoid = [20,20,200]; % Memorized
+stim.response_t2_color_avoid = [20,20,200]; % Non-memorized
 
 
 %=====================
 % Probe (T3, 15 of trials)
-stim.response_t3_color_task1 = [20,20,20]; % Color of the probe
-stim.response_t3_color_task2 = [20,20,20];
-stim.response_t3_color_task3 = [20,20,20];
+stim.response_t3_color_look = [20,20,20]; % Color of the probe
+stim.response_t3_color_avoid = [20,20,20];
 stim.response_t3_shape = 'circle'; % circle, square, empty_circle, empty_quare
 
 %============
@@ -247,9 +245,9 @@ stim.distractor_duration = [0.05];
 
 %==============
 % Screen colors
-stim.background_color_task1 = [127, 127, 127];
-stim.background_color_task2 = [127, 127, 127];
-stim.background_color_task3 = [127, 127, 127];
+stim.background_color_look = [127, 127, 127];
+stim.background_color_avoid = [127, 127, 127];
+stim.background_color_control_fixate = [127, 127, 127];
 
 %==============
 % Background texture
@@ -435,7 +433,7 @@ stim.eframes_distractor_off{1}(1) = NaN;
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
 
 if expsetup.general.debug>0
-    stim.exp_version_temp = 'task switch luminance equal'; % Version you want to run
+    stim.exp_version_temp = 'task switch luminance final'; % Version you want to run
 else
     a = input ('Select training stage by number. Enter 0 if you want to see the list: ');
     if a==0

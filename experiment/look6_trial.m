@@ -182,8 +182,7 @@ while loop_over==0
     t1 = expsetup.stim.esetup_total_fixation_duration(tid,1);
     if ~isnan(t0) && (time_current - t0 >= t1) && nansum(expsetup.stim.eframes_fixation_off{tid}(:, 1))==0
         expsetup.stim.eframes_fixation{tid}(c1_frame_index1:end, 1) = 0;
-        expsetup.stim.eframes_fixation_offset{tid}(c1_frame_index1, 1) = 1;
-        expsetup.stim.eframes_fixation_offset{tid}(c1_frame_index1, 1)
+        expsetup.stim.eframes_fixation_off{tid}(c1_frame_index1, 1) = 1;
     end
     
     % Changes in fixation (color change)
@@ -267,7 +266,7 @@ while loop_over==0
     % ST1
     t0 = expsetup.stim.edata_fixation_acquired(tid,1);
     t1 = expsetup.stim.esetup_total_fixation_duration(tid,1);
-    if ~isnan(t0) && (time_current - t0 >= t1)
+    if ~isnan(t0) && (time_current - t0 >= t1) && expsetup.stim.esetup_target_number(tid)~=0
         % Properties
         sh1 = expsetup.stim.esetup_target_shape{tid};
         r1 = st1_rect;
@@ -819,9 +818,10 @@ while loop_over==0
                 %==============
                 
             elseif timer1_now - timer1_start >= timer1_duration % Record an error
-                % SPECIAL CASE: for fix training terminate the trial
+                % SPECIAL CASE: for fix only trials terminate the trial
                 if strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase') || ...
-                        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable')
+                        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable') || ...
+                        strcmp(expsetup.stim.esetup_block_cond{tid}, 'control fixate')
                     % Terminate the trial
                     expsetup.stim.edata_error_code{tid} = 'correct';
                 end
@@ -831,9 +831,11 @@ while loop_over==0
             end
         elseif expsetup.general.recordeyes==0
             if timer1_now - timer1_start >= timer1_duration % Record an error
-                % SPECIAL CASE: for fix training terminate the trial
+                % SPECIAL CASE: for fix only trials terminate the trial
                 if strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase') || ...
-                        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable')
+                        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable') ||...
+                        strcmp(expsetup.stim.esetup_block_cond{tid}, 'control fixate')
+                    
                     % Terminate the trial
                     expsetup.stim.edata_error_code{tid} = 'correct';
                 end

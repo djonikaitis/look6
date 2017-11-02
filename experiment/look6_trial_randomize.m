@@ -81,11 +81,11 @@ end
 %%  Background color
 
 if strcmp(expsetup.stim.esetup_block_cond{tid}, 'look')
-    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task1;
+    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_look;
 elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'avoid')
-    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task2;
-elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'control')
-    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_task3;
+    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_avoid;
+elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'control fixate')
+    expsetup.stim.esetup_background_color(tid,1:3) = expsetup.stim.background_color_control_fixate;
 end
 
 
@@ -95,14 +95,14 @@ end
 
 % Initialize different colors and shapes, based on block_cond
 if strcmp(expsetup.stim.esetup_block_cond{tid}, 'look')
-    expsetup.stim.esetup_fixation_color(tid,1:3) = expsetup.stim.fixation_color_task1;
-    expsetup.stim.esetup_fixation_shape{tid} = expsetup.stim.fixation_shape_task1;
+    expsetup.stim.esetup_fixation_color(tid,1:3) = expsetup.stim.fixation_color_look;
+    expsetup.stim.esetup_fixation_shape{tid} = expsetup.stim.fixation_shape_look;
 elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'avoid')
-    expsetup.stim.esetup_fixation_color(tid,1:3) = expsetup.stim.fixation_color_task2;
-    expsetup.stim.esetup_fixation_shape{tid} = expsetup.stim.fixation_shape_task2;
-elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'control')
-    expsetup.stim.esetup_fixation_color(tid,1:3) = expsetup.stim.fixation_color_task3;
-    expsetup.stim.esetup_fixation_shape{tid} = expsetup.stim.fixation_shape_task3;
+    expsetup.stim.esetup_fixation_color(tid,1:3) = expsetup.stim.fixation_color_avoid;
+    expsetup.stim.esetup_fixation_shape{tid} = expsetup.stim.fixation_shape_avoid;
+elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'control fixate')
+    expsetup.stim.esetup_fixation_color(tid,1:3) = expsetup.stim.fixation_color_control_fixate;
+    expsetup.stim.esetup_fixation_shape{tid} = expsetup.stim.fixation_shape_control_fixate;
 end
     
 % Fixation position
@@ -178,17 +178,17 @@ expsetup.stim.esetup_memory_size(tid,1:4) = [0, 0, temp1(1), temp1(1)];
 
 % Initialize different colors and shapes, based on block_cond
 if strcmp(expsetup.stim.esetup_block_cond{tid}, 'look')
-    expsetup.stim.esetup_memory_color(tid,1:3) = expsetup.stim.memory_color_task1;
-    expsetup.stim.esetup_memory_shape{tid} = expsetup.stim.memory_shape_task1;
-    expsetup.stim.esetup_memory_pen_width(tid) = expsetup.stim.memory_pen_width_task1;
+    expsetup.stim.esetup_memory_color(tid,1:3) = expsetup.stim.memory_color_look;
+    expsetup.stim.esetup_memory_shape{tid} = expsetup.stim.memory_shape_look;
+    expsetup.stim.esetup_memory_pen_width(tid) = expsetup.stim.memory_pen_width_look;
 elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'avoid')
-    expsetup.stim.esetup_memory_color(tid,1:3) = expsetup.stim.memory_color_task2;
-    expsetup.stim.esetup_memory_shape{tid} = expsetup.stim.memory_shape_task2;
-    expsetup.stim.esetup_memory_pen_width(tid) = expsetup.stim.memory_pen_width_task2;
-elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'control')
-    expsetup.stim.esetup_memory_color(tid,1:3) = expsetup.stim.memory_color_task3;
-    expsetup.stim.esetup_memory_shape{tid} = expsetup.stim.memory_shape_task3;
-    expsetup.stim.esetup_memory_pen_width(tid) = expsetup.stim.memory_pen_width_task3;
+    expsetup.stim.esetup_memory_color(tid,1:3) = expsetup.stim.memory_color_avoid;
+    expsetup.stim.esetup_memory_shape{tid} = expsetup.stim.memory_shape_avoid;
+    expsetup.stim.esetup_memory_pen_width(tid) = expsetup.stim.memory_pen_width_avoid;
+elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'control fixate')
+    expsetup.stim.esetup_memory_color(tid,1:3) = expsetup.stim.memory_color_control_fixate;
+    expsetup.stim.esetup_memory_shape{tid} = expsetup.stim.memory_shape_control_fixate;
+    expsetup.stim.esetup_memory_pen_width(tid) = expsetup.stim.memory_pen_width_control_fixate;
 end
 
 % Memory duration
@@ -205,7 +205,6 @@ expsetup.stim.esetup_target_size_eyetrack(tid,1:4) = [0, 0, temp1(1), temp1(1)];
 
 %% Probe or no-probe trial
 
-% Look, avoid
 if strcmp(expsetup.stim.esetup_block_cond{tid}, 'look') || strcmp(expsetup.stim.esetup_block_cond{tid}, 'avoid')
     
     %=========
@@ -224,8 +223,11 @@ if strcmp(expsetup.stim.esetup_block_cond{tid}, 'look') || strcmp(expsetup.stim.
     %===========
     expsetup.stim.esetup_target_number(tid) = temp1(1);
     
-elseif expsetup.stim.esetup_block_cond(tid) >= 3
-    error('Target number not defined')
+elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'control fixate')
+    temp1 = 0;
+    expsetup.stim.esetup_target_number(tid) = temp1(1);
+else
+    error('Target number not defined (condition does not exist)')
 end
 
 % SOA
@@ -267,60 +269,68 @@ expsetup.stim.esetup_st2_color_level(tid) = temp1(1);
 % Initialize different colors and shapes, based on block_cond
 if strcmp(expsetup.stim.esetup_block_cond{tid}, 'look') && expsetup.stim.esetup_target_number(tid,1) == 2
     
+    % Position
     expsetup.stim.esetup_st1_coord(tid,1:2) = st_mem;
     expsetup.stim.esetup_st2_coord(tid,1:2) = st_nonmem;
-    expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t1_color_task1;
-    expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_task1;
+    
+    % Color
+    expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t1_color_look;
+    expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_look;
     
     % ST2 color level changes
     if strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance change') ||...
             strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') ||...
             strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change')
         % Calculate ST2 level
-        c1 = expsetup.stim.response_t2_color_task1;
+        c1 = expsetup.stim.response_t2_color_look;
         d1 = expsetup.stim.esetup_background_color(tid,1:3) - c1;
         a1 = c1 + d1 * expsetup.stim.esetup_st2_color_level(tid);
         expsetup.stim.esetup_st2_color(tid,1:3) = a1;
         var_copy.esetup_st2_color = expsetup.stim.esetup_st2_color(tid,1:3); % Copy variable for error trials
     else
-        c1 = expsetup.stim.response_t2_color_task1;
+        c1 = expsetup.stim.response_t2_color_look;
         expsetup.stim.esetup_st2_color(tid,1:3) = c1;
     end
 
 elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'avoid') && expsetup.stim.esetup_target_number(tid,1) == 2
     
+    % Position
     expsetup.stim.esetup_st1_coord(tid,1:2) = st_nonmem;
     expsetup.stim.esetup_st2_coord(tid,1:2) = st_mem;
-    expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t2_color_task2;
-    expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_task2;
+    
+    % Color
+    expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t2_color_avoid;
+    expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_shape_avoid;
     
     % ST2 color level changes
     if strcmp(expsetup.stim.esetup_exp_version{tid}, 'task switch luminance change') ||...
             strcmp(expsetup.stim.esetup_exp_version{tid}, 'look luminance change') ||...
             strcmp(expsetup.stim.esetup_exp_version{tid}, 'avoid luminance change')
         % Calculate ST2 level
-        c1 = expsetup.stim.response_t1_color_task2;
+        c1 = expsetup.stim.response_t1_color_avoid;
         d1 = expsetup.stim.esetup_background_color(tid,1:3) - c1;
         a1 = c1 + d1 * expsetup.stim.esetup_st2_color_level(tid);
         expsetup.stim.esetup_st2_color(tid,1:3) = a1;
         var_copy.esetup_st2_color = expsetup.stim.esetup_st2_color(tid,1:3); % Copy variable for error trials
     else
-        c1 = expsetup.stim.response_t1_color_task1;
+        c1 = expsetup.stim.response_t1_color_avoid;
         expsetup.stim.esetup_st2_color(tid,1:3) = c1;
     end
     
 elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'look') && expsetup.stim.esetup_target_number(tid,1) == 1
     expsetup.stim.esetup_st1_coord(tid,1:2) = st3;
     expsetup.stim.esetup_st2_coord(tid,1:2) = NaN;
-    expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t3_color_task1;
+    expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t3_color_look;
     expsetup.stim.esetup_st2_color(tid,1:3) = NaN;
     expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_t3_shape;
 elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'avoid') && expsetup.stim.esetup_target_number(tid,1) == 1
     expsetup.stim.esetup_st1_coord(tid,1:2) = st3;
     expsetup.stim.esetup_st2_coord(tid,1:2) = NaN;
-    expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t3_color_task2;
+    expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t3_color_avoid;
     expsetup.stim.esetup_st2_color(tid,1:3) = NaN;
     expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_t3_shape;
+elseif  strcmp(expsetup.stim.esetup_block_cond{tid}, 'control fixate') && expsetup.stim.esetup_target_number(tid,1) == 0
+    % No position, coord, color saved
 end
 expsetup.stim.esetup_target_pen_width(tid,1) = expsetup.stim.response_pen_width;
 
@@ -422,7 +432,7 @@ temp1 = Shuffle(expsetup.stim.memory_duration);
 expsetup.stim.esetup_memory_duration(tid) = temp1(1);
 
 % Memory delay duration
-if expsetup.stim.esetup_target_number(tid,1)==2 % Two target trials
+if expsetup.stim.esetup_target_number(tid,1)==2 || expsetup.stim.esetup_target_number(tid,1)==0 % Two target trials
    
     % Memory duration, varies as a stage of training
     %=========
