@@ -7,12 +7,16 @@ if isfield (plot_set, 'data_color_min')
     col_min = plot_set.data_color_min;
     col_max = plot_set.data_color_max;
     n = size(mat1,3);
-
+    
     % Other location colors are calculated as a range
-    d1 = col_max-col_min;
-    stepsz = 1/(n-1);
-    for i=1:n
-        color1_range(i,:)=col_min + (d1*stepsz)*(i-1);
+    if n>1
+        d1 = col_max-col_min;
+        stepsz = 1/(n-1);
+        for i=1:n
+            color1_range(i,:)=col_min + (d1*stepsz)*(i-1);
+        end
+    else
+        color1_range(1,:)=col_min;
     end
     
 end

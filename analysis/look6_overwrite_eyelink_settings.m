@@ -1,8 +1,10 @@
 
+% Changes in look6 before october 28
+overwrite_temp_index{1} = 20170801:20171028;
 
 %% 2017 October 28: Fixation offset time bug
 
-if date_current <= 20171028
+if settings.overwrite_temp_switch == 1 && date_current <= overwrite_temp_index{1}(1) && date_current <= overwrite_temp_index{1}(end)
     
     v1 = 'fixation_off';
     v2 = 'target_on';

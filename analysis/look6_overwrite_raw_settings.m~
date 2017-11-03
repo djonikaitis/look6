@@ -37,7 +37,7 @@ end
 
 %% 2017 October 28: Fixation offset time bug
 
-if settings.overwrite_temp_switch == 1 && date_current <= overwrite_temp_index{1}(1) && date_current <= overwrite_temp_index{1}(end)
+if settings.overwrite_temp_switch == 1 && date_current <= 20171028
     
     v1 = 'eframes_fixation_offset';
     v2 = 'eframes_fixation_off';

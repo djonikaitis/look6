@@ -9,8 +9,8 @@ settings.path_baseline_code = sprintf('~/proj/experiments/');
 settings.path_baseline_figures = sprintf('~/Dropbox/Experiments/');
 
 % "Experiments_data" folder with eyelink and psychtoolbox data:
-% settings.path_baseline_data = sprintf('~/proj/experiments_data/');
-settings.path_baseline_data = sprintf('~/Dropbox/Experiments_data/');
+settings.path_baseline_data = sprintf('~/proj/experiments_data/');
+% settings.path_baseline_data = sprintf('~/Dropbox/Experiments_data/');
 
 % "Experiments_data" folder, with plexon data:
 % (might differ from other psychtoolbox data folder due to large plexon file sizes)

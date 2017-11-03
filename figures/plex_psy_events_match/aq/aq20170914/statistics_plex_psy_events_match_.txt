@@ -1,4 +1,0 @@
-Total number of psychtoolbox sessions recorded 3 
-Session number 1: non-detected trials are 0; matched 36/36 trials 
-Session number 2: non-detected trials are 0; matched 1248/1248 trials 
-Session number 3: non-detected trials are 0; matched 672/672 trials 
