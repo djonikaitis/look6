@@ -47,36 +47,29 @@ for i_subj=1:length(settings.subjects)
         
         %===============
         % Figure folder
-        temp_switch = 0;
         if numel(dates_used)>1 && i_date==1
             a = sprintf('dates %s - %s', num2str(dates_used(1)), num2str(dates_used(end)));
             path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, a);
-            temp_switch = 1;
-        elseif numel(dates_used)>1 && i_date>1
-            temp_switch = 0;
+        
+        
         elseif numel(dates_used)==1
             path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name);
-            temp_switch = 1;
         end
         
         % Overwrite figure folders
-        if  temp_switch == 1;
-            if ~isdir(path_fig) || settings.overwrite==1
-                if ~isdir(path_fig)
-                    mkdir(path_fig)
-                elseif isdir(path_fig)
-                    rmdir(path_fig, 's')
-                    mkdir(path_fig)
-                end
+        if ~isdir(path_fig) || settings.overwrite==1
+            if ~isdir(path_fig)
+                mkdir(path_fig)
+            elseif isdir(path_fig)
+                rmdir(path_fig, 's')
+                mkdir(path_fig)
             end
         end
         
         % Initialize text file for statistics
-        if  temp_switch == 1;
-            nameOut = sprintf('%s%s.txt', path_fig, settings.stats_file_name); % File to be outputed
-            fclose('all');
-            fout = fopen(nameOut,'w');
-        end
+        nameOut = sprintf('%s%s.txt', path_fig, settings.stats_file_name); % File to be outputed
+        fclose('all');
+        fout = fopen(nameOut,'w');
         
         %% Analysis
         
@@ -267,7 +260,7 @@ plot_set.path_figure = path_fig;
 hfig = figure;
 hold on;
 
-% e_bars = plot_helper_error_bar_calculation_v10(mat1, settings);
+e_bars = plot_helper_error_bar_calculation_v10(mat1, settings);
 plot_helper_bargraph_plot_v10
 
 plot_helper_save_figure;
@@ -338,7 +331,7 @@ e_bars = plot_helper_error_bar_calculation_v10(mat1, settings);
 plot_helper_bargraph_plot_v10
 
 plot_helper_save_figure;
-% close all;
+close all;
 
 %===============
 

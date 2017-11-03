@@ -3,46 +3,9 @@
 mat1 = plot_set.mat1;
 pbins = plot_set.pbins;
 
-%=============
-% Calculate colors if it is a range
-if isfield (plot_set, 'data_color_min')
-    
-    % Settings
-    col_min = plot_set.data_color_min;
-    col_max = plot_set.data_color_max;
-    n = size(mat1,3);
-    
-    % Other location colors are calculated as a range
-    if n>1
-        d1 = col_max-col_min;
-        stepsz = 1/(n-1);
-        for i=1:n
-            color1_range(i,:)=col_min + (d1*stepsz)*(i-1);
-        end
-    else
-        color1_range(1,:)=col_min;
-    end
-    
-end
-
-%=============
-% Do the plotting
-
 for k=1:size(mat1,3)
     for j=1:size(mat1,2)
         if ~isnan(nanmean(mat1(:,j,k)))
-            
-            %=======
-            % Select color
-            if isfield(plot_set, 'data_color_min')
-                c1 = color1_range(j,:);
-            elseif isfield(plot_set, 'data_color') && ~isempty(plot_set.data_color)
-                graphcond = plot_set.data_color(j);
-                c1 = settings.color1(graphcond,:);
-                c2 = settings.face_color1(graphcond,:);
-            else
-                error ('Figure colors not specified')
-            end
             
             %=======
             % MEANS
@@ -51,7 +14,17 @@ for k=1:size(mat1,3)
             else
                 h=bar(pbins(1), mat1(:,j,k), plot_set.bar_width);
             end
-                        
+            
+            % Select color
+            if isfield(plot_set, 'data_color_min')
+                c1 = color1_range(j,:);
+            elseif isfield(plot_set, 'data_color') && ~isempty(plot_set.data_color)
+                graphcond = plot_set.data_color(j);
+                c1 = settings.color1(graphcond,:);
+            else
+                error ('Figure colors not specified')
+            end
+            
             % Set color
             if isfield(plot_set, 'bar_base_value')
             else
@@ -75,22 +48,28 @@ for k=1:size(mat1,3)
                 % Mean of the data
                 m1 = nanmean(mat1(:,j,k));
                 
+                            % Select color
+            if isfield(plot_set, 'data_color_min')
+                c1 = color1_range(j,:);
+            elseif isfield(plot_set, 'data_color') && ~isempty(plot_set.data_color)
+                graphcond = plot_set.data_color(j);
+                c1 = settings.color1(graphcond,:);
+            else
+                error ('Figure colors not specified')
+            end
+                
                 if sign(m1)>=0
-                    h=plot([pbins(1),pbins(1)], [m1, lw1]);
-                    set (h(end), 'LineWidth', settings.wlineerror, 'Color', c2)
-                    h=plot([pbins(1),pbins(1)], [m1,up1]);
-                    set (h(end), 'LineWidth', settings.wlineerror, 'Color', c1)
+
                 else
-                    h=plot([pbins(1),pbins(1)], [m1, lw1]);
-                    set (h(end), 'LineWidth', settings.wlineerror, 'Color', c1)
-                    h=plot([pbins(1),pbins(1)], [m1,up1]);
-                    set (h(end), 'LineWidth', settings.wlineerror, 'Color', c2)
                 end
+
+                h=plot([pbins(1),pbins(1)], [m1, lw1]);
+                set (h(end), 'LineWidth', settings.wlineerror, 'Color', facecolor1(graphcond,:))
+                h=plot([pbins(1),pbins(1)], [m`,up1]);
+                set (h(end), 'LineWidth', settings.wlineerror, 'Color', color1(graphcond,:))
             end
             
         end
-        
-        
         % Remove first plotbin
         pbins(1)=[];
         
