@@ -821,7 +821,7 @@ while loop_over==0
                 % SPECIAL CASE: for fix only trials terminate the trial
                 if strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase') || ...
                         strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable') || ...
-                        strcmp(expsetup.stim.esetup_block_cond{tid}, 'control fixate')
+                        expsetup.stim.esetup_target_number(tid)==0
                     % Terminate the trial
                     expsetup.stim.edata_error_code{tid} = 'correct';
                 end
@@ -834,7 +834,7 @@ while loop_over==0
                 % SPECIAL CASE: for fix only trials terminate the trial
                 if strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration increase') || ...
                         strcmp(expsetup.stim.esetup_exp_version{tid}, 'fix duration stable') ||...
-                        strcmp(expsetup.stim.esetup_block_cond{tid}, 'control fixate')
+                        expsetup.stim.esetup_target_number(tid)==0
                     
                     % Terminate the trial
                     expsetup.stim.edata_error_code{tid} = 'correct';

@@ -69,13 +69,13 @@ y = -7;
 stim.target_spacing_arc = 90;
 
 % Defaults
-stim.main_cond{2} = 'look';
-stim.main_cond{3} = 'avoid';
-stim.main_cond{1} = 'control fixate';
+stim.main_cond{1} = 'look';
+stim.main_cond{2} = 'avoid';
+stim.main_cond{3} = 'control fixate';
 
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
-stim.target_number(95:100)= 1; % Number of probes (= 1 or 2)
-stim.memory_delay_duration = [2.05:0.01:2.2]; % How long memory delay lasts
+stim.target_number(93:100)= 1; % Number of probes (= 1 or 2)
+stim.memory_delay_duration = [2.1:0.01:2.2]; % How long memory delay lasts
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
 stim.number_of_trials_per_block = 150;
 stim.number_of_blocks = 6;
@@ -159,7 +159,7 @@ stim.fixation_size_drift = 5; % Larger fixation window for drift correction
 stim.fixation_drift_maintain_minimum = 0.5; % Drift correction starts
 stim.fixation_drift_maintain_maximum = 0.6; % Drift correction ends
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'aq')
-    stim.fixation_size_eyetrack = 1.5; % Window within which to maintain fixation
+    stim.fixation_size_eyetrack = 2; % Window within which to maintain fixation
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'hb')
     stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
 else
@@ -223,8 +223,9 @@ stim.response_t2_color_avoid = [20,20,200]; % Non-memorized
 
 %=====================
 % Probe (T3, 15 of trials)
-stim.response_t3_color_look = [20,20,20]; % Color of the probe
+stim.response_t3_color_look = [20,20,20];
 stim.response_t3_color_avoid = [20,20,20];
+stim.response_t3_color_control_fixate = [20,20,20];
 stim.response_t3_shape = 'circle'; % circle, square, empty_circle, empty_quare
 
 %============
