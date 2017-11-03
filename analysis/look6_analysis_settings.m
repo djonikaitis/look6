@@ -38,7 +38,7 @@ elseif strcmp (settings.data_sessions, 'before')
 elseif strcmp (settings.data_sessions, 'after')
     settings.data_sessions_temp = 20171027; 
 elseif strcmp (settings.data_sessions, 'interval')
-    settings.data_sessions_temp = [20171020, 20171028]; 
+    settings.data_sessions_temp = [20171020, 20171105]; 
 elseif strcmp(settings.data_sessions, 'selected')
     settings.data_sessions_temp = 20171027; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
@@ -129,7 +129,7 @@ settings.drift_correction_method = 'median'; % 'mean' or 'median' or 'each trial
 settings.trial_total_threshold = 5; % How many trials have to be at least in the bin
 settings.tboot1 = 10000; % How many times to bootstrap?
 settings.p_level = 0.05; % P-value reported for signifficance
-settings.error_bars = 2; % 1 - bootstrap; 2 - sem;
+settings.error_bars = 'sem'; % 1 - bootstrap; 2 - sem;
 
 % How big figure is?
 settings.figsize_1col=[0, 0, 2.2, 2.2];

@@ -24,7 +24,7 @@ settings.fig_size_current = [0, 0, 6, 2.5]; % Unique figure size settings in thi
 
 % How many trials per error type to plot?
 trials_to_plot = 25;
-trials_to_plot = 'all';
+% trials_to_plot = 'all';
 
 
 %% Run preprocessing
