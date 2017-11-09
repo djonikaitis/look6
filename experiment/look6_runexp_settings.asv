@@ -101,6 +101,16 @@ stim.response_target_coord = [xc',yc'];
 stim.response_t3_coord  = stim.response_target_coord(1,:);
 stim.distractor_coord = stim.response_target_coord;
 
+[theta, rho] = cart2pol (x, y);
+theta = (theta/pi)*180;
+% Setup baseline coordinates
+stim.target_arc = theta;
+stim.target_radius = rho;
+
+% Recalculate to the grid
+target_arc = [stim.target_arc:stim.target_spacing_arc:stim.target_arc+359];
+target_radius = [repmat(stim.target_radius, 1, length(target_arc))];
+[xc, yc] = pol2cart(target_arc*pi/180, target_radius);
 
 %%  Reward
 

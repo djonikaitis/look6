@@ -346,7 +346,7 @@ elseif strcmp(expsetup.stim.esetup_block_cond{tid}, 'avoid') && expsetup.stim.es
     expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t3_color_avoid;
     expsetup.stim.esetup_st2_color(tid,1:3) = NaN;
     expsetup.stim.esetup_target_shape{tid} = expsetup.stim.response_t3_shape;
-elseif  strcmp(expsetup.stim.esetup_block_cond{tid}, 'control fixate') && expsetup.stim.esetup_target_number(tid,1) == 0
+elseif  strcmp(expsetup.stim.esetup_block_cond{tid}, 'control fixate') && expsetup.stim.esetup_target_number(tid,1) == 1
     expsetup.stim.esetup_st1_coord(tid,1:2) = st3;
     expsetup.stim.esetup_st2_coord(tid,1:2) = NaN;
     expsetup.stim.esetup_st1_color(tid,1:3) = expsetup.stim.response_t3_color_control_fixate;
