@@ -67,6 +67,7 @@ stim.distractor_coord_x = -4;
 x = -5;
 y = -5;
 stim.target_spacing_arc = 90;
+stim.probe_spacing_arc = 15;
 
 % Defaults
 stim.main_cond{2} = 'look';
@@ -75,13 +76,22 @@ stim.main_cond{1} = 'avoid';
 
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(93:100)= 1; % Number of probes (= 1 or 2)
-% stim.memory_delay_duration = [0.7:0.01:1.2]; % How long memory delay lasts
-stim.memory_delay_duration = [2.1:0.01:2.2]; % How long memory delay lasts
+
+if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
+stim.memory_delay_duration = [0.7:0.01:1.2]; % How long memory delay lasts
+elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
+    stim.st2_color_level_ini = 0.3;
+else
+    stim.st2_color_level_ini = 0.9;
+end
+
+
 stim.memory_delay_duration_probe = stim.memory_delay_duration;
 stim.number_of_trials_per_block = 150;
 stim.number_of_blocks = 6;
 stim.main_cond_shuffle = 2; % 1 - shuffle, 2 - preset order
 
+stim.probe_extended_map = 1; % If 1, then probe timing and duration is extended
 
 %% Stimulus positions
 
@@ -98,8 +108,8 @@ target_radius = [repmat(stim.target_radius, 1, length(target_arc))];
 
 % Save coordintes
 stim.response_target_coord = [xc',yc'];
-stim.response_t3_coord  = stim.response_target_coord(1,:);
-stim.distractor_coord = stim.response_target_coord;
+
+%% Probe positions
 
 [theta, rho] = cart2pol (x, y);
 theta = (theta/pi)*180;
@@ -108,9 +118,22 @@ stim.target_arc = theta;
 stim.target_radius = rho;
 
 % Recalculate to the grid
-target_arc = [stim.target_arc:stim.target_spacing_arc:stim.target_arc+359];
+target_arc = [stim.target_arc:stim.probe_spacing_arc:stim.target_arc+359];
 target_radius = [repmat(stim.target_radius, 1, length(target_arc))];
 [xc, yc] = pol2cart(target_arc*pi/180, target_radius);
+
+% Save coordintes
+if stim.probe_extended_map==1
+    stim.response_t3_coord = [xc',yc'];
+else
+    stim.response_t3_coord  = stim.response_target_coord(1,:);
+end
+
+
+%% Distractor flash coordinates
+
+stim.distractor_coord = stim.response_target_coord;
+
 
 %%  Reward
 
@@ -446,7 +469,7 @@ stim.eframes_distractor_off{1}(1) = NaN;
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
 
 if expsetup.general.debug>0
-    stim.exp_version_temp = 'task switch luminance final'; % Version you want to run
+    stim.exp_version_temp = 'task switch luminance equal'; % Version you want to run
 else
     a = input ('Select training stage by number. Enter 0 if you want to see the list: ');
     if a==0

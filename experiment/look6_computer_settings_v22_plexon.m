@@ -8,7 +8,7 @@
 % v21 DJ April 1, 2017. Added tcp ip connection settings
 
 
-function look6_computer_settings_v22_edoras
+function look6_computer_settings_v22_plexon
  
 global expsetup
 
@@ -17,9 +17,9 @@ global expsetup
 % In this case set path to experiments
 
 
-expsetup.general.directory_baseline_code = 'C:\Users\Rig-E\Desktop\GitExp\';
-expsetup.general.directory_baseline_data = 'C:\Users\Rig-E\Desktop\Experiments_data\';
-expsetup.general.directory_baseline_data_server = 'Z:\data\RigE\Experiments_data\';
+expsetup.general.directory_baseline_code = 'C:\Users\Plexon\Desktop\Experiments\';
+expsetup.general.directory_baseline_data = 'C:\Users\Plexon\Desktop\Experiments_data\';
+expsetup.general.directory_baseline_data_server = 'Z:\data\Plexon\Experiments_data\';
 
 
 % This is viewpix display

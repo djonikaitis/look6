@@ -66,21 +66,34 @@ stim.distractor_coord_x = -4;
 % Specify target coordinates based on a RF mapping
 x = -5;
 y = -5;
-stim.target_spacing_arc = 90;
 
-% Defaults
+stim.target_spacing_arc = 90;
+stim.probe_spacing_arc = 15;
+
+%==================
+% Conditions to run
 stim.main_cond{2} = 'look';
 stim.main_cond{1} = 'avoid';
 % stim.main_cond{3} = 'control fixate';
 
-stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
-stim.target_number(93:100)= 1; % Number of probes (= 1 or 2)
-% stim.memory_delay_duration = [0.7:0.01:1.2]; % How long memory delay lasts
-stim.memory_delay_duration = [2.1:0.01:2.2]; % How long memory delay lasts
-stim.memory_delay_duration_probe = stim.memory_delay_duration;
 stim.number_of_trials_per_block = 150;
 stim.number_of_blocks = 6;
-stim.main_cond_shuffle = 2; % 1 - shuffle, 2 - preset order
+
+%====================
+% Memory delay duration
+if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
+    stim.memory_delay_duration = [0.7:0.01:1.2]; % How long memory delay lasts
+elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
+    stim.memory_delay_duration = [2.1:0.01:2.2]; % How long memory delay lasts
+else
+    stim.memory_delay_duration = [2.1:0.01:2.2]; % How long memory delay lasts
+end
+
+%=================
+% Probe frequency
+stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
+stim.target_number(93:100)= 1; % Number of probes (= 1 or 2)
+stim.probe_extended_map = 1; % If 1, then probe timing and duration is extended
 
 
 %% Stimulus positions
@@ -98,7 +111,30 @@ target_radius = [repmat(stim.target_radius, 1, length(target_arc))];
 
 % Save coordintes
 stim.response_target_coord = [xc',yc'];
-stim.response_t3_coord  = stim.response_target_coord(1,:);
+
+%% Probe positions
+
+[theta, rho] = cart2pol (x, y);
+theta = (theta/pi)*180;
+% Setup baseline coordinates
+stim.target_arc = theta;
+stim.target_radius = rho;
+
+% Recalculate to the grid
+target_arc = [stim.target_arc:stim.probe_spacing_arc:stim.target_arc+359];
+target_radius = [repmat(stim.target_radius, 1, length(target_arc))];
+[xc, yc] = pol2cart(target_arc*pi/180, target_radius);
+
+% Save coordintes
+if stim.probe_extended_map==1
+    stim.response_t3_coord = [xc',yc'];
+else
+    stim.response_t3_coord  = stim.response_target_coord(1,:);
+end
+
+
+%% Distractor flash coordinates
+
 stim.distractor_coord = stim.response_target_coord;
 
 
@@ -161,9 +197,9 @@ stim.fixation_size_drift = 5; % Larger fixation window for drift correction
 stim.fixation_drift_maintain_minimum = 0.5; % Drift correction starts
 stim.fixation_drift_maintain_maximum = 0.6; % Drift correction ends
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'aq')
-    stim.fixation_size_eyetrack = 2; % Window within which to maintain fixation
+    stim.fixation_size_eyetrack = 1.9; % Window within which to maintain fixation
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'hb')
-    stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
+    stim.fixation_size_eyetrack = 2.0; % Window within which to maintain fixation
 else
     stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
 end
@@ -230,6 +266,12 @@ stim.response_t3_color_avoid = [20,20,20];
 stim.response_t3_color_control_fixate = [20,20,20];
 stim.response_t3_shape = 'circle'; % circle, square, empty_circle, empty_quare
 
+if stim.probe_extended_map ==1
+    stim.memory_delay_duration_probe = [0.05:0.01:max(stim.memory_delay_duration)];
+else
+    stim.memory_delay_duration_probe = stim.memory_delay_duration;
+end
+
 %============
 % ST2 properties
 if ~isfield(stim, 'response_soa')
@@ -262,6 +304,8 @@ stim.background_texture_line_angle = [0:20:179];
 stim.background_texture_soa = -0.6; % Relative to memory onset; Negative - before memory onset;
 stim.background_texture_on = [ones(1, length(stim.background_texture_line_angle)), 0]; % 1 - texture on, 0 - no texture
 
+stim.background_textures_per_trial = [2];
+
 %===============
 % Duration of inter-trial
 stim.trial_dur_intertrial = 0.1; % Blank screen at the end
@@ -288,6 +332,8 @@ if ~isfield (stim, 'number_of_blocks')
     stim.number_of_trials_per_block = 500;
     stim.number_of_blocks = 2;
 end
+
+stim.main_cond_shuffle = 2; % 1 - shuffle, 2 - preset order
 
 
 %% Settings that change on each trial (matrix; one trial = one row)
@@ -436,7 +482,7 @@ stim.eframes_distractor_off{1}(1) = NaN;
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
 
 if expsetup.general.debug>0
-    stim.exp_version_temp = 'task switch luminance final'; % Version you want to run
+    stim.exp_version_temp = 'task switch luminance equal'; % Version you want to run
 else
     a = input ('Select training stage by number. Enter 0 if you want to see the list: ');
     if a==0

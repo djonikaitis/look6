@@ -20,8 +20,8 @@ global ni
 %% General settings to run the code
 
 expsetup.general.expname = 'look6'; 
-expsetup.general.exp_location = 'edoras'; % 'dj'; 'mbox'; 'dan'; 'edoras'; 'citadel';
-expsetup.general.debug = 0; % 0: no debugging; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
+expsetup.general.exp_location = 'plexon'; % 'dj'; 'mbox'; 'dan'; 'edoras'; 'citadel'; 'plexon'
+expsetup.general.debug = 2; % 0: no debugging; 1: reward off, eyelink off; 2: reward off, eyelink off, display transparent
 expsetup.general.human_exp = 0; % 1 - human; 2 - monkey
 
 % Devices and routines
@@ -93,10 +93,12 @@ end
 if expsetup.general.debug==1
     expsetup.general.reward_on = 0; % 0 - no reward, 1 - reward
     expsetup.general.recordeyes = 0; % 0 - no recording; 1 - yes recording; 2 - ask experimenter
+    expsetup.general.arduino_on = 0; % 0 - no arduino, 1 - yes arduno
 elseif expsetup.general.debug==2
     PsychDebugWindowConfiguration(0.5);
     expsetup.general.reward_on = 0; % 0 - no reward, 1 - reward
     expsetup.general.recordeyes = 0; % 0 - no recording; 1 - yes recording; 2 - ask experimenter
+    expsetup.general.arduino_on = 0; % 0 - no arduino, 1 - yes arduno
 end
 
 expsetup.general.code_settings = sprintf('%s_runexp_settings', expsetup.general.expname); % Path to file containing trial settings
