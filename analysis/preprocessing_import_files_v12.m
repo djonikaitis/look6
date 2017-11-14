@@ -52,7 +52,7 @@ for i_subj = 1:length(settings.subjects)
             fprintf('\nStarting file conversion and combining for the folder name %s\n', folder_name)
             %===========
             % Main preprocessing function
-            preprocessing_psych_eye_combine_v23 (settings, 'stim');
+            preprocessing_psych_eye_combine_v24 (settings, 'stim');
             %===========
         else
             fprintf('\nFolder name %s already exists, skipping file import\n', folder_name)

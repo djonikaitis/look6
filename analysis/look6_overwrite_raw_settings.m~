@@ -1,30 +1,34 @@
-%% Specify conditions to be modified 
+%% Specify conditions to be modified
 
-% Changes in look6 before october 28
+% rename esetup_block_cond;
+% fix eframes_fixation_offset & edata_fixation_off
 overwrite_temp_index{1} = 20170801:20171028;
+% added field: probe_extended_map
+overwrite_temp_index{2} = 20160101:20171112;
 
 
-%% 2017 October 28: Rename block_cond variables from numbers into words
+%% Rename block_cond variables from numbers into words
 
-if settings.overwrite_temp_switch == 1 && date_current <= overwrite_temp_index{1}(1) && date_current <= overwrite_temp_index{1}(end)
+if strcmp(var1.general.expname, 'look6') && settings.overwrite_temp_switch == 1 && date_current <= overwrite_temp_index{1}(1) && date_current <= overwrite_temp_index{1}(end)
     
     v1 = 'esetup_block_cond';
     
     clear temp1_old; clear temp1_new
-    temp1_old = var1.stim.(v1);
+    temp_old = var1.stim.(v1);
     
-    if ~iscell(temp1_old) % Check whether to do analysis
+    if ~iscell(temp_old) % Check whether to do analysis
         
-        fprintf('Correcting field esetup_block_cond\n')
+        fprintf('Correcting field: %s\n', v1)
         
-        temp_new = cell(numel(temp1_old),1);
+        temp_new = cell(numel(temp_old),1);
         
-        index = temp1_old==1;
+        % Replace values
+        index = temp_old==1;
         temp_new(index) = {'look'};
-        index = temp1_old==2;
+        index = temp_old==2;
         temp_new(index)= {'avoid'};
-        index = temp1_old==3;
-        temp_new(index)= {'control'};
+        index = temp_old==3;
+        temp_new(index)= {'control fixate'};
         
         % Save corrected data
         var1.stim.(v1) = temp_new;
@@ -35,59 +39,123 @@ if settings.overwrite_temp_switch == 1 && date_current <= overwrite_temp_index{1
 end
 
 
-%% 2017 October 28: Fixation offset time bug
+%% Fixation offset time bug
 
-if settings.overwrite_temp_switch == 1 && date_current <= 20171028
+if strcmp(var1.general.expname, 'look6') && settings.overwrite_temp_switch == 1 && date_current <= overwrite_temp_index{1}(1) && date_current <= overwrite_temp_index{1}(end)
     
     v1 = 'eframes_fixation_offset';
     v2 = 'eframes_fixation_off';
-        
+    
     if isfield(var1.stim, v1) % check whether to do analysis
         
-        fprintf('Correcting field eframes_fixation_off & edata_fixation_off\n')
-
-        %==================
-        % Change field eframes_fixation_off
-        %==================
+        %===========
+        % edata_fixation_off';
+        %===========
+        
+        fprintf('Correcting field: %s\n', v2)
         
         clear temp1_old; clear temp1_new
-        temp1_old = var1.stim.(v1);
-        temp1_new = var1.stim.(v2);
+        temp_old = var1.stim.(v1);
+        temp_new = var1.stim.(v2);
         
-        for i=1:numel(temp1_old)
-            ind = find(temp1_old{i}==1);
+        for i=1:numel(temp_old)
+            ind = find(temp_old{i}==1);
             if numel(ind)>=1
-                temp1_new{i}(ind(1))=1;
+                temp_new{i}(ind(1))=1;
             end
         end
         
         % Save corrected data
-        var1.stim.(v2) = temp1_new;
+        var1.stim.(v2) = temp_new;
         
         % Remove old field
         var1.stim = rmfield(var1.stim, v1);
         
-        %=================
-        % Change field edata_fixation_off timing
-        %=================
+        %===========
+        % edata_fixation_off';
+        %===========
         
         v1 = 'edata_fixation_off';
         v2 = 'edata_st1_on';
+        fprintf('Correcting field: %s\n', v1)
         
         clear temp1_old; clear temp1_new;
-        temp1_old = var1.stim.(v1);
-        temp1_new = var1.stim.(v2);
+        temp_old = var1.stim.(v1);
+        temp_new = var1.stim.(v2);
         
         % If ST1 appeared, that means fixation disappeared simultaneously
         % with it. If ST1 didnt appear, then fixation_off time is end of
         % the trial loop.
-        ind = ~isnan(temp1_new);
-        temp1_old(ind) = temp1_new(ind);
+        ind = ~isnan(temp_new);
+        temp_old(ind) = temp_new(ind);
         
         % Save corrected data
-        var1.stim.(v1) = temp1_old;
+        var1.stim.(v1) = temp_old;
+        
     else
-        fprintf('Field eframes_fixation_off already corrected, no changes written\n')
+        fprintf('Field %s already corrected, no changes written\n', v2)
+    end
+end
+      
+%% Edit esetup_exp_version
+
+if strcmp(var1.general.expname, 'look6') && settings.overwrite_temp_switch == 1 && date_current <= overwrite_temp_index{2}(1) && date_current <= overwrite_temp_index{2}(end)
+    
+    %===========
+    % esetup_exp_version';
+    %===========
+        
+    v1 = 'esetup_exp_version';
+    
+    clear temp1_old; clear temp1_new
+    temp_old = var1.stim.(v1);
+    
+    fprintf('Correcting field: %s\n', v1)
+    
+    temp_new = temp_old;
+    
+    % Replace condition name
+    index = strcmp(temp_old, 'added probe trials');
+    i1 = find(index==1);
+    i2 = i1-1;
+    temp_new(i1)=temp_old(i2);
+    
+    % Save corrected data
+    var1.stim.(v1) = temp_new;
+    
+    %===========
+    % esetup_distractor_color_level;
+    %===========
+    
+    v1 = 'esetup_distractor_color_level';
+    
+    clear temp1_old; clear temp1_new
+    temp_old = var1.stim.(v1);
+    
+    fprintf('Correcting field: %s\n', v1)
+    
+    temp_new = temp_old;
+    
+    % Replace distractor luminance value
+    temp_new(i1)=temp_old(i2);
+    
+    % Save corrected data
+    var1.stim.(v1) = temp_new;
+    
+end
+
+
+%% Added field probe_extended_map
+
+if settings.overwrite_temp_switch == 1 && date_current <= overwrite_temp_index{1}(1) && date_current <= overwrite_temp_index{1}(end)
+    
+    v1 = 'probe_extended_map';
+    
+    if ~isfield(var1.stim, v1) % check whether to do analysis
+        fprintf('Correcting field: %s \n', v1)
+        var1.stim.(v1) = 0;
+    else
+        fprintf('Field probe_extended_map already exists, no changes written\n')
     end
     
 end

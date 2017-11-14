@@ -89,7 +89,7 @@ for i_subj = 1:length(settings.subjects)
                     end
                     
                     % Now open the original data file (always)
-                    var1 = get_struct_v10(path1_copy);
+                    var1 = get_struct_v11(path1_copy);
                     
                     %===========
                     % Main preprocessing function

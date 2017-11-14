@@ -3,26 +3,31 @@
 
 %%  Initialize path to the experiment (will change on different computers);
 
-
-% "analysis" code is stored in:
-settings.path_baseline_code = sprintf('~/proj/experiments/');
-settings.path_baseline_figures = sprintf('~/Dropbox/Experiments/');
-
-% "Experiments_data" folder with eyelink and psychtoolbox data:
-settings.path_baseline_data = sprintf('~/proj/experiments_data/');
-% settings.path_baseline_data = sprintf('~/Dropbox/Experiments_data/');
-
-% "Experiments_data" folder, with plexon data:
-% (might differ from other psychtoolbox data folder due to large plexon file sizes)
-settings.path_baseline_plexon = sprintf('~/data/neurophysiology/Experiments_data/');
-
-% Path to plexon toolbox
-settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';
-
-% Path to server to download data
-settings.path_baseline_server = '/Volumes/tirin/data/RigE/Experiments_data/';
-
-
+if isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'dj office')
+    
+    % "analysis" code is stored in:
+    settings.path_baseline_code = sprintf('~/proj/experiments/');
+    settings.path_baseline_figures = sprintf('~/Dropbox/Experiments/');
+    
+    % "Experiments_data" folder with eyelink and psychtoolbox data:
+    settings.path_baseline_data = sprintf('~/proj/experiments_data/');
+    % settings.path_baseline_data = sprintf('~/Dropbox/Experiments_data/');
+    
+    % "Experiments_data" folder, with plexon data:
+    % (might differ from other psychtoolbox data folder due to large plexon file sizes)
+    settings.path_baseline_plexon = sprintf('~/data/neurophysiology/Experiments_data/');
+    
+    % Path to plexon toolbox
+    settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';
+    
+    % Path to server to download data
+    settings.path_baseline_server = '/Volumes/tirin/data/RigE/Experiments_data/';
+    
+else
+    
+    error ('Expsetup not defined. No paths will work');
+    
+end
 
 %%  Which dates to process
 
@@ -38,9 +43,9 @@ elseif strcmp (settings.data_sessions, 'before')
 elseif strcmp (settings.data_sessions, 'after')
     settings.data_sessions_temp = 20171027; 
 elseif strcmp (settings.data_sessions, 'interval')
-    settings.data_sessions_temp = [20171020, 20171105]; 
+    settings.data_sessions_temp = [20171109, 20171110]; 
 elseif strcmp(settings.data_sessions, 'selected')
-    settings.data_sessions_temp = 20171027; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
+    settings.data_sessions_temp = 20171018; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
 
 
@@ -90,7 +95,7 @@ end
 
 %%  Folders where different data is stored
 
-% Names of folders
+% Names of folders (no changes here needed)
 path_spec_names{1} = {'figures'; settings.path_baseline_figures};
 path_spec_names{2} = {'data_combined'; settings.path_baseline_data};
 path_spec_names{3} = {'data_psychtoolbox'; settings.path_baseline_data};
@@ -134,6 +139,7 @@ settings.error_bars = 'sem'; % 1 - bootstrap; 2 - sem;
 % How big figure is?
 settings.figsize_1col=[0, 0, 2.2, 2.2];
 settings.figsize_2col=[0, 0, 4.5, 2.2];
+settings.figsize_4col=[0, 0, 7.2, 2.2];
 
 % Settings for doing sliding window analysis
 settings.timestep=50;
