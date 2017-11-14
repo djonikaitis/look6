@@ -302,7 +302,10 @@ stim.background_texture_line_length = 2; % Length in degrees
 stim.background_texture_line_number = 10000; % Number of lines to be drawn;
 stim.background_texture_line_angle = [0:20:179];
 stim.background_texture_soa = -0.6; % Relative to memory onset; Negative - before memory onset;
-stim.background_texture_on = [ones(1, length(stim.background_texture_line_angle)), 0]; % 1 - texture on, 0 - no texture
+no_tex_prob = 0.2; 
+a = length(stim.background_texture_line_angle);
+b = round(length(stim.background_texture_line_angle) * no_tex_prob);
+stim.background_texture_on = [ones(1, a), zeros(1, b)]; % 1 - texture on, 0 - no texture
 
 stim.background_textures_per_trial = [2];
 
@@ -398,11 +401,16 @@ stim.esetup_distractor_on_time = NaN;
 stim.esetup_distractor_duration = NaN;
 
 % Texture & background
-stim.esetup_background_texture_on = NaN; % Is texture shown
-stim.esetup_background_texture_line_angle = NaN;
-stim.esetup_background_texture_line_number = NaN;
-stim.esetup_background_texture_line_length = NaN;
-stim.esetup_xy_texture_combined{1} = NaN;
+max_tex_number = max(stim.background_textures_per_trial);
+
+stim.esetup_background_textures_per_trial = NaN;
+stim.esetup_background_texture_on(1,1:max_tex_number) = NaN; % Is texture shown
+stim.esetup_background_texture_line_angle(1,1:max_tex_number) = NaN;
+stim.esetup_background_texture_line_number(1,1:max_tex_number) = NaN;
+stim.esetup_background_texture_line_length(1,1:max_tex_number) = NaN;
+stim.esetup_xy_texture_combined = cell(1,max_tex_number);
+stim.esetup_xy_texture_combined(1:end) = {NaN};
+
 stim.esetup_background_color(1,1:3) = NaN; % Is texture shown
 
 % Stim timing recorded
@@ -431,7 +439,9 @@ stim.edata_distractor_on = NaN;
 stim.edata_distractor_off = NaN;
 stim.edata_memory_on = NaN;
 stim.edata_memory_off = NaN;
-stim.edata_texture_on = NaN;
+
+% Texture
+stim.edata_background_texture_onset_time(1,1:max_tex_number) = NaN;
 
 % Reward
 stim.edata_reward_image_on = NaN;
@@ -468,6 +478,7 @@ stim.eframes_fixation_off{1}(1) = NaN;
 stim.eframes_fixation_color_change{1}(1) = NaN;
 stim.eframes_fixation_stops_blinking{1}(1) = NaN;
 stim.eframes_texture_on{1}(1) = NaN;
+stim.eframes_texture_on_temp{1}(1) = NaN;
 stim.eframes_memory_on{1}(1) = NaN;
 stim.eframes_memory_off{1}(1) = NaN;
 stim.eframes_st1_on{1}(1) = NaN;

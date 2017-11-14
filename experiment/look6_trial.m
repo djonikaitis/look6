@@ -196,16 +196,29 @@ while loop_over==0
     
     %% Draw stimuli
     
-    % Texture for the background
-    t0 = expsetup.stim.edata_fixation_acquired(tid,1);
-    t1 = expsetup.stim.esetup_fixation_maintain_duration(tid,1);
-    t2 = expsetup.stim.background_texture_soa;
-    if ~isnan(t0) && (time_current - t0 >= t1 + t2)
-        if expsetup.stim.esetup_background_texture_on(tid)==1
-            Screen('DrawLines', window, xy_texture_combined, expsetup.stim.background_texture_line_pen, expsetup.stim.background_texture_line_color);
+    % Which texture
+    if isnan(expsetup.stim.edata_background_texture_onset_time(tid,1))
+        t0 = expsetup.stim.edata_fixation_acquired(tid,1);
+        t1 = expsetup.stim.esetup_fixation_maintain_duration(tid,1);
+        t2 = expsetup.stim.background_texture_soa;
+        if ~isnan(t0) && (time_current - t0 >= t1+t2)
             expsetup.stim.eframes_texture_on{tid}(c1_frame_index1,1) = 1;
         end
+    elseif ~isnan(expsetup.stim.edata_background_texture_onset_time(tid,1)) && isnan(expsetup.stim.edata_memory_off(tid,1))
+        expsetup.stim.eframes_texture_on{tid}(c1_frame_index1,1) = 1;
+    elseif ~isnan(expsetup.stim.edata_memory_off(tid,1)) && isnan (expsetup.stim.eframes_texture_on{tid}(c1_frame_index1,1))
+        ind = c1_frame_index1 : size(expsetup.stim.eframes_texture_on{tid}, 1);
+        expsetup.stim.eframes_texture_on{tid}(ind,1) = expsetup.stim.eframes_texture_on_temp{tid}(1:numel(ind),1);
     end
+
+    % Plot texture
+    texture_loop_counter = expsetup.stim.eframes_texture_on{tid}(c1_frame_index1,1);
+    if ~isnan(texture_loop_counter)
+        if expsetup.stim.esetup_background_texture_on(tid,texture_loop_counter)==1
+            Screen('DrawLines', window, xy_texture_combined{texture_loop_counter}, expsetup.stim.background_texture_line_pen, expsetup.stim.background_texture_line_color);
+        end
+    end      
+        
     
     % Fixation
     if expsetup.stim.eframes_fixation{tid}(c1_frame_index1,1)==1
@@ -358,12 +371,27 @@ while loop_over==0
     % Save flip time into trialmat
     expsetup.stim.eframes_time{tid}(c1_frame_index1, 1) = time_current; % Add row to each refresh
     
-    % Record texture onset
-    if expsetup.stim.eframes_texture_on{tid}(c1_frame_index1,1)==1 && isnan(expsetup.stim.edata_texture_on(tid,1))
+    % Determine current and previous texture
+    texture_loop_counter = expsetup.stim.eframes_texture_on{tid}(c1_frame_index1,1);
+    if isnan(texture_loop_counter)
+        texture_loop_counter=0;
+    end
+    if c1_frame_index1>1
+        tn1 = expsetup.stim.eframes_texture_on{tid}(c1_frame_index1-1,1);
+    else
+        tn1 = expsetup.stim.eframes_texture_on{tid}(c1_frame_index1,1);
+    end
+    if isnan(tn1)
+        tn1=0;
+    end
+    
+    % Record texture onset if texture number changed
+    if texture_loop_counter - tn1 == 1
         if expsetup.general.recordeyes==1
-            Eyelink('Message', 'texture_on');
+            m1 = ['texture_on_', texture_loop_counter];
+            Eyelink('Message', m1);
         end
-        expsetup.stim.edata_texture_on(tid,1) = time_current;
+        expsetup.stim.edata_background_texture_onset_time(tid,texture_loop_counter) = time_current;
     end
     
     % Record fixation onset

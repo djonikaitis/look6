@@ -17,7 +17,7 @@ else
                 expsetup.stim.(f1{i})(tid,1:n,1:o) = NaN;
             elseif iscell(expsetup.stim.(f1{i}))
                 [m,n,o]=size(expsetup.stim.(f1{i}));
-                expsetup.stim.(f1{i}){tid,1:n,1:o} = NaN;
+                expsetup.stim.(f1{i})(tid,1:n,1:o) = {NaN};
             end
         end
     end
@@ -504,21 +504,34 @@ expsetup.stim.esetup_total_fixation_duration(tid) = ...
 
 %% Texture
 
+% Number of textures on this trial
+temp1 = Shuffle(expsetup.stim.background_textures_per_trial);
+expsetup.stim.esetup_background_textures_per_trial(tid) = temp1(1);
+t_n = expsetup.stim.esetup_background_textures_per_trial(tid);
+
 % Is texture on
-temp1 = Shuffle(expsetup.stim.background_texture_on);
-expsetup.stim.esetup_background_texture_on(tid) = temp1(1);
+for i=1:t_n
+    temp1 = Shuffle(expsetup.stim.background_texture_on);
+    expsetup.stim.esetup_background_texture_on(tid,i) = temp1(1);
+end
 
 % Angle of the texture
-temp1 = Shuffle(expsetup.stim.background_texture_line_angle);
-expsetup.stim.esetup_background_texture_line_angle(tid) = temp1(1);
+for i=1:t_n
+    temp1 = Shuffle(expsetup.stim.background_texture_line_angle);
+    expsetup.stim.esetup_background_texture_line_angle(tid,i) = temp1(1);
+end
 
 % Number of lines
-temp1 = Shuffle(expsetup.stim.background_texture_line_number);
-expsetup.stim.esetup_background_texture_line_number(tid) = temp1(1);
+for i=1:t_n
+    temp1 = Shuffle(expsetup.stim.background_texture_line_number);
+    expsetup.stim.esetup_background_texture_line_number(tid,i) = temp1(1);
+end
 
 % Line length
-temp1 = Shuffle(expsetup.stim.background_texture_line_length);
-expsetup.stim.esetup_background_texture_line_length(tid) = temp1(1);
+for i=1:t_n
+    temp1 = Shuffle(expsetup.stim.background_texture_line_length);
+    expsetup.stim.esetup_background_texture_line_length(tid,i) = temp1(1);
+end
 
 
 %% If previous trial was an error, then copy settings of the previous trial
@@ -534,7 +547,8 @@ if tid>1
                         [m,n,o]=size(expsetup.stim.(f1{i}));
                         expsetup.stim.(f1{i})(tid,1:n,1:o) = expsetup.stim.(f1{i})(tid-1,1:n,1:o);
                     elseif iscell(expsetup.stim.(f1{i}))
-                        expsetup.stim.(f1{i}){tid} = expsetup.stim.(f1{i}){tid-1};
+                        [m,n,o]=size(expsetup.stim.(f1{i}));
+                        expsetup.stim.(f1{i})(tid,1:n,1:o) = expsetup.stim.(f1{i})(tid-1,1:n,1:o);
                     end
                 end
             end

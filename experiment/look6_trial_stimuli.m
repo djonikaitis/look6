@@ -90,23 +90,38 @@ end
 
 %% Prepare texture for plotting
 
-num1 = expsetup.stim.background_texture_line_number;
-length1 = round(expsetup.stim.background_texture_line_length*expsetup.screen.deg2pix);
-angle1 = expsetup.stim.esetup_background_texture_line_angle(tid);
+max_tex_number = max(expsetup.stim.background_textures_per_trial);
+out_str(1:max_tex_number)= {NaN};
+cur_tex_number = expsetup.stim.esetup_background_textures_per_trial(tid);
+temp_comb = []; 
 
-% Start of lines
-x_texture_start = round(rand(num1,1).*(expsetup.screen.screen_rect(3) + (length1.*2)) - ((expsetup.screen.screen_rect(3)+(length1.*2))./2))+(expsetup.screen.screen_rect(3)/2);
-y_texture_start = round(rand(num1,1).*(expsetup.screen.screen_rect(4) + (length1.*2)) - ((expsetup.screen.screen_rect(4)+(length1.*2))./2))+(expsetup.screen.screen_rect(4)/2);
-% End of lines
-x_texture_end = round(x_texture_start+(cosd(angle1).*length1));
-y_texture_end = round(y_texture_start+(sind(angle1).*length1));
+for i=1:cur_tex_number
+    
+    num1 = expsetup.stim.esetup_background_texture_line_number(tid,i);
+    length1 = round(expsetup.stim.background_texture_line_length*expsetup.screen.deg2pix);
+    angle1 = expsetup.stim.esetup_background_texture_line_angle(tid,i);
+    
+    % Start of lines
+    x_texture_start = round(rand(num1,1).*(expsetup.screen.screen_rect(3) + (length1.*2)) - ((expsetup.screen.screen_rect(3)+(length1.*2))./2))+(expsetup.screen.screen_rect(3)/2);
+    y_texture_start = round(rand(num1,1).*(expsetup.screen.screen_rect(4) + (length1.*2)) - ((expsetup.screen.screen_rect(4)+(length1.*2))./2))+(expsetup.screen.screen_rect(4)/2);
+    % End of lines
+    x_texture_end = round(x_texture_start+(cosd(angle1).*length1));
+    y_texture_end = round(y_texture_start+(sind(angle1).*length1));
+    
+    % Combine into one matrix for multiple lines
+    temp_comb(1,1:2:num1*2)=x_texture_start;
+    temp_comb(1,2:2:num1*2)=x_texture_end;
+    temp_comb(2,1:2:num1*2)=y_texture_start;
+    temp_comb(2,2:2:num1*2)=y_texture_end;
+    
+    out_str{i} = temp_comb;
+    
+end
 
-% Combine into one matrix for multiple lines
-xy_texture_combined(1,1:2:num1*2)=x_texture_start;
-xy_texture_combined(1,2:2:num1*2)=x_texture_end;
-xy_texture_combined(2,1:2:num1*2)=y_texture_start;
-xy_texture_combined(2,2:2:num1*2)=y_texture_end;
-
+% Save output
+clear temp_comb
+xy_texture_combined = out_str;
+clear out_str;
     
 %% Flash for photodiode
 

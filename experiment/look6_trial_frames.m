@@ -39,4 +39,29 @@ end
 % Save data
 expsetup.stim.eframes_fixation{tid}=temp1;
 
+%% Textures
+
+temp1=expsetup.stim.eframes_texture_on_temp{tid};
+
+% Duration of one texture
+b1 = expsetup.stim.esetup_memory_delay(tid)/t_n;
+b1 = round(b1/time_unit);
+m0 = ones(b1,1);
+
+% multiple textures
+for i=1:expsetup.stim.esetup_background_textures_per_trial(tid)
+    if i==1
+        m1 = m0;
+    else
+        m1 = [m1; m0*i];
+    end
+end
+temp1(1:length(m1),1) = m1;
+if length(m1)<size(temp1,1)
+    ind = length(m1)+1:size(temp1,1);
+    temp1(ind,1) = max(m1);
+end
+
+% Save data
+expsetup.stim.eframes_texture_on_temp{tid}=temp1;
 
