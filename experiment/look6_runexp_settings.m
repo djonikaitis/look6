@@ -41,7 +41,7 @@ stim.fixation_maintain_duration_ini_step = -0.1;
 % Stages with 'luminance change' in the name
 % Use stimulus luminance for interleaving blocks
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.st2_color_level_ini = 0.5;
+    stim.st2_color_level_ini = 0.4;
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
     stim.st2_color_level_ini = 0.3;
 else
@@ -64,17 +64,27 @@ stim.distractor_coord_x = -4;
 %% Quick settings
 
 % Specify target coordinates based on a RF mapping
-x = -5;
-y = -5;
-
+x = -4;
+y = -4;
 stim.target_spacing_arc = 90;
-stim.probe_spacing_arc = 15;
+
+% Probe positions
+stim.probe_extended_map = 1; % If 1, then probe timing and duration is extended
+
+if stim.probe_extended_map==1
+    stim.probe_spacing_arc = 15;
+    % Over-write x y for consistent mapping
+    x = -5;
+    y = -5;
+else
+    stim.probe_spacing_arc = 180;
+end
 
 %==================
 % Conditions to run
-stim.main_cond{2} = 'look';
 stim.main_cond{1} = 'avoid';
-% stim.main_cond{3} = 'control fixate';
+stim.main_cond{2} = 'look';
+stim.main_cond{3} = 'control fixate';
 
 stim.number_of_trials_per_block = 150;
 stim.number_of_blocks = 6;
@@ -82,7 +92,7 @@ stim.number_of_blocks = 6;
 %====================
 % Memory delay duration
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.memory_delay_duration = [0.7:0.01:1.2]; % How long memory delay lasts
+    stim.memory_delay_duration = [0.8:0.01:1.3]; % How long memory delay lasts
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
     stim.memory_delay_duration = [2.1:0.01:2.2]; % How long memory delay lasts
 else
@@ -93,7 +103,6 @@ end
 % Probe frequency
 stim.target_number(1:100)= 2; % Number of probes (= 1 or 2)
 stim.target_number(93:100)= 1; % Number of probes (= 1 or 2)
-stim.probe_extended_map = 1; % If 1, then probe timing and duration is extended
 
 
 %% Stimulus positions
@@ -126,11 +135,7 @@ target_radius = [repmat(stim.target_radius, 1, length(target_arc))];
 [xc, yc] = pol2cart(target_arc*pi/180, target_radius);
 
 % Save coordintes
-if stim.probe_extended_map==1
-    stim.response_t3_coord = [xc',yc'];
-else
-    stim.response_t3_coord  = stim.response_target_coord(1,:);
-end
+stim.response_t3_coord = [xc',yc'];
 
 
 %% Distractor flash coordinates
