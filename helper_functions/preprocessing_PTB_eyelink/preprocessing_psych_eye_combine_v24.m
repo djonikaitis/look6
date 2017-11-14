@@ -17,9 +17,10 @@
 % complications given plexon data formats. Now it deals with eyelink and
 % psychtoolbox data only.
 % V2.3 24 August 2017. Updated file for re-written exp design.
+% V2.4 6 November 2017. Eye movements recording is now optional
 %
 % Format:
-% preprocessing_psychtoolbox_v23 (settings, varargin)
+% preprocessing_psychtoolbox_v24 (settings, varargin)
 % settings: settings containing path to data folders;
 % varargin text input: names of structures (.stim usually) to be
 % concatenated as 1 trial - 1 row (1 cell)
@@ -33,7 +34,7 @@
 % are necessary for the code to work
 
 
-function preprocessing_psych_eye_combine_v23(settings, varargin)
+function preprocessing_psych_eye_combine_v24(settings, varargin)
 
 %==============
 
@@ -41,10 +42,22 @@ function preprocessing_psych_eye_combine_v23(settings, varargin)
 % Right hand side of equation can be easily substituted with other folder
 % names wihtout rewriting the rest of this code
 
-settings.path_data_psychtoolbox = settings.path_data_psychtoolbox_subject; % Psychtoolbox settings
-settings.path_data_eyelink_edf = settings.path_data_eyelink_edf_subject; % Eyelink input
-settings.path_data_eyelink_asc = settings.path_data_temp_1_subject; % Eyelink output
-settings.path_data_output = settings.path_data_temp_2_subject; % To which folder the data is saved
+try
+    settings.path_data_psychtoolbox = settings.path_data_psychtoolbox_subject; % Psychtoolbox settings
+    settings.path_data_eyelink_edf = settings.path_data_eyelink_edf_subject; % Eyelink input
+    settings.path_data_eyelink_asc = settings.path_data_temp_1_subject; % Eyelink output
+    settings.path_data_output = settings.path_data_temp_2_subject; % To which folder the data is saved
+catch
+    error ('settings.path_ for data preprocessing is not specified/is incorrect')
+end
+
+if ~isfield (settings, 'date_current')
+    error ('settings.date_current is not specified. Aborting data pre-processing')
+end
+
+if ~isfield (settings, 'index_directory')
+    error ('settings.index_directory is not specified. Aborting data pre-processing')
+end
 
 overwrite_saccades_EK2003 = 0; % 1 - will over-write saccade detection for EK algorithm
 
@@ -101,7 +114,6 @@ for i_session = 1:numel(sessions_used)
     
     
     
-    
     %% Load/preprocess eye-tracker data
     
     
@@ -110,9 +122,6 @@ for i_session = 1:numel(sessions_used)
     path_out=[settings.path_data_eyelink_asc, folder_name, '/']; % Save into asc folder
     file_name = folder_name;
     
-    if ~isdir(path_out)
-        mkdir (path_out)
-    end
     
     %============
     % Convert .edf into .asc .dat
@@ -120,12 +129,18 @@ for i_session = 1:numel(sessions_used)
     path_asc = sprintf('%s%s.asc', path_out, file_name); % Full path to .asc file
     path_edf = sprintf('%s%s.edf', path_in, file_name); % Full path to .asc file
     if ~exist (path_asc,'file') && exist (path_edf,'file') % If asc file doesn't exist - do the conversion
+        
+        if ~isdir(path_out)
+            mkdir (path_out)
+        end
+        
         preprocessing_eye_edf2asc_v11(path_in, path_out, file_name) % Script doing conversion
         if exist (path_asc,'file')
             fprintf ('\n\nFile %s.edf was converted to .asc and .dat files \n', file_name)
         else
             fprintf ('\n\n %s.edf conversion failed (no .asc and .dat files created) \n', file_name)
         end
+        
     elseif ~exist (path_asc,'file') && ~exist (path_edf,'file')
         fprintf ('Eyelink files %s.edf does not exist, skipping edf conversion  \n', file_name)
     else
@@ -242,6 +257,8 @@ for i_session = 1:numel(sessions_used)
         ~isempty(fieldnames(var3)); ~isempty(fieldnames(var4))];
     
     if sum(a)==4
+        
+        %==================
         for rep1 = 1:4
             
             % Select variable for combining
@@ -270,8 +287,44 @@ for i_session = 1:numel(sessions_used)
                     comb_mat.(f1{i}){1}=temp1.(f1{i});
                 end
             end
-            
         end
+        %=====================
+        
+        
+    elseif sum(a)==2 &&~isempty(fieldnames(var1)) && ~isempty(fieldnames(var3)) && var1.general.recordeyes==0 % For psychtoolbox recording only
+        
+        %==================
+        for rep1 = 1:4
+            
+            % Select variable for combining
+            % Particular order is just for convenience of displaying structure
+            % in command window
+            if rep1==1
+                temp1 = var3; % Path to files
+            elseif rep1==2
+                temp1 = var1; % Psychtoolbox matrix
+            elseif rep1==3
+                temp1 = struct; % Eye messages (SKIP)
+            elseif rep1==4
+                temp1 = struct; % Saccades (SKIP)
+            end
+            
+            % Generic code to combine fields and subfields
+            f1 = fieldnames(temp1);
+            for i=1:length(f1)
+                if isstruct(temp1.(f1{i}))
+                    f2 = fieldnames(temp1.(f1{i}));
+                    for j=1:length(f2)
+                        n1 = [f2{j}];
+                        comb_mat.(f1{i}).(n1){1}=temp1.(f1{i}).(f2{j});
+                    end
+                else
+                    comb_mat.(f1{i}){1}=temp1.(f1{i});
+                end
+            end
+        end
+        %=====================
+        
     else
         fprintf('Not all files (eyelink, psychtoolbox) could be loaded, omitting this recording\n')
     end
@@ -283,9 +336,17 @@ for i_session = 1:numel(sessions_used)
     if ~isempty(fieldnames(comb_mat))
         
         temp0 = comb_mat; % Matrix with data
-        temp0.session{1} = ones(size(temp0.eyelink_events.START{1}, 1), 1); % Save session number
-        temp0.date{1} = ones(length(temp0.eyelink_events.START{1}), 1) * i_date; % Save current date
         
+        if isfield(temp0, 'eyelink_events')  % If eyetracking is on
+            temp0.session{1} = ones(size(temp0.eyelink_events.START{1}, 1), 1); % Save session number
+            temp0.date{1} = ones(length(temp0.eyelink_events.START{1}), 1) * i_date; % Save current date
+        elseif isfield(temp0.stim, 'edata_first_display')   % If no eye tracking
+            temp0.session{1} = ones(size(temp0.stim.edata_first_display{1}, 1), 1); % Save session number
+            temp0.date{1} = ones(length(temp0.stim.edata_first_display{1}), 1) * i_date; % Save current date
+        else
+            error('Files can not be combined, as field for trial numbers not specified')
+        end
+
         if  ~exist('S', 'var') % First repretition
             S = temp0;
             repetition1 = 0; % Repetition number
@@ -362,7 +423,7 @@ end
 %=============
 % Concatenate the fields of eyelink data (done by default)
 % One row - one trial
-if exist('S', 'var')
+if exist('S', 'var') && isfield (S, 'eye_data')
     
     temp1 = S.eye_data;
     f1 = fieldnames(temp1);
@@ -398,7 +459,7 @@ end
 % Also control for fact that sometimes messages might not be recorded on
 % some blocks
 
-if exist('S', 'var')
+if exist('S', 'var') && isfield (S, 'eyelink_events')
     
     temp1 = S.eyelink_events;
     f1 = fieldnames(temp1);
@@ -588,7 +649,7 @@ end
 
 %% Split off raw saccade data
 
-if exist ('S', 'var')
+if exist ('S', 'var') && isfield (S.eye_data, 'eye_raw')
     SR.eye_raw = S.eye_data.eye_raw; % With blinks removed
     SR.eye_preblink = S.eye_data.eye_preblink; % Without blinks removed
     SR.session = S.session;
@@ -623,8 +684,10 @@ if exist('S', 'var')
     
     % Save raw eye position data separately, as usually it does not need to be
     % loaded
-    path_in = [path1, folder_name, '_eye_traces'];
-    save (eval('path_in'), 'SR')
+    if exist ('SR', 'var')
+        path_in = [path1, folder_name, '_eye_traces'];
+        save (eval('path_in'), 'SR')
+    end
     
     % Output
     fprintf('Preprocessed data successfully saved under following name:\n')

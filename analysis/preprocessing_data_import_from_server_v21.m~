@@ -9,7 +9,7 @@
 % V2.1 DJ: October 30, 2017. Can import only specific dates (to make data
 % transfer faster in case one needs only one day)
 
-function  preprocessing_data_import_from_server_v21(settings)
+% function  preprocessing_data_import_from_server_v21(settings)
 
 
 % Show file you are running
@@ -55,39 +55,37 @@ if settings.data_import_from_server ==1
         % For each data folder
         for folder_i = 1:length(dir_index)
             
-            dont_analyze_this_folder = 0; % If 1 - analyze this folder
+            temp_exclude = 0;
             
             % Exclude '.' folders
-            dont_analyze_this_folder = strncmp(dir_index(folder_i).name, '.', 1) || strncmp(dir_index(folder_i).name, '..', 2);
+            temp_exclude = strncmp(dir_index(folder_i).name, '.', 1) || strncmp(dir_index(folder_i).name, '..', 2);
             
             % Are there some pre-specified excluded folders?
-            if dont_analyze_this_folder == 0
+            if temp_exclude == 0
                 if isfield(settings, 'import_folders_exclude')
                     a = strcmp(settings.import_folders_exclude, dir_index(folder_i).name);
                 else 
                     a = [];
                 end
                 if sum(a)>0
-                    dont_analyze_this_folder = 1;
+                    temp_exclude = 1;
                 end
             end
-            
             % Are there some pre-specified included folders?
-            if dont_analyze_this_folder == 0
+            if temp_exclude == 0
                 if isfield(settings, 'import_folders_include')
                     a = strcmp(settings.import_folders_include, dir_index(folder_i).name);
                 else
                     a = [];
                 end
                 if sum(a)>0
-                    dont_analyze_this_folder = 0;
-                else 
-                    dont_analyze_this_folder = 1;
+                    temp_exclude = 0;
+                    esl
                 end
             end
             
             
-            if dont_analyze_this_folder == 0
+            if temp_exclude == 0
                 
                 settings.path_server_server_in_subject = sprintf('%s%s/%s/%s', settings.path_server_in, dir_index(folder_i).name, settings.subject_current);
                 settings.path_server_server_out_subject = sprintf('%s%s/%s/%s', settings.path_server_out, dir_index(folder_i).name, settings.subject_current);

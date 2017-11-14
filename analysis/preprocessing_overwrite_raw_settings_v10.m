@@ -85,11 +85,11 @@ for i_subj = 1:length(settings.subjects)
                         copyfile(path1, path1_copy)
                         fprintf('\nWill save original settings file as a backup %s_data_structure_original\n', folder_name)
                     else
-                        fprintf('\nCopy of the settings file %s_data_structure_original exists, no changes to that file\n', folder_name)
+                        fprintf('\nCopy of the settings file %s_data_structure_original exists, original file is kept intact\n', folder_name)
                     end
                     
                     % Now open the original data file (always)
-                    var1 = get_struct_v10(path1_copy);
+                    var1 = get_struct_v11(path1_copy);
                     
                     %===========
                     % Main preprocessing function

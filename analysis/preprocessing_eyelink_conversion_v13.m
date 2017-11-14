@@ -1,12 +1,17 @@
 % Convert eye movement data into degrees, do drift correction
+% If no eye movements present, import psychtoolbox data only.
+%
 % V1.0 Septeber 6, 2016
 % V1.1 August 26, 2017. Updated to new exp setup. Added drift plotting
 % figures. Made a function.
 % V1.2 October 24, 2017. Fixed error in drift correction (does not afect
 % earlier experiments).
+% V1.3 November 7, 2017. Eye movements are now optional, code will work
+% without as well. 
+
 % Donatas Jonikaitis
 
-function  preprocessing_eyelink_conversion_v12(settings)
+function  preprocessing_eyelink_conversion_v13(settings)
 
 % Show file you are running
 p1 = mfilename;
@@ -27,10 +32,6 @@ settings.figure_folder_name = 'preprocessing_drift_correction';
 settings.figure_size_temp = [0, 0, 10, 8];
 settings.color_map = magma(50);
 
-if ~isfield(settings, 'drift_correction_time')
-    error ('Drift correction settings not defined in setup file')
-end
-
 %% Analysis
 
 % Run pre-processing for each subject
@@ -50,18 +51,7 @@ for i_subj = 1:length(settings.subjects)
         date_current = dates_used(i_date);
         ind = date_current==settings.index_dates;
         folder_name = settings.index_directory{ind};
-        
-        % Figure folder
-        path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name);
-        
-        % Overwrite figure folders
-        if ~isdir(path_fig)
-            mkdir(path_fig)
-        elseif isdir(path_fig)
-            rmdir(path_fig, 's')
-            mkdir(path_fig)
-        end
-        
+                
         % Data file paths
         path1_out_folder = [settings.path_data_combined_subject, folder_name, '/'];
         path1_out = [settings.path_data_combined_subject, folder_name, '/', folder_name, '.mat'];
@@ -69,9 +59,25 @@ for i_subj = 1:length(settings.subjects)
         path1_raw_in = [settings.path_data_temp_2_subject, folder_name, '/', folder_name, '_eye_traces.mat'];
         path1_raw_out = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_eye_traces.mat'];
         
+        
+        % Figure folder
+        
+        if exist(path1_raw_in, 'file')
+            path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name);
+            
+            % Overwrite figure folders
+            if ~isdir(path_fig)
+                mkdir(path_fig)
+            elseif isdir(path_fig)
+                rmdir(path_fig, 's')
+                mkdir(path_fig)
+            end
+        end
+
+            
         % Run analysis
         if ~exist(path1_out, 'file') || settings.overwrite==1
-           
+            
             
             %%  Create directory for the data
             if isdir(path1_out_folder)
@@ -85,10 +91,12 @@ for i_subj = 1:length(settings.subjects)
             fprintf('\nPreparing matrix %s which stores all settings and data\n', folder_name)
             
             % Load structure of interest
-            var1 = get_struct_v10(path1_settings_in);
-            var2 = get_struct_v10(path1_raw_in);
+            var1 = get_struct_v11(path1_settings_in);
+            var2 = get_struct_v11(path1_raw_in);
             
-            if isempty(fieldnames(var1)) || isempty(fieldnames(var2))
+            if ~isempty(fieldnames(var1)) && isempty(fieldnames(var2))
+                fprintf('Psychtoolbox recording only. No eyetracking data\n')
+            elseif isempty(fieldnames(var1)) && isempty(fieldnames(var2))
                 fprintf('Data for given date does not exist, possible debugging mode recorded only\n')
             end
             
@@ -135,9 +143,12 @@ for i_subj = 1:length(settings.subjects)
             end
             
             %% Drift correction
-            
-            if settings.drift_correction_on == 1
-                if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2))
+         
+            if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2))
+                if ~isfield(settings, 'drift_correction_time')
+                    error ('Drift correction settings not defined in setup file')
+                end
+                if settings.drift_correction_on == 1
                     [var1, var2] = preprocessing_drift_correction_v10(settings, var1, var2);
                     preprocessing_drift_plot_v10;
                 end
@@ -146,7 +157,9 @@ for i_subj = 1:length(settings.subjects)
             
             %%  Extract only some structure fields (to save on space)
             
-            if ~isempty(fieldnames(var1))
+            % Recording with saccades
+            if ~isempty(fieldnames(var1)) && isfield(var1, 'eyelink_events')
+                
                 var_names = fieldnames(var1.stim);
                 mat1 = get_fields_v10 (var1.stim, var_names); % Settings file with variables of interest
                 % Extract eyelink_events
@@ -163,13 +176,29 @@ for i_subj = 1:length(settings.subjects)
                 names = [fieldnames(mat1); fieldnames(mat2); fieldnames(mat3); fieldnames(mat4)];
                 S = cell2struct([struct2cell(mat1); struct2cell(mat2); struct2cell(mat3); struct2cell(mat4)], names, 1);
             end
+            
+            % Recording without saccades
+            if ~isempty(fieldnames(var1)) && ~isfield(var1, 'eyelink_events')
+                
+                var_names = fieldnames(var1.stim);
+                mat1 = get_fields_v10 (var1.stim, var_names); % Settings file with variables of interest
+                % Extract more variables of interest
+                var_names={'session'; 'date'};
+                mat4 = get_fields_v10 (var1, var_names); % Settings file with variables of interest
+                
+                % Combine those fields into one structure
+                names = [fieldnames(mat1); fieldnames(mat4)];
+                S = cell2struct([struct2cell(mat1); struct2cell(mat4)], names, 1);
+            end
                         
             % Save data
-            if ~isempty(fieldnames(S)) && ~isempty(fieldnames(var2))
-                save (eval('path1_out'), 'S')
+            if ~isempty(fieldnames(S))
+                save (path1_out, 'S')
                 % Save raw data
-                SR = var2;
-                save (eval('path1_raw_out'), 'SR')
+                if exist('SR', 'var')
+                    SR = var2;
+                    save (eval('path1_raw_out'), 'SR')
+                end
             end
             
             
