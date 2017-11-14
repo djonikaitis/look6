@@ -506,13 +506,10 @@ expsetup.stim.esetup_total_fixation_duration(tid) = ...
 
 % Number of textures on this trial
 temp1 = Shuffle(expsetup.stim.background_textures_per_trial);
-if expsetup.stim.esetup_target_number(tid,1) == 1 && expsetup.stim.probe_extended_map == 1 % On probe trials only one texture (as some probe delays are very short)
-    expsetup.stim.esetup_background_textures_per_trial(tid) = 1;
-else
-    expsetup.stim.esetup_background_textures_per_trial(tid) = temp1(1);
+if expsetup.stim.esetup_target_number(tid,1) == 1
+else expsetup.stim.esetup_target_number(tid,1) == 1
 end
-
-% How many textures?
+expsetup.stim.esetup_background_textures_per_trial(tid) = temp1(1);
 t_n = expsetup.stim.esetup_background_textures_per_trial(tid);
 
 % Is texture on

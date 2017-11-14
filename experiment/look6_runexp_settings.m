@@ -307,12 +307,13 @@ stim.background_texture_line_length = 2; % Length in degrees
 stim.background_texture_line_number = 10000; % Number of lines to be drawn;
 stim.background_texture_line_angle = [0:20:179];
 stim.background_texture_soa = -0.6; % Relative to memory onset; Negative - before memory onset;
+
 no_tex_prob = 0.2; 
 a = length(stim.background_texture_line_angle);
 b = round(length(stim.background_texture_line_angle) * no_tex_prob);
 stim.background_texture_on = [ones(1, a), zeros(1, b)]; % 1 - texture on, 0 - no texture
 
-stim.background_textures_per_trial = [2];
+stim.background_textures_per_trial = [1,2];
 
 %===============
 % Duration of inter-trial
