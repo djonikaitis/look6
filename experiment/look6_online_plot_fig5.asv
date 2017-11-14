@@ -198,7 +198,7 @@ if cond1>0
     set (gca,'FontSize', fontszlabel);
     
     % X labels
-    b = (expsetup.stim.edata_loop_over(tid) - expsetup.stim.edata_first_display(tid))*1000;
+    b = (expsetup.stim.edata_fixation_off(tid) - expsetup.stim.edata_first_display(tid))*1000;
     if b<500
         a=[0:100:500];
     elseif b<1000

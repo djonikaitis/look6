@@ -12,7 +12,7 @@ bin_length = 100;
 % Select time to plot relative to
 if strcmp(plot_var1, 'texture')
     int_bins = [-100:time_step:500];
-    dat1 = expsetup.stim.edata_background_texture_onset_time(tid,1);
+    dat1 = expsetup.stim.edata_texture_on(tid,1);
 elseif strcmp(plot_var1, 'memory')
     int_bins = [-250:time_step:1500];
     dat1 = expsetup.stim.edata_memory_on(tid,1);
@@ -257,7 +257,7 @@ if sum(isnan(expcond))<numel(expcond)
         % Select data
         ind = expcond==k;
         mat1 = spikes_matrix_1(ind,:,sp_struct.ch1);
-        if size(mat1,1)>1
+        if size(mat1,1)>0
             h_1(k) = max(nanmean(mat1,1));
             h_2(k) = min(nanmean(mat1,1));
         elseif size(mat1,1)==1
@@ -267,10 +267,8 @@ if sum(isnan(expcond))<numel(expcond)
             h_1(k) = NaN;
             h_2(k) = NaN;
         end
-        
         h_1 = max(h_1);
         h_2 = min(h_2);
-        
         h_max=h_1+((h_1-h_2)*0.4); % Uper bound
         h_min=h_2-((h_1-h_2)*0.3); % Lower bound
         if h_max == h_min
@@ -348,8 +346,14 @@ if strcmp(plot_var1, 'memory')
     k = 1;
     
     % Plot legend text
-    t1 = expsetup.stim.esetup_block_cond{tid};
-    l1 = sprintf('%s, channel %d', t1, sp_struct.ch1);
+    t1 = expsetup.stim.esetup_block_cond(tid)
+    if  == 1
+        l1 = sprintf('Look, channel %d', sp_struct.ch1);
+    elseif expsetup.stim.esetup_block_cond(tid) == 2
+        l1 = sprintf('Avoid, channel %d', sp_struct.ch1);
+    elseif expsetup.stim.esetup_block_cond(tid) == 3
+        l1 = sprintf('Control, channel %d', sp_struct.ch1);
+    end
     text(x1(k), y1(k), l1, 'Color', color1_line(k,:),  'FontSize', fontszlabel, 'HorizontalAlignment', 'right')
     
 end
