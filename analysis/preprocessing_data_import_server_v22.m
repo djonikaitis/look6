@@ -8,8 +8,11 @@
 % Data has to be organized... get over it...
 % V2.1 DJ: October 30, 2017. Can import only specific dates (to make data
 % transfer faster in case one needs only one day)
+% V2.2 DJ, November 14, 2017. Supports data upload and download. For this
+% specifyc settings.data_direction = 'upload' or 'download'. Default is
+% download.
 
-function  preprocessing_data_import_from_server_v21(settings)
+function  preprocessing_data_import_server_v22(settings)
 
 
 % Show file you are running
@@ -24,13 +27,33 @@ if ~exist('settings', 'var')
 end
 settings = get_settings_ini_v10(settings);
 
+% Determine the direction of the data
+if isfield (settings, 'data_direction')
+    if strcmp(settings.data_direction, 'download')
+        path_baseline_server = settings.path_baseline_server;
+        path_baseline_data = settings.path_baseline_data;
+    elseif strcmp(settings.data_direction, 'upload')
+        path_baseline_server = settings.path_baseline_data;
+        path_baseline_data = settings.path_baseline_server;
+    end
+else
+    path_baseline_server = settings.path_baseline_server;
+    path_baseline_data = settings.path_baseline_data;
+end
+
 % Determine whehter one can connect to server
-if exist (settings.path_baseline_server)==7
+if isfield (settings, 'data_direction') && strcmp(settings.data_direction, 'download') && exist (path_baseline_server)==7
+    fprintf ('\nSuccessfully connected to server\n')
+    settings.data_import_from_server = 1;
+elseif isfield (settings, 'data_direction') && strcmp(settings.data_direction, 'upload') && exist (path_baseline_data)==7
+    fprintf ('\nSuccessfully connected to server\n')
+    settings.data_import_from_server = 1;
+elseif ~isfield (settings, 'data_direction') && exist (path_baseline_server)==7
     fprintf ('\nSuccessfully connected to server\n')
     settings.data_import_from_server = 1;
 else
     fprintf ('\nCould not connect to server, breaking import\n')
-    fprintf ('%s', settings.path_baseline_server)
+    fprintf ('%s\n', path_baseline_server)
     settings.data_import_from_server = 0;
     return
 end
@@ -46,8 +69,8 @@ if settings.data_import_from_server ==1
         settings.subject_current = settings.subjects{i_subj};
         
         % Setup path
-        settings.path_server_in = sprintf ('%s%s/', settings.path_baseline_server, settings.exp_name); % Link to experiment specific folder ('att1')
-        settings.path_server_out =  sprintf ('%s%s/', settings.path_baseline_data, settings.exp_name);
+        settings.path_server_in = sprintf ('%s%s/', path_baseline_server, settings.exp_name); % Link to experiment specific folder ('att1')
+        settings.path_server_out =  sprintf ('%s%s/', path_baseline_data, settings.exp_name);
         
         % Determine which data folders exist
         dir_index = dir(settings.path_server_in);

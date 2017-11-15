@@ -23,10 +23,27 @@ if isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'dj office')
     % Path to server to download data
     settings.path_baseline_server = '/Volumes/tirin/data/RigE/Experiments_data/';
     
+elseif isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon')
+    
+    % "analysis" code is stored in:
+    settings.path_baseline_code = 'C:\Users\Plexon\Desktop\Experiments\';
+    settings.path_baseline_figures = 'C:\Users\Plexon\Desktop\Experiments_figures\';
+    
+    % "Experiments_data" folder with eyelink and psychtoolbox data:
+    settings.path_baseline_data = 'C:\Users\Plexon\Desktop\Experiments_data\';
+    
+    % "Experiments_data" folder, with plexon data:
+    % (might differ from other psychtoolbox data folder due to large plexon file sizes)
+    settings.path_baseline_plexon = 'C:\Users\Plexon\Desktop\Experiments_data\';
+    
+    % Path to plexon toolbox
+    settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';
+    
+    % Path to server to download data
+    settings.path_baseline_server = 'Y:\data\RigE\Experiments_data\';
+    
 else
-    
     error ('Expsetup not defined. No paths will work');
-    
 end
 
 %%  Which dates to process

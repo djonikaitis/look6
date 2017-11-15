@@ -19,7 +19,7 @@ global expsetup
 
 expsetup.general.directory_baseline_code = 'C:\Users\Plexon\Desktop\Experiments\';
 expsetup.general.directory_baseline_data = 'C:\Users\Plexon\Desktop\Experiments_data\';
-expsetup.general.directory_baseline_data_server = 'Z:\data\Plexon\Experiments_data\';
+expsetup.general.directory_baseline_data_server = 'Z:\data\RigE\Experiments_data\';
 
 
 % This is viewpix display
