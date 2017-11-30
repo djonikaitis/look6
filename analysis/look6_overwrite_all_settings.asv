@@ -4,7 +4,7 @@
 % fix eframes_fixation_offset & edata_fixation_off
 overwrite_temp_index{1} = 20170801:20171028;
 % added field: probe_extended_map
-overwrite_temp_index{2} = 20170801:20171112;
+overwrite_temp_index{2} = 20160101:20171112;
 % added multiple textures to trial
 overwrite_temp_index{3} = 20170801:20171128;
 
@@ -155,7 +155,7 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
         
         if ~isfield(var1, v1) && isfield(var1, v2) % Check whether to do analysis
             
-            fprintf('Correcting field: %s\n', v2)
+            fprintf('Correcting field: %s\n', v1)
             
             % Save corrected data
             var1.(v1) = var1.(v2);
@@ -180,7 +180,7 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
         
         if ~isfield(var1, v1) && isfield(var1, v2) % Check whether to do analysis
             
-            fprintf('Correcting field: %s\n', v2)
+            fprintf('Correcting field: %s\n', v1)
             
             % Save corrected data
             var1.(v1) = var1.(v2);
@@ -191,5 +191,3 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
         
     end
 end
-
-%%
