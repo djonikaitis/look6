@@ -118,8 +118,8 @@ end
 %===============
 
 if cond1>0
-    for i = 1:size(expsetup.stim.edata_background_texture_onset_time, 2)
-        if ~isnan(expsetup.stim.edata_background_texture_onset_time(tid,i))
+    for i = 1:size(expsetup.stim.esetup_background_texture_on, 2)
+        if ~isnan(expsetup.stim.esetup_background_texture_on(tid,i))
             % Psychtoolbox trial duration
             b = ( expsetup.stim.edata_background_texture_onset_time(tid,i) - expsetup.stim.edata_first_display(tid,1) )*1000;
             rectangle ('Position', [b, h_min, 25, h_max-h_min], ...
@@ -173,7 +173,7 @@ if cond1>0
     rectangle ('Position', [a, h_min, 50, h_max-h_min], ...
         'FaceColor', [1, 0.8, 0.8], 'EdgeColor', 'none');
     % Psychtoolbox trial duration
-    b = (expsetup.stim.edata_loop_over(tid) - expsetup.stim.edata_first_display(tid) )*1000;
+    b = (expsetup.stim.edata_st1_off(tid) - expsetup.stim.edata_first_display(tid) )*1000;
     rectangle ('Position', [b, h_min, 25, h_max-h_min], ...
         'FaceColor', [1, 0.2, 0.2], 'EdgeColor', 'none');
     text(b, h_min+((h_max-h_min)*0.15), 'Trial ends', 'Color', [0.5, 0.1, 0.1],  'FontSize', fontszlabel, 'HorizontalAlignment', 'right')
