@@ -15,7 +15,7 @@ settings.subjects = 'all';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'all'; 
+settings.data_sessions = 'selected'; 
 
 % which setup
 % 'dj office', 'plexon', 'edoras'
@@ -66,7 +66,7 @@ if settings.preprocessing_eyelink_conversion == 1
 end
 
 % Connect to server and import data from it
-settings.data_export_to_server = 1;
+settings.data_export_to_server = 0;
 if settings.data_export_to_server == 1
     settings.data_direction = 'upload';
     settings.import_folders_include = {};
@@ -92,7 +92,7 @@ end
 % Modify raw settings for compatibility between experiments
 settings.overwrite_all_settings = 0 ;
 if settings.overwrite_all_settings == 1
-    settings.overwrite=0;
+    settings.overwrite=1;
     preprocessing_overwrite_all_settings_v10(settings);
 end
 
