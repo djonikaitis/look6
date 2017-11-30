@@ -246,7 +246,7 @@ for i=1:2
     % X ticks
     a = h.BinLimits(2);
     bins_total = 4;
-    bins_preset = [1, 2, 3, 4, 5, 10];
+    bins_preset = [1, 2, 3, 4, 5, 10, 25, 50, 500];
     ind1 = find (a<=bins_preset);
     tick1 = [0 : bins_preset(ind1(1))/bins_total : bins_preset(ind1(1))];
     tick1 = round(tick1,1);

@@ -82,7 +82,7 @@ for i_session = 1:numel(sessions_used)
     
     file_name = [folder_name, '_data_structure.mat']; % How file is called
     path_psych = [settings.path_data_psychtoolbox, folder_name, '/', file_name];
-
+    
     if exist (path_psych, 'file')
         varx = load(path_psych);
     else
@@ -100,7 +100,7 @@ for i_session = 1:numel(sessions_used)
     if length(f1)==1
         var1 = varx.(f1{1});
     end
-
+    
     %  Save the path of loaded files
     var3 = struct;
     if isempty(fieldnames(var1))
@@ -346,7 +346,7 @@ for i_session = 1:numel(sessions_used)
         else
             error('Files can not be combined, as field for trial numbers not specified')
         end
-
+        
         if  ~exist('S', 'var') % First repretition
             S = temp0;
             repetition1 = 0; % Repetition number
@@ -411,7 +411,7 @@ for i_session = 1:numel(sessions_used)
         end
         
     end
-
+    
 end
 % End of analysis for separate sessions; From now on all data is
 % combined
@@ -431,8 +431,8 @@ if exist('S', 'var') && isfield (S, 'eye_data')
     for i2=1:length(f1)
         
         % Extract dimensions from each field
-        dim1_a=NaN(size(S.session,1),1); 
-        dim1_b=NaN(size(S.session,1),1); 
+        dim1_a=NaN(size(S.session,1),1);
+        dim1_b=NaN(size(S.session,1),1);
         dim_s=NaN(size(S.session,1),1);
         for rep1=1:size(S.session,1)
             if ndims(temp1.(f1{i2}){rep1})==2 % Get the size
@@ -467,8 +467,8 @@ if exist('S', 'var') && isfield (S, 'eyelink_events')
     for i2=1:length(f1)
         
         % Extract dimensions from each field
-        dim1_a=NaN(size(S.session,1),1); 
-        dim1_b=NaN(size(S.session,1),1); 
+        dim1_a=NaN(size(S.session,1),1);
+        dim1_b=NaN(size(S.session,1),1);
         dim_s=NaN(size(S.session,1),1);
         for rep1=1:size(S.session,1)
             if ndims(temp1.(f1{i2}){rep1})==2 % Get the size
@@ -487,7 +487,7 @@ if exist('S', 'var') && isfield (S, 'eyelink_events')
         % If particular messages are missing, still concatenate by creating empty field
         if any(dim1_a==0)
             for i=1:length(dim1_a)
-                if dim1_a(i)==0 && ismatrix(temp1.(f1{i2}){i})
+                if dim1_a(i)==0 && isnumeric(temp1.(f1{i2}){i})
                     temp1.(f1{i2}){i}=NaN(dim_s(i),1);
                 elseif dim1_a(i)==0 && iscell(temp1.(f1{i2}){i})
                     temp1.(f1{i2}){i}=cell(dim_s(i),1);
@@ -502,7 +502,7 @@ if exist('S', 'var') && isfield (S, 'eyelink_events')
 end
 
 %=============
-% Concatenate user input fields (done only for user input fields)
+%% Concatenate user input fields (done only for user input fields)
 % For example, fields in .stim structure are concatenated as one row-one
 % trial
 
@@ -552,15 +552,49 @@ if exist ('S', 'var')
             
             % If particular fields are missing, still concatenate by creating empty field
             if any(dim1_a==0)
-                for i=1:length(dim1_a)
-                    if dim1_a(i)==0 && ismatrix(S.(f0).(f1{i2}){i})
-                        S.(f0).(f1{i2}){i}=NaN(dim_s(i),1);
-                    elseif dim1_a(i)==0 && iscell(S.(f0).(f1{i2}){i})
-                        S.(f0).(f1{i2}){i}=cell(dim_s(i),1);
+                
+                % Find non-empty matrix
+                t1 = find(dim1_a>0);
+                
+                % Determine whether matrices are trial based or single shot
+                if dim1_a(t1) == dim_s(t1) % If one variable per trial
+                    if length(unique(dim1_b(t1)))==1 && length(unique(dim1_c(t1)))==1 % If 2 and 3rd dimensions match
+                        for i=1:length(dim1_a)
+                            if dim1_a(i)==0 && isnumeric(S.(f0).(f1{i2}){t1(1)})
+                                S.(f0).(f1{i2}){i}=NaN(dim_s(i), dim1_b(t1(1)), dim1_c(t1(1))   );
+                            elseif dim1_a(i)==0 && ischar(S.(f0).(f1{i2}){t1(1)})
+                                S.(f0).(f1{i2}){i}=NaN(dim_s(i), dim1_b(t1(1)), dim1_c(t1(1)) );
+                            elseif dim1_a(i)==0 && iscell(S.(f0).(f1{i2}){t1(1)})
+                                S.(f0).(f1{i2}){i}=cell(dim_s(i), dim1_b(t1(1)), dim1_c(t1(1)) );
+                            end
+                        end
+                    else % No combining
+                        S.(f0).(f1{i2}) = mat1; % No combining
+                    end
+                elseif dim1_b(t1) == dim_s(t1)
+                    if length(unique(dim1_a(t1)))==1 && length(unique(dim1_c(t1)))==1 % If 2 and 3rd dimensions match
+                        for i=1:length(dim1_a)
+                            if dim1_a(i)==0 && isnumeric(S.(f0).(f1{i2}){t1(1)})
+                                S.(f0).(f1{i2}){i}=NaN(dim1_a(t1(1)), dim_s(i), dim1_c(t1(1))   );
+                            elseif dim1_a(i)==0 && ischar(S.(f0).(f1{i2}){t1(1)})
+                                S.(f0).(f1{i2}){i}=NaN(dim1_a(t1(1)), dim_s(i),  dim1_c(t1(1)) );
+                            elseif dim1_a(i)==0 && iscell(S.(f0).(f1{i2}){t1(1)})
+                                S.(f0).(f1{i2}){i}=cell(dim1_a(t1(1)), dim_s(i), dim1_c(t1(1)) );
+                            end
+                        end
+                    else % No combining
+                        S.(f0).(f1{i2}) = mat1; % No combining
                     end
                 end
-                S.(f0).(f1{i2})= cat(1, S.(f0).(f1{i2}){:});
+                
+                % Concatenate only matrices that have as many variables as
+                % trials
+                if dim1_b(t1) == dim_s(t1) | dim1_a(t1) == dim_s(t1)
+                    S.(f0).(f1{i2})= cat(1, S.(f0).(f1{i2}){:});
+                end
+                
             end
+            % End of creating missing fields
             
         end
         % End of analysis for each field

@@ -8,10 +8,11 @@
 % earlier experiments).
 % V1.3 November 7, 2017. Eye movements are now optional, code will work
 % without as well. 
+% V1.4 November 30, 2017. Added exp name to saved data
 
 % Donatas Jonikaitis
 
-function  preprocessing_eyelink_conversion_v13(settings)
+function  preprocessing_eyelink_conversion_v14(settings)
 
 % Show file you are running
 p1 = mfilename;
@@ -171,10 +172,13 @@ for i_subj = 1:length(settings.subjects)
                 % Extract more variables of interest
                 var_names={'session'; 'date'};
                 mat4 = get_fields_v10 (var1, var_names); % Settings file with variables of interest
+                % Extract experiment name (for over-writing the files later)
+                var_names={'expname'};
+                mat5 = get_fields_v10 (var1.general, var_names); % Settings file with variables of interest
                 
                 % Combine those fields into one structure
-                names = [fieldnames(mat1); fieldnames(mat2); fieldnames(mat3); fieldnames(mat4)];
-                S = cell2struct([struct2cell(mat1); struct2cell(mat2); struct2cell(mat3); struct2cell(mat4)], names, 1);
+                names = [fieldnames(mat1); fieldnames(mat2); fieldnames(mat3); fieldnames(mat4); fieldnames(mat5)];
+                S = cell2struct([struct2cell(mat1); struct2cell(mat2); struct2cell(mat3); struct2cell(mat4); struct2cell(mat5)], names, 1);
             end
             
             % Recording without saccades
@@ -185,10 +189,13 @@ for i_subj = 1:length(settings.subjects)
                 % Extract more variables of interest
                 var_names={'session'; 'date'};
                 mat4 = get_fields_v10 (var1, var_names); % Settings file with variables of interest
+                % Extract experiment name (for over-writing the files later)
+                var_names={'expname'};
+                mat5 = get_fields_v10 (var1.general, var_names); % Settings file with variables of interest
                 
                 % Combine those fields into one structure
-                names = [fieldnames(mat1); fieldnames(mat4)];
-                S = cell2struct([struct2cell(mat1); struct2cell(mat4)], names, 1);
+                names = [fieldnames(mat1); fieldnames(mat4); fieldnames(mat5)];
+                S = cell2struct([struct2cell(mat1); struct2cell(mat4); struct2cell(mat5)], names, 1);
             end
                         
             % Save data
