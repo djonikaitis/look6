@@ -41,7 +41,7 @@ stim.fixation_maintain_duration_ini_step = -0.1;
 % Stages with 'luminance change' in the name
 % Use stimulus luminance for interleaving blocks
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
-    stim.st2_color_level_ini = 0.4;
+    stim.st2_color_level_ini = 0.5;
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
     stim.st2_color_level_ini = 0.3;
 else
@@ -94,7 +94,7 @@ stim.number_of_blocks = 6;
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
     stim.memory_delay_duration = [0.8:0.01:1.3]; % How long memory delay lasts
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
-    stim.memory_delay_duration = [2.1:0.01:2.2]; % How long memory delay lasts
+    stim.memory_delay_duration = [1.1:0.01:2.2]; % How long memory delay lasts
 else
     stim.memory_delay_duration = [2.1:0.01:2.2]; % How long memory delay lasts
 end
