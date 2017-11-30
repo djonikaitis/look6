@@ -11,7 +11,7 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % 'subject id' or 'all' to run all subjects
-settings.subjects = 'all'; 
+settings.subjects = 'hb'; 
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
@@ -19,7 +19,7 @@ settings.data_sessions = 'selected';
 
 % which setup
 % 'dj office', 'plexon', 'edoras'
-settings.exp_setup = 'dj office';
+settings.exp_setup = 'plexon';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -95,7 +95,6 @@ if settings.overwrite_all_settings == 1
     settings.overwrite=1;
     preprocessing_overwrite_all_settings_v10(settings);
 end
-
 
 
 %% Import plexon files

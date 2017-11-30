@@ -134,7 +134,7 @@ for i_session = 1:numel(sessions_used)
             mkdir (path_out)
         end
         
-        preprocessing_eye_edf2asc_v12(path_in, path_out, file_name) % Script doing conversion
+        preprocessing_eye_edf2asc_v12(path_in, path_out, file_name, settings) % Script doing conversion
         if exist (path_asc,'file')
             fprintf ('\n\nFile %s.edf was converted to .asc and .dat files \n', file_name)
         else

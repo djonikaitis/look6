@@ -45,6 +45,9 @@ if isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon')
     % Path to server to download data
     settings.path_baseline_server = 'Y:\data\RigE\Experiments_data\';
     
+    % Path to eyelink converter
+    settings.edf2asc_path = '"C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc.exe"';
+    
 end
 
 %% Experiments computer
@@ -67,6 +70,9 @@ if isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'edoras')
     
     % Path to server to download data
     settings.path_baseline_server = 'Z:\data\RigE\Experiments_data\';
+    
+    % Path to eyelink converter 
+    settings.edf2asc_path = '"C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc.exe"';
     
 end
 

@@ -4,7 +4,7 @@
 % pathout - asc file will be outputed to this folder
 % f_name - file name within the folder (for example: aq_2000_12_31)
 %
-% Add edf2asc in "/bin" folder; 
+% Add edf2asc in "/bin" folder;
 % use the file from
 % "/Applications/EyeLink/EDF_Access_API/Example/"
 % Otherwise this analysis wont work
@@ -12,9 +12,9 @@
 % V1.0 September 6, 2016. Initial version
 % V1.1 February 5, 2017. Corrected bug in which file conversion fails and
 % crashes the code.
+% V1.2 November 30, 2017. Added pc setup.
 
-function preprocessing_eye_edf2asc_v12(path_in, path_out, file_name)
-
+function preprocessing_eye_edf2asc_v12(path_in, path_out, file_name, settings)
 
 % Create .dat file
 try
@@ -22,15 +22,25 @@ try
     if ismac
         system(['edf2asc', ' ', sprintf('%s', path_edf),' -s -miss -1.0 -y']);
     elseif ispc
-        cd(path_in);
-        settings.edf2asc_path = '"C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc64.exe"';
-        edf2asc = settings.edf2asc_path;
-        [a, b] = system ('edf2asc')
-        [a, b] = system(['edf2asc', ' ', sprintf('%s', path_edf),' -s -miss -1.0 -y'])
+        if isfield(settings, 'edf2asc_path')
+            edf2asc = settings.edf2asc_path;
+        else
+            error('edf2asc.exe path is not defined')
+        end
+        [a, b] = system(['edf2asc', ' ', sprintf('%s', path_edf),' -s -miss -1.0 -y']);
+        if a~=0
+            sprintf('%s', b);
+            error('edf2asc conversion could not be completed')
+        end
     end
 catch
-    error('edf2asc conversion failed. Possibly you dont have edf2asc in /bin folder setup')
+    if ismac
+        error('edf2asc conversion failed. Possibly you dont have edf2asc in /bin folder setup')
+    else
+        error('edf2asc conversion failed. Possibly you dont have edf2asc utility setup properly')
+    end
 end
+
 % Convert and move .asc file into .dat file
 path_1 = sprintf('%s%s.asc', path_in, file_name);
 if exist (path_1,'file')
@@ -46,12 +56,25 @@ try
     if ismac
         system(['edf2asc', ' ', sprintf('%s',path_edf),' -e -y']);
     elseif ispc
-        edf2asc = settings.edf2asc_path;
-        system(['edf2asc', ' ', sprintf('%s', path_edf),' -e -y']);
+        if isfield(settings, 'edf2asc_path')
+            edf2asc = settings.edf2asc_path;
+        else
+            error('edf2asc.exe path is not defined')
+        end
+        [a, b] = system(['edf2asc', ' ', sprintf('%s', path_edf),' -e -y']);
+        if a~=0
+            sprintf('%s', b);
+            error('edf2asc conversion could not be completed')
+        end
     end
 catch
-    error('edf2asc conversion failed. Possibly you dont have edf2asc in /bin folder setup')
+    if ismac
+        error('edf2asc conversion failed. Possibly you dont have edf2asc in /bin folder setup')
+    else
+        error('edf2asc conversion failed. Possibly you dont have edf2asc utility setup properly')
+    end
 end
+
 % Move .asc file into it's folder
 path_1 = sprintf('%s%s.asc', path_in, file_name);
 if exist (path_1,'file')

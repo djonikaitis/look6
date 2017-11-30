@@ -6,17 +6,19 @@ clear all;
 clc;
 close all;
 
-% Which subject to run?
-settings.subjects = 'all'; % 'all' to run all subjects
 settings.exp_name = 'look6';
 
-% which setup
-% 'dj office', 'plexon'
-settings.exp_setup = 'plexon';
+% Which subject to run?
+% 'subject id' or 'all' to run all subjects
+settings.subjects = 'all'; 
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'all'; 
+settings.data_sessions = 'last'; 
+
+% which setup
+% 'dj office', 'plexon', 'edoras'
+settings.exp_setup = 'edoras';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -27,12 +29,17 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 % This step should be default for most experiments
 
 % Connect to server and import data from it
-settings.data_import_from_server = 1;
+% Connect to server and import data from it
+settings.data_import_from_server = 0;
 if settings.data_import_from_server == 1
-    settings.import_folders_include{1} = 'data_plexon_raw';
     settings.data_direction = 'upload';
-xx%     settings.import_folders_exclude{1} = 'data_plexon_raw';
-%     settings.import_folders_exclude{2} = 'data_plexon_mat';
+    settings.import_folders_include = {};
+    settings.import_folders_include{1} = 'data_eyelink_edf';
+    settings.import_folders_include{2} = 'data_psychtoolbox';
+    settings.import_folders_exclude = {};
+    settings.import_folders_exclude{1} = 'data_plexon_raw';
+    settings.import_folders_exclude{2} = 'data_plexon_mat';
     % Run code
     preprocessing_data_import_server_v22(settings);
 end
+
