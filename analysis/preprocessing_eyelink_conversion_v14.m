@@ -153,6 +153,7 @@ for i_subj = 1:length(settings.subjects)
                     [var1, var2] = preprocessing_drift_correction_v10(settings, var1, var2);
                     preprocessing_drift_plot_v10;
                 end
+                SR = var2;
             end
             
             

@@ -1,5 +1,5 @@
 % Detection of correct saccades
-% Latest version: October 23, 2017
+% Latest version: November 30, 2017
 % Donatas Jonikaitis
 
 
@@ -68,8 +68,8 @@ for i_subj=1:length(settings.subjects)
             %% Reshape saccades matrix
             
             % Load all settings
-            var1 = get_struct_v10(path1);
-            sacc1_raw = get_struct_v10(path2);
+            var1 = get_struct_v11(path1);
+            sacc1_raw = get_struct_v11(path2);
             
             % Initialize few variables
             sacc1 = var1.saccades_EK;

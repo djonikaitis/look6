@@ -64,10 +64,10 @@ for i_subj=1:length(settings.subjects)
         path4 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_individual_saccades.mat'];
         
         % Load all settings
-        S = get_struct_v10(path1);
-        saccraw1 = get_struct_v10(path2);
-        sacc1 = get_struct_v10(path3);
-        sacc1_individual = get_struct_v10(path4);
+        S = get_struct_v11(path1);
+        saccraw1 = get_struct_v11(path2);
+        sacc1 = get_struct_v11(path3);
+        sacc1_individual = get_struct_v11(path4);
         
         
         %% Select trials to plot
