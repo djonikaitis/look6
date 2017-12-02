@@ -20,7 +20,7 @@ settings = get_settings_ini_v10(settings);
 
 settings.figure_folder_name = 'saccade_detection';
 settings.figure_size_temp = [0, 0, 4.5, 2];
-figure_on_temp = 0;
+figure_on_temp = 1;
 
 %% Analysis
 
@@ -50,7 +50,9 @@ for i_subj=1:length(settings.subjects)
             if ~isdir(path_fig)
                 mkdir(path_fig)
             elseif isdir(path_fig)
-                rmdir(path_fig, 's')
+                try
+                    rmdir(path_fig, 's')
+                end
                 mkdir(path_fig)
             end
         end
@@ -669,6 +671,7 @@ for i_subj=1:length(settings.subjects)
                 plot_helper_save_figure;
                 
             end
+            
             %% detect target saccades
             
             % sacc endpoint threshold
@@ -752,6 +755,25 @@ for i_subj=1:length(settings.subjects)
                     temp_data = ST.sacc1(ind,:);
                     temp_ind = find (strcmp (ST.sacc_classify(ind), trial_select_code)==1);
                     saccade_matrix(tid,:) = temp_data(temp_ind(1),:);
+                end
+            end
+            
+            %% Correct fixation during control fixate task
+            
+            %=============
+            ind = ~isnan(ST.memory_on) & ST.esetup_target_number==0 & ...
+                ST.sacc1(:,1) >= ST.memory_on & ST.sacc1(:,1) <= ST.fixation_off & ...
+                ST.sacc_start_fix_dist<=th1 & ST.sacc_end_fix_dist>=th1;
+            
+            trial_select_code = 'broke fixation during memory';
+            ST.sacc_classify(ind) = {trial_select_code};
+            
+            % Save trial accepted
+            trial_select_code_replace = 'correct fixation';
+            for tid = 1:numel(var1.START)
+                ind = ST.trial_no==tid;
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))==0 && S.esetup_target_number(tid)==0
+                    trial_accepted{tid} = trial_select_code_replace;
                 end
             end
             

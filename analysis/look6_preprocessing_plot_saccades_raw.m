@@ -24,7 +24,7 @@ settings.fig_size_current = [0, 0, 6, 2.5]; % Unique figure size settings in thi
 
 % How many trials per error type to plot?
 trials_to_plot = 25;
-% trials_to_plot = 'all';
+trials_to_plot = 'all';
 
 
 %% Run preprocessing
@@ -53,7 +53,9 @@ for i_subj=1:length(settings.subjects)
         if ~isdir(path_fig)
             mkdir(path_fig)
         elseif isdir(path_fig)
-            rmdir(path_fig, 's')
+            try
+                rmdir(path_fig, 's')
+            end
             mkdir(path_fig)
         end
         
@@ -262,6 +264,9 @@ for i_subj=1:length(settings.subjects)
             xc = S.esetup_st1_coord(tid, 1);
             yc = S.esetup_st1_coord(tid, 2);
             amp1 = sqrt(xc^2 + yc^2);
+            if isnan(amp1)
+                amp1 = 5;
+            end
             
             if strncmp(sacc1.trial_accepted{tid}, 'aborted', 7)
                 set(gca,'YTick',[-25, 0, 25]);
@@ -275,7 +280,7 @@ for i_subj=1:length(settings.subjects)
                 set(gca,'XTick',[-round(amp1), 0, round(amp1)]);
             end
             
-            a = sprintf('%s, %s target(s)', var1.esetup_block_cond{tid}, num2str(var1.esetup_target_number(tid)));
+            a = sprintf('%s, %s target(s)', S.esetup_block_cond{tid}, num2str(S.esetup_target_number(tid)));
             title (a, 'FontSize', settings.fontszlabel)
             
             %% Position in time
@@ -335,9 +340,9 @@ for i_subj=1:length(settings.subjects)
                 yc=S.esetup_fixation_radius(tid);
                 s_window = S.esetup_fixation_size_eyetrack(tid,4) * 2;
                 t_start = S.fixation_drift_maintained(tid) - S.first_display(tid);
-                if ~isnan(S.fixation_maintained(tid))
+                if ~isnan(S.target_on(tid))
                     t_dur = S.target_on(tid) - S.fixation_drift_maintained(tid);
-                elseif isnan(S.fixation_maintained(tid))
+                else
                     t_dur = S.fixation_off(tid) - S.fixation_drift_maintained(tid);
                 end
                 h=rectangle('Position', [t_start, yc-s_window/2, t_dur, s_window],...
@@ -356,6 +361,8 @@ for i_subj=1:length(settings.subjects)
             else
                 text(t_start, -9, sprintf ('Exp has no drift detection'), 'Color', c1,  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left');
             end
+            
+            
             %============
             % Plot saccade target 1 time window
             if ~isnan(S.target_on(tid)) && ~isnan(S.target_off(tid))
@@ -483,6 +490,9 @@ for i_subj=1:length(settings.subjects)
             xc = S.esetup_st1_coord(tid,1);
             yc = S.esetup_st1_coord(tid,2);
             yc = sqrt(xc.^2 + yc.^2); % Transform yc to distance
+            if isnan(yc)
+                yc = 5;
+            end
             if round(yc,1)>0
                 set(gca,'YTick',[0,round(yc,1)]);
             else

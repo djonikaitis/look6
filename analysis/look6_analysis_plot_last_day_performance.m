@@ -44,7 +44,9 @@ for i_subj=1:length(settings.subjects)
             if ~isdir(path_fig)
                 mkdir(path_fig)
             elseif isdir(path_fig)
-                rmdir(path_fig, 's')
+                try
+                    rmdir(path_fig, 's')
+                end
                 mkdir(path_fig)
             end
         end
@@ -59,8 +61,8 @@ for i_subj=1:length(settings.subjects)
         path2 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_saccades.mat'];
         
         % Load all files
-        S = get_struct_v10(path1);
-        sacc1 = get_struct_v10(path2);
+        S = get_struct_v11(path1);
+        sacc1 = get_struct_v11(path2);
         
         %===============
         % Data analysis
@@ -81,7 +83,7 @@ for i_subj=1:length(settings.subjects)
                     ind = int_bins(j):1:int_bins(j+1);
                     
                     % Correct trials
-                    index1 = strcmp(S.edata_error_code(ind), 'correct') & ...
+                    index1 = strncmp(S.edata_error_code(ind), 'correct', 7) & ...
                         strcmp(S.esetup_exp_version(ind), conds1{k});
                     test1(1,j,k,1)= sum(index1);
                     
@@ -99,139 +101,181 @@ for i_subj=1:length(settings.subjects)
             end
         end
         
+        % Plot bins
+        pbins = [];
+        for i = 1:numel(int_bins)-1
+            pbins(i) = (int_bins(i)+int_bins(i+1))/2;
+        end
+        
+        % Number of subplots
+        num_figs = 2;
+        
+        
+        
+        %% Figure 1
+        
+        % Initialize data
+        %=================
+        mat1=[];
+        fig1=1;
+        
+        % Data
+        total1 = nansum(test1(:,:,:,1:2),4); % Check all conditions combined
+        mat1 = test1(:,:,:,1)./total1*100;
+        mat1 = 100 - (100 - mat1)*2; % Convert into target selection
+        
+        % Initialize structure
+        plot_set = struct;
+        plot_set.mat1 = mat1;
+        plot_set.pbins = pbins;
+        
+        plot_set.data_color_min = [0.5,0.5,0.5];
+        plot_set.data_color_max = settings.color1(42,:);
+        plot_set.data_color = [];
+        
+        for i=1:size(mat1,3)
+            plot_set.legend{i} = conds1{i};
+            plot_set.legend_y_coord(i) = i*-10;
+            plot_set.legend_x_coord(i) = [pbins(1)];
+        end
+        
+        % Labels for plotting
+        plot_set.XTick = [];
+        plot_set.x_plot_bins = pbins;
+        plot_set.XLim = [pbins(1)-50, pbins(end)+50];
+        plot_set.YTick = [0:25:100];
+        plot_set.YLim = [min(plot_set.legend_y_coord)-10, 110];
+        plot_set.figure_title = 'Performance';
+        plot_set.xlabel = 'Trial number';
+        plot_set.ylabel = 'Correct, % of trials';
+        
+        % Save data
+        plot_set.figure_size = settings.figure_size_temp;
+        plot_set.figure_save_name = 'figure';
+        plot_set.path_figure = path_fig;
+        
+        % Plot
+        hfig = subplot(1, num_figs, fig1);
+        hold on;
+        
+        %============
+        % Plot each condition
+        for i=1:max(S.esetup_block_no)
+            
+            ind = find(S.esetup_block_no==i);
+            c1 = unique(S.esetup_block_cond(ind));
+            % Define coordinates of the square
+            x1 = ind(1); x2 = (ind(end)-ind(1))+1;
+            y1 = plot_set.YLim(1); y2 = plot_set.YLim(2)-plot_set.YLim(1);
+            % Color
+            if strcmp(c1, 'look')
+                color1 = settings.face_color1(5,:);
+            elseif  strcmp(c1, 'avoid')
+                color1 = settings.face_color1(6,:);
+            elseif  strcmp(c1, 'control fixate')
+                color1 = settings.face_color1(7,:);
+            end
+            
+            h = rectangle('Position', [x1, y1, x2, y2], 'FaceColor', color1, 'EdgeColor', 'none');
+            
+        end
+        
+        %============
+        % Plot data
+        plot_helper_basic_line_figure;
+        
+        
+        
+        %% Figure 2
+        
+        % Initialize data
+        %=================
+        mat1=[];
+        fig1=2;
+        
+        % Data
+        total1 = nansum(test1(:,:,:,1:3),4); % Check all conditions combined
+        mat1 = test1(:,:,:,3)./total1*100;
+        
+        % Initialize structure
+        plot_set = struct;
+        plot_set.mat1 = mat1;
+        plot_set.pbins = pbins;
+        
+        plot_set.data_color_min = [0.5,0.5,0.5];
+        plot_set.data_color_max = settings.color1(42,:);
+        plot_set.data_color = [];
+        
+        for i=1:size(mat1,3)
+            plot_set.legend{i} = conds1{i};
+            plot_set.legend_y_coord(i) = i*-10;
+            plot_set.legend_x_coord(i) = [pbins(1)];
+        end
+        
+        % Labels for plotting
+        plot_set.XTick = [];
+        plot_set.x_plot_bins = pbins;
+        plot_set.XLim = [pbins(1)-50, pbins(end)+50];
+        plot_set.YTick = [0:25:100];
+        plot_set.YLim = [min(plot_set.legend_y_coord)-10, 110];
+        plot_set.figure_title = 'Aborted trials';
+        plot_set.xlabel = 'Trial number';
+        plot_set.ylabel = '% of trials';
+        
+        % Save data
+        plot_set.figure_size = settings.figure_size_temp;
+        plot_set.figure_save_name = 'figure';
+        plot_set.path_figure = path_fig;
+        
+        
+        % Plot
+        % Initialize figure
+        hfig = subplot(1, num_figs, fig1);
+        hold on;
+        
+        %============
+        % Plot each condition
+        for i=1:max(S.esetup_block_no)
+            
+            ind = find(S.esetup_block_no==i);
+            c1 = unique(S.esetup_block_cond(ind));
+            % Define coordinates of the square
+            x1 = ind(1); x2 = (ind(end)-ind(1))+1;
+            y1 = plot_set.YLim(1); y2 = plot_set.YLim(2)-plot_set.YLim(1);
+            % Color
+            if strcmp(c1, 'look')
+                color1 = settings.face_color1(5,:);
+            elseif  strcmp(c1, 'avoid')
+                color1 = settings.face_color1(6,:);
+            elseif  strcmp(c1, 'control fixate')
+                color1 = settings.face_color1(7,:);
+            end
+            
+            h = rectangle('Position', [x1, y1, x2, y2], 'FaceColor', color1, 'EdgeColor', 'none');
+            
+        end
+        
+        % Plot data
+        plot_helper_basic_line_figure;
+        
+        
+        %============
+        % Export the figure & save it
+        
+        % Save data
+        plot_set.figure_size = settings.figure_size_temp;
+        plot_set.figure_save_name = 'figure';
+        plot_set.path_figure = path_fig;
+        
+        plot_helper_save_figure;
+        
+        close all;
+        %===============
+        
+        
+        
     end
     % End of analysis for each day
 end
 % End of analysis for each subject
 
-pbins = [];
-for i = 1:numel(int_bins)-1
-    pbins(i) = (int_bins(i)+int_bins(i+1))/2;
-end
-
-
-%%  Plot
-
-num_figs = 2;
-
-% Initialize data
-%=================
-figcolor1=[]; legend1={}; total1=[];
-mat1=[];
-save_name='Trial counts';
-fig1=1;
-
-% General motivation
-
-total1 = nansum(test1(:,:,:,1:2),4); % Check all conditions combined
-[~,~,~,p]=size(test1);
-mat1 = test1(:,:,:,1)./total1*100;
-mat1 = 100 - (100 - mat1)*2; % Convert into target selection
-
-% Initialize structure
-plot_set = struct;
-plot_set.mat1 = mat1;
-plot_set.pbins = pbins;
-
-plot_set.data_color_min = [0.5,0.5,0.5];
-plot_set.data_color_max = settings.color1(42,:);
-plot_set.data_color = [];
-
-for i=1:size(mat1,3)
-    plot_set.legend{i} = conds1{i};
-    plot_set.legend_y_coord(i) = i*-10;
-    plot_set.legend_x_coord(i) = [pbins(1)];
-end
-
-% Labels for plotting
-plot_set.XTick = [];
-plot_set.x_plot_bins = pbins;
-plot_set.XLim = [pbins(1)-50, pbins(end)+50];
-plot_set.YTick = [0:25:100];
-plot_set.YLim = [min(plot_set.legend_y_coord)-10, 110];
-plot_set.figure_title = 'Performance';
-plot_set.xlabel = 'Trial number';
-plot_set.ylabel = 'Correct, % of trials';
-
-% Save data
-plot_set.figure_size = settings.figure_size_temp;
-plot_set.figure_save_name = 'figure';
-plot_set.path_figure = path_fig;
-
-
-%==================
-% Plot
-
-hfig = subplot(1, num_figs, fig1);
-hold on;
-plot_helper_basic_line_figure;
-
-
-%% Plot
-
-
-% Initialize data
-%=================
-figcolor1=[]; legend1={}; total1=[];
-mat1=[];
-save_name='Trial counts';
-fig1=2;
-
-% General motivation
-
-total1 = nansum(test1(:,:,:,1:3),4); % Check all conditions combined
-[~,~,~,p]=size(test1);
-mat1 = test1(:,:,:,3)./total1*100;
-
-% Initialize structure
-plot_set = struct;
-plot_set.mat1 = mat1;
-plot_set.pbins = pbins;
-
-plot_set.data_color_min = [0.5,0.5,0.5];
-plot_set.data_color_max = settings.color1(42,:);
-plot_set.data_color = [];
-
-for i=1:size(mat1,3)
-    plot_set.legend{i} = conds1{i};
-    plot_set.legend_y_coord(i) = i*-10;
-    plot_set.legend_x_coord(i) = [pbins(1)];
-end
-
-% Labels for plotting
-plot_set.XTick = [];
-plot_set.x_plot_bins = pbins;
-plot_set.XLim = [pbins(1)-50, pbins(end)+50];
-plot_set.YTick = [0:25:100];
-plot_set.YLim = [min(plot_set.legend_y_coord)-10, 110];
-plot_set.figure_title = 'Aborted trials';
-plot_set.xlabel = 'Trial number';
-plot_set.ylabel = '% of trials';
-
-% Save data
-plot_set.figure_size = settings.figure_size_temp;
-plot_set.figure_save_name = 'figure';
-plot_set.path_figure = path_fig;
-
-
-%==================
-% Plot
-% Initialize figure
-hfig = subplot(1, num_figs, fig1);
-hold on;
-plot_helper_basic_line_figure;
-
-
-
-%============
-% Export the figure & save it
-
-% Save data
-plot_set.figure_size = settings.figure_size_temp;
-plot_set.figure_save_name = 'figure';
-plot_set.path_figure = path_fig;
-
-plot_helper_save_figure;
-
-close all;
-%===============
