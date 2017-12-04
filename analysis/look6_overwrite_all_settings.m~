@@ -48,7 +48,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{1
         v1 = 'fixation_off';
         v2 = 'target_on';
         
-        if isfield(var1, v1) && isfield(var1, v2) % check whether to do analysis
+        if isfield(var1, v1) % check whether to do analysis
             
             fprintf('Correcting eyelink messages %s to replace with %s\n', v1, v2)
             
@@ -156,7 +156,7 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
         
         if ~isfield(var1, v1) && isfield(var1, v2) % Check whether to do analysis
             
-            fprintf('Replacing field %s with %s\n', v2, v1)
+            fprintf('Replacing field %s with %v\n', v2)
             
             % Save corrected data
             var1.(v1) = var1.(v2);
@@ -181,7 +181,7 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
         
         if ~isfield(var1, v1) && isfield(var1, v2) % Check whether to do analysis
             
-            fprintf('Replacing field %s with %s\n', v2, v1)
+            fprintf('Correcting field: %s\n', v2)
             
             % Save corrected data
             var1.(v1) = var1.(v2);

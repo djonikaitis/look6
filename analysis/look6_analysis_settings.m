@@ -21,7 +21,7 @@ elseif strcmp (settings.data_sessions, 'before')
 elseif strcmp (settings.data_sessions, 'after')
     settings.data_sessions_temp = 20171027; 
 elseif strcmp (settings.data_sessions, 'interval')
-    settings.data_sessions_temp = [20171109, 20171110]; 
+    settings.data_sessions_temp = [20171001, 20171130]; 
 elseif strcmp(settings.data_sessions, 'selected')
     settings.data_sessions_temp = 20171018; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end

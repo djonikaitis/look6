@@ -163,7 +163,7 @@ for i_subj=1:length(settings.subjects)
         plot_set.YTick = [0:25:100];
         plot_set.YLim = [min(plot_set.legend_y_coord)-10, 110];
         plot_set.figure_title = 'Performance';
-        plot_set.xlabel = 'Trial number';
+        plot_set.xlabel = 'Day number';
         plot_set.ylabel = 'Correct target, % of trials';
         
         % Save data
@@ -213,7 +213,7 @@ for i_subj=1:length(settings.subjects)
         plot_set.YTick = [0:25:100];
         plot_set.YLim = [min(plot_set.legend_y_coord)-10, 110];
         plot_set.figure_title = 'Aborted trials';
-        plot_set.xlabel = 'Trial number';
+        plot_set.xlabel = 'Day number';
         plot_set.ylabel = '% of trials';
         
         % Save data

@@ -159,16 +159,16 @@ for i_subj=1:length(settings.subjects)
         hold on;
         
         % Correct block_number variable
-        if max(S.session)>1
-            for i = 2:max(S.session)
-                ind = find(S.session==i);
-                S.esetup_block_no(ind) = S.esetup_block_no(ind) + S.esetup_block_no(ind(1)-1);
-            end
+        a = diff(S.esetup_block_no);
+        ind = find(a<0);
+        for i = 1 %:numel(ind)
+            S.esetup_block_no(ind(1)+1:end) = S.esetup_block_no(ind(1)+1:end) + S.esetup_block_no(ind(1));
+            ind(1)=[];
         end
         
         %============
         % Plot each condition
-        for i=1:max(S.esetup_block_no)
+        for i=1:6 %:max(S.esetup_block_no)
             
             ind = find(S.esetup_block_no==i);
             c1 = unique(S.esetup_block_cond(ind));

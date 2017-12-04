@@ -11,11 +11,11 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % 'subject id' or 'all' to run all subjects
-settings.subjects = 'all'; 
+settings.subjects = 'all';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'all'; 
+settings.data_sessions = 'all';
 
 % which setup
 % 'dj office', 'plexon', 'edoras'
@@ -29,7 +29,7 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 % Import raw data files of psychtoolbox & eyelink
 % This step should be default for most experiments
 
-do_this_analysis = 1;
+do_this_analysis = 0;
 
 if do_this_analysis == 1
     
@@ -75,17 +75,18 @@ if do_this_analysis == 1
     
 end
 
+
 %% Preprocessing: prepare combined folder, convert eylink data into degrees, do drift correction
 
-do_this_analysis = 0;
+do_this_analysis = 1;
 
 if do_this_analysis == 1
     
     % Combine settings and saccades files into one file;
     % reset saccades to degrees of visual angle; do drift correction
-    settings.preprocessing_eyelink_conversion = 0;
+    settings.preprocessing_eyelink_conversion = 1;
     if settings.preprocessing_eyelink_conversion == 1
-        settings.overwrite = 0; % If 1, runs analysis again even if it was done
+        settings.overwrite = 1; % If 1, runs analysis again even if it was done
         preprocessing_eyelink_conversion_v14(settings);
     end
     
@@ -99,7 +100,7 @@ if do_this_analysis == 1
     end
     
     % Modify raw settings for compatibility between experiments
-    settings.overwrite_all_settings = 0;
+    settings.overwrite_all_settings = 1;
     if settings.overwrite_all_settings == 1
         settings.overwrite=1;
         preprocessing_overwrite_all_settings_v10(settings);
@@ -107,162 +108,101 @@ if do_this_analysis == 1
     
 end
 
+
+%% Preprocessing: detect and plot saccades
+
+do_this_analysis = 0;
+
+if do_this_analysis == 1
+    
+    % Detect saccades
+    settings.preprocessing_saccade_detection = 1;
+    if settings.preprocessing_saccade_detection == 1
+        settings.overwrite = 0;
+        look6_preprocessing_saccade_detection;
+    end
+    
+    % Plot eye traces for manual inspection
+    settings.plot_saccades_raw = 1;
+    if settings.plot_saccades_raw == 1
+        settings.overwrite = 0;
+        look6_preprocessing_plot_saccades_raw;
+    end
+    
+end
+
+%% Behavioural data analysis
+
+do_this_analysis = 0;
+
+if do_this_analysis == 1
+    
+    % Plot day to day trials accepted/rejected
+    settings.analysis_plot_training_performance = 1;
+    if settings.analysis_plot_training_performance==1
+        settings.overwrite = 1;
+        look6_analysis_plot_training_performance;
+    end
+    
+    % Plot day to day trials accepted/rejected
+    settings.analysis_errors_timecourse = 0;
+    if settings.analysis_errors_timecourse==1
+        settings.overwrite = 1;
+        look6_analysis_plot_last_day_performance;
+    end
+    
+    
+    % % Bar graph of look/avoid task performance
+    % settings.analysis_errors_timecourse = 0;
+    % if settings.analysis_errors_timecourse==1
+    %     settings.overwrite = 1;
+    %     look6_analysis_saccade_rt_bar;
+    % end
+    
+end
+
+
 %% Import plexon files
 
 
 % % % % Creates folder "combined_plexon" which contains all spikes, events etc
 % % % settings.preprocessing_plexon_import = 0;
-% % % settings.overwrite = 1; % If 1, runs analysis again even if it was done 
+% % % settings.overwrite = 1; % If 1, runs analysis again even if it was done
 % % % if settings.preprocessing_plexon_import == 1
 % % %     look5_preprocessing_plexon_import;
 % % % end
-% 
+%
 % % Match plexon events with psychtoolbox events. Creates matrix
 % % events_matched
 % settings.preprocessing_plexon_match_events = 1;
-% settings.overwrite = 1; % If 1, runs analysis again even if it was done 
+% settings.overwrite = 1; % If 1, runs analysis again even if it was done
 % if settings.preprocessing_plexon_match_events == 1
 %     look6_preprocessing_plexon_match_events;
 %     look6_preprocessing_plexon_match_plot;
 % end
-% 
-% % Combine settings and saccades files into one file; 
+%
+% % Combine settings and saccades files into one file;
 % % reset saccades to degrees of visual angle; do drift correction
 % settings.preprocessing_eyelink_conversion = 1;
 % if settings.preprocessing_eyelink_conversion == 1
-%     settings.overwrite = 1; % If 1, runs analysis again even if it was done 
+%     settings.overwrite = 1; % If 1, runs analysis again even if it was done
 %     preprocessing_eyelink_conversion_v13(settings);
 % end
 
 
-
-%% Preprocessing: detect and plot saccades
-
-% Detect saccades
-settings.preprocessing_saccade_detection = 0;
-if settings.preprocessing_saccade_detection == 1
-    settings.overwrite = 1;
-    look6_preprocessing_saccade_detection;
-end
-
-% Plot eye traces for manual inspection
-settings.plot_saccades_raw = 1;
-if settings.plot_saccades_raw == 1
-    settings.overwrite = 1;
-    look6_preprocessing_plot_saccades_raw;
-end
-
-
-%% Behavioural data analysis
-
-% % Plot day to day trials accepted/rejected
-% settings.analysis_plot_training_performance = 1;
-% if settings.analysis_plot_training_performance==1
-%     settings.overwrite = 1;
-%     look6_analysis_plot_training_performance;
-% end
-% 
-% % Plot day to day trials accepted/rejected
-% settings.analysis_errors_timecourse = 0;
-% if settings.analysis_errors_timecourse==1
-%     settings.overwrite = 1;
-%     look6_analysis_plot_last_day_performance;
-% end
-% 
-% % Bar graph of look/avoid task performance
-% settings.analysis_errors_timecourse = 0;
-% if settings.analysis_errors_timecourse==1
-%     settings.overwrite = 1;
-%     look6_analysis_saccade_rt_bar;
-% end
-
 %% Neurophysiology data analysis
 
-% % Spiking rates for different conditions
-% settings.analysis_spikes_timecourse = 0;
-% settings.overwrite = 1;
-% if settings.analysis_spikes_timecourse==1
-%     look6_analysis_spikes_timecourse;
-% end
-% 
-% 
-% %% Import plexon files
-% 
-% 
-% % % % % Creates folder "combined_plexon" which contains all spikes, events etc
-% % % % settings.preprocessing_plexon_import = 0;
-% % % % settings.overwrite = 1; % If 1, runs analysis again even if it was done 
-% % % % if settings.preprocessing_plexon_import == 1
-% % % %     look5_preprocessing_plexon_import;
-% % % % end
-% % 
-% % % Match plexon events with psychtoolbox events. Creates matrix
-% % % events_matched
-% % settings.preprocessing_plexon_match_events = 1;
-% % settings.overwrite = 1; % If 1, runs analysis again even if it was done 
-% % if settings.preprocessing_plexon_match_events == 1
-% %     look6_preprocessing_plexon_match_events;
-% %     look6_preprocessing_plexon_match_plot;
-% % end
-% % 
-% % % Export plexon spiking data into processed matrices. Reset time of spikes to match
-% % % psychtoolbox timing. 
-% % settings.preprocessing_plexon_spikes = 0;
-% % settings.overwrite = 1; % If 1, runs analysis again even if it was done 
-% % if settings.preprocessing_plexon_spikes == 1
-% %     look6_preprocessing_plexon_spikes;
-% % end
-% 
-% 
-% %% Preprocessing: detect and plot saccades
-% 
-% % Detect saccades
-% settings.preprocessing_saccade_detection = 0;
-% if settings.preprocessing_saccade_detection == 1
-%     settings.overwrite = 1;
-%     look6_preprocessing_saccade_detection;
-% end
-% 
-% % Plot eye traces for manual inspection
-% settings.plot_saccades_raw = 0;
-% if settings.plot_saccades_raw == 1
-%     settings.overwrite = 1;
-%     look6_preprocessing_plot_saccades_raw;
-% end
-% 
-% 
-% %% Behavioural data analysis
-% 
-% % Plot day to day trials accepted/rejected
-% settings.analysis_plot_training_performance = 1;
-% if settings.analysis_plot_training_performance==1
-%     settings.overwrite = 1;
-%     look6_analysis_plot_training_performance;
-% end
-% 
-% % Plot day to day trials accepted/rejected
-% settings.analysis_errors_timecourse = 0;
-% if settings.analysis_errors_timecourse==1
-%     settings.overwrite = 1;
-%     look6_analysis_plot_last_day_performance;
-% end
-% 
-% % Bar graph of look/avoid task performance
-% settings.analysis_errors_timecourse = 0;
-% if settings.analysis_errors_timecourse==1
-%     settings.overwrite = 1;
-%     look6_analysis_saccade_rt_bar;
-% end
-% 
+%
+%
 % %% Neurophysiology data analysis
-% 
+%
 % % % Spiking rates for different conditions
 % % settings.analysis_spikes_timecourse = 0;
 % % settings.overwrite = 1;
 % % if settings.analysis_spikes_timecourse==1
 % %     look6_analysis_spikes_timecourse;
 % % end
-% 
+%
 % % % Spiking rates for different conditions
 % % settings.analysis_orientation_profile = 1;
 % % settings.overwrite = 1;

@@ -20,7 +20,7 @@ settings = get_settings_ini_v10(settings);
 
 settings.figure_folder_name = 'saccade_detection';
 settings.figure_size_temp = [0, 0, 4.5, 2];
-figure_on_temp = 1;
+figure_on_temp = 0;
 
 %% Analysis
 
@@ -77,6 +77,19 @@ for i_subj=1:length(settings.subjects)
             sacc1 = var1.saccades_EK;
             saccade_matrix = NaN(size(sacc1,1), 7); % Only one saccade is taken
             trial_accepted = cell(size(sacc1,1), 1); % Initialize matrix which will track rejected saccades
+            
+            % on some cases target_on does not occur. In such a case,
+            % replace it with loop-over variable
+            if ~isfield(var1, 'target_on')
+                var1.target_on = NaN(numel(var1.START), 1);
+            end
+            if ~isfield(var1, 'st2_on')
+                var1.st2_on = NaN(numel(var1.START), 1);
+            end
+            
+            if ~isfield(var1, 'target_off')
+                var1.target_off = NaN(numel(var1.START), 1);
+            end
             
             %============
             %============
@@ -772,7 +785,7 @@ for i_subj=1:length(settings.subjects)
             trial_select_code_replace = 'correct fixation';
             for tid = 1:numel(var1.START)
                 ind = ST.trial_no==tid;
-                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))==0 && S.esetup_target_number(tid)==0
+                if sum(strcmp (ST.sacc_classify(ind), trial_select_code))==0 && var1.esetup_target_number(tid)==0
                     trial_accepted{tid} = trial_select_code_replace;
                 end
             end

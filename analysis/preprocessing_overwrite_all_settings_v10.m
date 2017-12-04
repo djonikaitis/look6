@@ -57,7 +57,7 @@ for i_subj = 1:length(settings.subjects)
             if sum(b)>0
                 settings.overwrite_temp_switch = 1;
             else
-                fprintf('\nCurrent date is not in the list to be modified as the raw data file\n')
+                fprintf('\nCurrent date %s is not in the list to be modified as the raw data file\n', num2str(date_current))
             end
         else
             fprintf('\nScript for over-writing raw data has no dates specified, no files will be modified\n')
