@@ -19,7 +19,7 @@ settings.data_sessions = 'all';
 
 % which setup
 % 'dj office', 'plexon', 'edoras'
-settings.exp_setup = 'dj office';
+settings.exp_setup = 'plexon';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 

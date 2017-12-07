@@ -42,8 +42,8 @@ for i_subj=1:length(settings.subjects)
         path2 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_saccades.mat'];
         
         % Load all files
-        S = get_struct_v10(path1);
-        sacc1 = get_struct_v10(path2);
+        S = get_struct_v11(path1);
+        sacc1 = get_struct_v11(path2);
         
         %===============
         % Figure folder
