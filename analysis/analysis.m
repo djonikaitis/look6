@@ -11,12 +11,12 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % 'subject id' or 'all' to run all subjects
-settings.subjects = 'all';
+settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
 settings.data_sessions = 'all';
-
+ 
 % which setup
 % 'dj office', 'plexon', 'edoras'
 settings.exp_setup = 'plexon';
@@ -152,12 +152,12 @@ if do_this_analysis == 1
     end
     
     
-    % % Bar graph of look/avoid task performance
-    % settings.analysis_errors_timecourse = 0;
-    % if settings.analysis_errors_timecourse==1
-    %     settings.overwrite = 1;
-    %     look6_analysis_saccade_rt_bar;
-    % end
+    % Bar graph of look/avoid task performance
+    settings.analysis_errors_timecourse = 0;
+    if settings.analysis_errors_timecourse==1
+        settings.overwrite = 1;
+        look6_analysis_saccade_rt_bar;
+    end
     
 end
 

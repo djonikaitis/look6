@@ -15,7 +15,7 @@ settings = get_settings_ini_v10(settings);
 
 %% Extra settings
 
-settings.figure_folder_name = 'saccade rt bar';
+settings.figure_folder_name = 'srt bar';
 settings.figure_size_temp = settings.figsize_1col;
 settings.stats_file_name = sprintf('statistics_%s_', settings.figure_folder_name);
 
@@ -60,19 +60,21 @@ for i_subj=1:length(settings.subjects)
         end
         
         % Overwrite figure folders
-        if  temp_switch == 1;
+        if  temp_switch == 1
             if ~isdir(path_fig) || settings.overwrite==1
                 if ~isdir(path_fig)
                     mkdir(path_fig)
                 elseif isdir(path_fig)
-                    rmdir(path_fig, 's')
+                    try
+                        rmdir(path_fig, 's')
+                    end
                     mkdir(path_fig)
                 end
             end
         end
         
         % Initialize text file for statistics
-        if  temp_switch == 1;
+        if  temp_switch == 1
             nameOut = sprintf('%s%s.txt', path_fig, settings.stats_file_name); % File to be outputed
             fclose('all');
             fout = fopen(nameOut,'w');
@@ -82,34 +84,36 @@ for i_subj=1:length(settings.subjects)
         
         % Reset data
         
-        S.sacconset = sacc1.saccade_matrix(:,1)-S.target_on;
+        if isfield(S, 'target_on')
+            S.sacconset = sacc1.saccade_matrix(:,1)-S.target_on;
+        end
         
         %==============
         % Exp condition
         S.expcond = NaN(size(S.session,1),1);
         
-        index1 = strcmp(sacc1.trial_accepted, 'correct target') & S.esetup_target_number==1 & strcmp(S.esetup_block_cond, 'look') & ...
-            S.esetup_response_soa==0;
+        index1 = strncmp(sacc1.trial_accepted, 'correct', 7) & S.esetup_target_number==1 & strcmp(S.esetup_block_cond, 'look') & ...
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0 & cell2mat(S.probe_extended_map)==0;
         S.expcond(index1)=1;
         
-        index1 = strcmp(sacc1.trial_accepted, 'correct target') & S.esetup_target_number==1 & strcmp(S.esetup_block_cond, 'avoid') & ...
-            S.esetup_response_soa==0;
+        index1 = strncmp(sacc1.trial_accepted, 'correct', 7)  & S.esetup_target_number==1 & strcmp(S.esetup_block_cond, 'avoid') & ...
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0 & cell2mat(S.probe_extended_map)==0;
         S.expcond(index1)=2;
         
-        index1 = strcmp(sacc1.trial_accepted, 'correct target') & S.esetup_target_number==2 & strcmp(S.esetup_block_cond, 'look') & ...
-            S.esetup_response_soa==0;
+        index1 = strncmp(sacc1.trial_accepted, 'correct', 7)  & S.esetup_target_number==2 & strcmp(S.esetup_block_cond, 'look') & ...
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0;
         S.expcond(index1)=3;
         
-        index1 = strcmp(sacc1.trial_accepted, 'correct target') & S.esetup_target_number==2 & strcmp(S.esetup_block_cond, 'avoid') & ...
-            S.esetup_response_soa==0;
+        index1 = strncmp(sacc1.trial_accepted, 'correct', 7)  & S.esetup_target_number==2 & strcmp(S.esetup_block_cond, 'avoid') & ...
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0;
         S.expcond(index1)=4;
         
         index1 = strcmp(sacc1.trial_accepted, 'wrong target') & S.esetup_target_number==2 & strcmp(S.esetup_block_cond, 'look') & ...
-            S.esetup_response_soa==0;
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0;
         S.expcond(index1)=5;
         
         index1 = strcmp(sacc1.trial_accepted, 'wrong target') & S.esetup_target_number==2 & strcmp(S.esetup_block_cond, 'avoid') & ...
-            S.esetup_response_soa==0;
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0;
         S.expcond(index1)=6;
         
         %===============
@@ -141,36 +145,61 @@ for i_subj=1:length(settings.subjects)
         ind = S.rel_arc>180;
         S.rel_arc(ind)=S.rel_arc(ind)-360;
         
-        
         % Determine unique stimulus positions
-        b=cell(numel(dates_used), 1);
+        if i_date==1
+            b=cell(numel(dates_used), 1);
+        end
         ind = ~isnan(S.expcond);
         if sum(ind)>0
             a = [S.rel_arc(ind), S.rel_rad(ind)];
             b{i_date} =  unique(a,'rows');
         end
         
+        % Initialize coordinates matrix
+        if i_date == 1
+            coords1 = [];
+            conds1 = [];
+        end
+        
         % Add concatenation over different days
         if numel(b)>0
+            coords1 = cell2mat(b);
+            coords1 = unique(coords1,'rows');
         end
-        coords1 = cell2mat(b);
-        coords1 = unique(coords1,'rows');
         
-        
-        %% Saccade RT
-        
-        if i_date==1
-            mat1_ini = NaN(numel(dates_used), size(coords1,1), 8);
+        % In the first instance, initialize all variables
+        if ~isempty(coords1) && isempty(conds1)
+            conds1 = coords1;
+            mat1_ini = NaN(numel(dates_used), size(conds1,1), 8);
             mat2_ini = NaN(numel(dates_used), 8);
-            test1 = NaN(length(dates_used), size(coords1,1), 8);
+            test1 = NaN(length(dates_used), size(conds1,1), 8);
             mat3_ini = [];
         end
         
-        % Discrimination rates
-        for i=1:size(coords1,1)
-            for j=1:max(S.expcond)
+        % In later instances, add extra conds1 values
+        if ~isempty(coords1) && ~isempty(conds1)
+            for i=1:size(coords1,1)
+                a = conds1 == coords1(i,:);
+                a = sum(a,2);
+                % If element is missing, add it to conds matrix
+                if sum(a==2)==0
+                    % Add element to conds1
+                    [m,n] = size(conds1);
+                    conds1(m+1,1:n) = coords1(i,1:n);
+                    % Add element to mat1_ini
+                    [~, n, o] = size(mat1_ini);
+                    mat1_ini(:, n+1, 1:o) = NaN;
+                end
+            end
+        end
+        
+        
+        %% SRT
+        
+        for i=1:size(conds1,1)
+            for j=1:max(removeNaN(S.expcond))
                 
-                index1 = S.expcond==j & S.rel_arc==coords1(i,1) & S.rel_rad==coords1(i,2);
+                index1 = S.expcond==j & S.rel_arc==conds1(i,1) & S.rel_rad==conds1(i,2);
                 
                 if sum(index1)>settings.trial_total_threshold
                     mat1_ini(i_date,i,j)=nanmedian(S.sacconset(index1),1);
@@ -179,7 +208,7 @@ for i_subj=1:length(settings.subjects)
                 
             end
         end
-        %
+        
         %         % Calculate correct performance rates
         %         for f=1:length(dates1)
         %             for j=1:max(S.expcond)
@@ -267,7 +296,7 @@ plot_set.path_figure = path_fig;
 hfig = figure;
 hold on;
 
-% e_bars = plot_helper_error_bar_calculation_v10(mat1, settings);
+e_bars = plot_helper_error_bar_calculation_v10(mat1, settings);
 plot_helper_bargraph_plot_v10
 
 plot_helper_save_figure;
@@ -283,10 +312,10 @@ plot_set = struct;
 mat1=[];
 
 % Cued location
-a1 = coords1(:,1)==0 & coords1(:,2)==1;
+a1 = conds1(:,1)==0 & conds1(:,2)==1;
 ind1 = find(a1==1);
 % Un-cued location
-a1 = coords1(:,1)==180 & coords1(:,2)==1;
+a1 = conds1(:,1)==180 & conds1(:,2)==1;
 ind2 = find(a1==1);
 
 % Look correct and error
@@ -338,7 +367,7 @@ e_bars = plot_helper_error_bar_calculation_v10(mat1, settings);
 plot_helper_bargraph_plot_v10
 
 plot_helper_save_figure;
-% close all;
+close all;
 
 %===============
 

@@ -13,6 +13,7 @@ overwrite_temp_index{3} = 20170817:20171128;
 
 % edit edata_error_code ("looked at distractor" into "looked at st2")
 % edit esetup_exp_version bug (for luminance change trials)
+% add field esetup_response_soa
 overwrite_temp_index{4} = 20170817:20170901;
 
 % edit esetup_exp_version bug (for luminance change trials)
@@ -192,6 +193,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{2
     if ~isfield(var1, v1) % check whether to do analysis
         fprintf('Adding a field: %s \n', v1)
         temp_new = cell(numel(var1.START), 1);
+        temp_new(1:end) = {0};
         var1.(v1) = temp_new;
     else
         fprintf('Field %s already exists, no changes written\n', v1)
@@ -334,6 +336,44 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{4
         end
         
     end
+end
+
+%% Added field esetup_response_soa
+
+if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{4}(1) && date_current <= overwrite_temp_index{4}(end)
+    
+    v1 = 'esetup_response_soa';
+    v2 = 'esetup_distractor_soa';
+
+    if ~isfield(var1, v1) && ~isfield(var1, v2) % check whether to do analysis
+        fprintf('Adding a field: "%s" \n', v1)
+        temp_new = zeros(numel(var1.START), 1);
+        var1.(v1) = temp_new;
+    elseif ~isfield(var1, v1) && isfield(var1, v2) % check whether to do analysis
+        fprintf('Adding a field: "%s" and removing the field "%s"\n', v1, v2)
+        temp_new = zeros(numel(var1.START), 1);
+        var1.(v1) = temp_new;
+        var1 = rmfield (var1, v2);
+    else
+        fprintf('Field "%s" already exists, no changes written\n', v1)
+    end
+    
+end
+
+%% Added field esetup_st2_color_level
+
+if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{4}(1) && date_current <= overwrite_temp_index{4}(end)
+    
+    v1 = 'esetup_st2_color_level';
+
+    if ~isfield(var1, v1) && ~isfield(var1, v2) % check whether to do analysis
+        fprintf('Adding a field: "%s" \n', v1)
+        temp_new = zeros(numel(var1.START), 1);
+        var1.(v1) = temp_new;
+    else
+        fprintf('Field "%s" already exists, no changes written\n', v1)
+    end
+    
 end
 
 

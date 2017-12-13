@@ -16,6 +16,9 @@ if size(mat1,1)>1
     end
     b1 = bootstrapnan(a1,settings.tboot1);
     pct1 = prctile(b1,[2.5,97.5]);
+    if size(pct1,1)==1 && size(pct1,2)>1
+        pct1 = pct1';
+    end
     for k=1:size(mat1,3)
         i1=1+(size(mat1,2)*k)-size(mat1,2);
         i2=(size(mat1,2)*k);

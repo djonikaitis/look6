@@ -13,22 +13,9 @@ end
 settings = get_settings_ini_v10(settings);
 
 
-% % Axis properties
-% minaxis1=50; % Limits latencies plotted
-% maxaxis1=200; % Limits latencies plotted
-% tick_small=[50:100:maxaxis1]; % Step for small tick
-% tick_large=[100:100:maxaxis1]; % Step for large tick
-% xi=[0:1:360]; % Circle size for interpolation
-% plotang=90; % Angle at which tick marks are drawn
-%
-%
-% % Combine two sides?
-% bilateral1=1; % 1-both sided ploted; 2-two sides are combined into one & plotted pretending as if it was 2 sides
-
-
 %% Extra settings
 
-settings.figure_folder_name = 'srt radial';
+settings.figure_folder_name = 'srt position';
 settings.figure_size_temp = settings.figsize_1col;
 settings.stats_file_name = sprintf('statistics_%s_', settings.figure_folder_name);
 
@@ -57,58 +44,273 @@ for i_subj=1:length(settings.subjects)
         S = get_struct_v11(path1);
         sacc1 = get_struct_v11(path2);
         
-        %             %=====
-        %             % Get current training conditions
-        %             c1 = unique(S.esetup_exp_version);
-        %
-        %             % Initialize matrices
-        %             if i_date==1
-        %                 conds1 = c1;
-        %                 test1 = NaN(1, numel(dates_used), numel(c1), 3);
-        %             end
-        %
-        %             % Add extra conditions if needed
-        %             if i_date>1
-        %                 for i=1:numel(c1)
-        %                     a = strcmp(conds1, c1{i});
-        %                     if sum(a)==0
-        %                         m = numel(conds1);
-        %                         conds1{m+1,1} = c1{i};
-        %                         test1(1, :, m+1, 1:3) = NaN;
-        %                     end
-        %                 end
-        %             end
-        %
+        %===============
+        % Figure folder
+        temp_switch = 0;
+        if numel(dates_used)>1 && i_date==1
+            a = sprintf('dates %s - %s', num2str(dates_used(1)), num2str(dates_used(end)));
+            path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, a);
+            temp_switch = 1;
+        elseif numel(dates_used)>1 && i_date>1
+            temp_switch = 0;
+        elseif numel(dates_used)==1
+            path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name);
+            temp_switch = 1;
+        end
+        
+        % Overwrite figure folders
+        if  temp_switch == 1
+            if ~isdir(path_fig) || settings.overwrite==1
+                if ~isdir(path_fig)
+                    mkdir(path_fig)
+                elseif isdir(path_fig)
+                    try
+                        rmdir(path_fig, 's')
+                    end
+                    mkdir(path_fig)
+                end
+            end
+        end
+        
+        % Initialize text file for statistics
+        if  temp_switch == 1
+            nameOut = sprintf('%s%s.txt', path_fig, settings.stats_file_name); % File to be outputed
+            fclose('all');
+            fout = fopen(nameOut,'w');
+        end
+        
+        %% Analysis
+        
+        % Reset data
+        if isfield(S, 'target_on')
+            S.sacconset = sacc1.saccade_matrix(:,1)-S.target_on;
+        end
+        
+        %==============
+        % Exp condition
+        S.expcond = NaN(size(S.session,1),1);
+        
+        index1 = strncmp(sacc1.trial_accepted, 'correct', 7) & S.esetup_target_number==1 & strcmp(S.esetup_block_cond, 'look') & ...
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0 & cell2mat(S.probe_extended_map)==1;
+        S.expcond(index1)=1;
+        
+        index1 = strncmp(sacc1.trial_accepted, 'correct', 7) & S.esetup_target_number==1 & strcmp(S.esetup_block_cond, 'avoid') & ...
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0 & cell2mat(S.probe_extended_map)==1;
+        S.expcond(index1)=2;
+        
+        index1 = strncmp(sacc1.trial_accepted, 'correct', 7) & S.esetup_target_number==2 & strcmp(S.esetup_block_cond, 'look') & ...
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0 & cell2mat(S.probe_extended_map)==1;
+        S.expcond(index1)=3;
+        
+        index1 = strncmp(sacc1.trial_accepted, 'correct', 7) & S.esetup_target_number==2 & strcmp(S.esetup_block_cond, 'avoid') & ...
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0 & cell2mat(S.probe_extended_map)==1;
+        S.expcond(index1)=4;
+        
+        index1 = strcmp(sacc1.trial_accepted, 'wrong target') & S.esetup_target_number==2 & strcmp(S.esetup_block_cond, 'look') & ...
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0 & cell2mat(S.probe_extended_map)==1;
+        S.expcond(index1)=5;
+        
+        index1 = strcmp(sacc1.trial_accepted, 'wrong target') & S.esetup_target_number==2 & strcmp(S.esetup_block_cond, 'avoid') & ...
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0 & cell2mat(S.probe_extended_map)==1;
+        S.expcond(index1)=6;
+        
+        index1 = strncmp(sacc1.trial_accepted, 'correct', 7) & S.esetup_target_number==1 & strcmp(S.esetup_block_cond, 'control fixate') & ...
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0 & cell2mat(S.probe_extended_map)==1;
+        S.expcond(index1)=7;
+        
+        %===============
+        % Memory position
+        [th,radius1] = cart2pol(S.esetup_memory_coord(:,1), S.esetup_memory_coord(:,2));
+        arc1 = (th*180)/pi;
+        m1 = [round(arc1,1), round(radius1, 1)];
+        m2 = unique(m1, 'rows');
+        S.esetup_memory_arc = round(m1(:,1), 1);
+        S.esetup_memory_radius = round(m1(:,2), 1);
+        
+        
+        % ST1 position
+        [th,radius1] = cart2pol(S.esetup_st1_coord(:,1), S.esetup_st1_coord(:,2));
+        arc1 = (th*180)/pi;
+        m1 = [round(arc1,1), round(radius1, 1)];
+        m2 = unique(m1, 'rows');
+        S.esetup_st1_arc = round(m1(:,1),1);
+        S.esetup_st1_radius = round(m1(:,2), 1);
+        
+        % Find relative probe-memory position
+        S.rel_arc = S.esetup_memory_arc - S.esetup_st1_arc;
+        S.rel_rad = S.esetup_st1_radius./S.esetup_memory_radius;
+        % Round off
+        S.rel_arc = round(S.rel_arc, 1);
+        S.rel_rad = round(S.rel_rad, 1);
+        % Reset to range -180:180
+        ind = S.rel_arc<=-180;
+        S.rel_arc(ind)=S.rel_arc(ind)+360;
+        ind = S.rel_arc>180;
+        S.rel_arc(ind)=S.rel_arc(ind)-360;
+        
+        % Determine unique stimulus positions
+        if i_date==1
+            b=cell(numel(dates_used), 1);
+        end
+        ind = ~isnan(S.expcond);
+        if sum(ind)>0
+            a = [S.rel_arc(ind), S.rel_rad(ind), S.esetup_memory_radius(ind)];
+            b{i_date} =  unique(a,'rows');
+        end
+        
+        % Initialize coordinates matrix
+        if i_date == 1
+            coords1 = [];
+            conds1 = [];
+        end
+        
+        % Add concatenation over different days
+        if numel(b)>0
+            coords1 = cell2mat(b);
+            coords1 = unique(coords1,'rows');
+        end
+        
+        % In the first instance, initialize all variables
+        if ~isempty(coords1) && isempty(conds1)
+            conds1 = coords1;
+            mat1_ini = cell(numel(dates_used), size(conds1,1), 8);
+            test1 = NaN(length(dates_used), size(conds1,1), 8);
+        end
+        
+        % In later instances, add extra conds1 values
+        if ~isempty(coords1) && ~isempty(conds1)
+            for i=1:size(coords1,1)
+                a = conds1 == coords1(i,:);
+                a = sum(a,2);
+                % If element is missing, add it to conds matrix
+                if sum(a==3)==0
+                    % Add element to conds1
+                    [m,n] = size(conds1);
+                    conds1(m+1,1:n) = coords1(i,1:n);
+                end
+            end
+        end
+        
+        %% SRT 
+        
+        for i=1:size(conds1,1)
+            for j=1:max(removeNaN(S.expcond))
+                
+                index1 = S.expcond==j & S.rel_arc==conds1(i,1) & S.rel_rad==conds1(i,2) &...
+                    S.esetup_memory_radius==conds1(i,3);
+                
+                if sum(index1)>0
+                    mat1_ini{i_date,i,j} = S.sacconset(index1);
+                end
+                test1(i_date,i,j)=sum(index1);
+                
+            end
+        end
         
         
     end
     % End of each day
+    
+    
+    %% Plot figure for each participant separately
+    
+    % Combine multipe days into one matrix;
+    % Get means and bootstrap data;
+    [~,n,o] = size(mat1_ini);
+    mat2_ini = NaN(1, n, o);
+    mat2_ini_upper = NaN(1, n, o);
+    mat2_ini_lower = NaN(1, n, o);
+
+    
+    for i1 = 1:size(mat1_ini, 3)
+        
+        % Combine days into one matrix
+        mat0 = cell(size(conds1,1), 1);
+        for i=1:size(conds1,1)
+            c1 = cell(1);
+            c1{1} = mat1_ini(:,i,i1);
+            mat0{i} = cell2mat(c1{1});
+        end
+        
+        % Get pbins
+        [pbins, b_ind] = sort(conds1(:,1), 'ascend');
+        
+        % Get average data
+        for j1=1:size(mat2_ini, 2)
+            mat2_ini(1,j1,i1)= median(mat0{b_ind(j1)});
+        end
+        
+        % Get error bars
+        for j1=1:size(mat2_ini, 2)
+            temp1 = mat0{b_ind(j1)};
+            a = plot_helper_error_bar_calculation_v10(temp1, settings);
+            try
+                mat2_ini_upper(1,j1,i1)= a.se_upper;
+                mat2_ini_lower(1,j1,i1)= a.se_lower;
+            end
+        end
+        
+    end
+    
+    %% Figure 1
+    
+    if ~isempty(dates_used)
+        
+        % Initialize data
+        %=================
+        fig1=1;
+        
+        % Data
+        mat1(:,:,1:2) = mat2_ini(:,:,1:2);
+        mat1(:,:,3) = mat2_ini(:,:,7);
+
+        % Initialize structure
+        plot_set = struct;
+        plot_set.mat1 = mat1;
+        plot_set.pbins = pbins;
+        
+        plot_set.data_color = [1, 2, 3];
+        
+        for i=1:size(mat1,3)
+            plot_set.legend{1} = 'Look';
+            plot_set.legend{2} = 'Avoid';
+            plot_set.legend{3} = 'Control fixate';
+            plot_set.legend_y_coord(i) = 100 - (i*10);
+            plot_set.legend_x_coord(i) = [pbins(1)];
+        end
+        
+        % Labels for plotting
+        plot_set.XTick = [-90:90:90];
+        plot_set.x_plot_bins = pbins;
+        plot_set.XLim = [pbins(1)-5, pbins(end)+5];
+        plot_set.YTick = [100:25:200];
+        plot_set.YLim = [min(plot_set.legend_y_coord)-10, 205];
+        plot_set.figure_title = 'Performance';
+        plot_set.xlabel = 'Probe position, deg';
+        plot_set.ylabel = 'RT, ms';
+        
+        % Save data
+        plot_set.figure_size = settings.figure_size_temp;
+        plot_set.figure_save_name = 'figure';
+        plot_set.path_figure = path_fig;
+        
+        % Plot
+        hfig = figure;
+        hold on;
+        plot_helper_basic_line_figure;
+        
+        plot_helper_save_figure;
+        close all;
+    end
+        
+    
 end
 % End of each subject
 
 
 
 
-%
-%         %=============
-%         % Combine data from all days
-%         if current_day==1
-%             A = S;
-%         elseif current_day>1
-%             f1_data = fieldnames(A);
-%             for i=1:length(f1_data);
-%                 try
-%                     A.(f1_data{i})=[A.(f1_data{i}); S.(f1_data{i})];
-%                 end
-%             end
-%         end
-%         %============
-%
-%     end
-%     % End of analysis for each day
-%
-%     % Save the data into structure S
-%     S = A;
+
 %
 %     %===============
 %     %===============
@@ -126,73 +328,8 @@ end
 %         probeposConds=(unique(removeNaN(S.objposrel)));
 %     end
 %
-%     % Exp Condition
-%     S.expcond=NaN(size(S.data,1),1);
-%     % Look trials
-%     index=S.maincond==1 & S.trialaccepted==-1 & S.target_number==1 & S.t3_pos(:,2)==S.t1_pos(:,2) & S.training_stage_exp==7;
-%     S.expcond(index)=1;
-%     % Avoid trials
-%     index=S.maincond==2 & S.trialaccepted==-1 & S.target_number==1 & S.t3_pos(:,2)==S.t1_pos(:,2) & S.training_stage_exp==7;
-%     S.expcond(index)=2;
-%     % Look trials (2 targest)
-%     index=S.maincond==1 & S.trialaccepted==-1 & S.target_number==2 & S.training_stage_exp==7;
-%     S.expcond(index)=3;
-%     S.objposrel(index)=0; % Re-mark target-distractor distance
-%     % Avoid trials (2 targets)
-%     index=S.maincond==2 & S.trialaccepted==-1 & S.target_number==2 & S.training_stage_exp==7;
-%     S.expcond(index)=4;
-%
-%     % Reset saccade onset time to target onset (originally its relative to trial start)
-%     S.sacconset=S.sacconset-S.target1_on;
-%
-%     %====================
-%     % Saccade RT
-%
-%     mat1_data=NaN(1, length(probeposConds), max(S.expcond),1);
-%     d1_data=NaN(1, length(probeposConds), max(S.expcond),1);
-%     f1_data=NaN(1, length(probeposConds), max(S.expcond),1);
-%     test1=NaN(1, length(probeposConds), max(S.expcond),1);
-%
-%     for i=1:max(S.expcond);
-%         for j=1:length(probeposConds)
-%
-%             % Index
-%             index1=S.expcond==i & S.objposrel==probeposConds(j);
-%
-%             if sum(index1)>settings.trial_total_threshold
-%
-%                 % Calculate means
-%                 mat1_data(subj1,j,i)=nanmedian(S.sacconset(index1),1);
-%
-%                 % Add SRT variability for each subject
-%                 % Calculate error bars
-%                 a1=[]; b1=[]; c1=[];
-%                 if settings.error_bars==1
-%                     % Bootstrap the sample
-%                     a1 = S.sacconset(index1);
-%                     b1 = bootstrap(a1,tboot1);
-%                     c1 = prctile(b1,[2.5,97.5]);
-%                     d1_data(subj1,j,i) = mat1_data(subj1,j,i) - c1(1); % Lower bound (2.5 percentile)
-%                     f1_data(subj1,j,i) = mat1_data(subj1,j,i) + c1(2); % Upper bound (97.5 percentile)
-%                 elseif settings.error_bars==2
-%                     % SEM
-%                     a1 = S.sacconset(index1);
-%                     d1_data(subj1,j,i) = mat1_data(subj1,j,i) - se(a1); % Standard error, lower bound (identical to upper one)
-%                     f1_data(subj1,j,i) = mat1_data(subj1,j,i) + se(a1); % Standard error, upper bound (identical to lower one)
-%                 end
-%
-%
-%             end
-%             test1(1,j,i)=sum(index1);
-%
-%         end
-%     end
-%
-%
-%
-% end
-% % End of analysis for each subject
-%
+
+
 %
 % %% Plot
 %
