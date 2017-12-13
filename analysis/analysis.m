@@ -11,7 +11,7 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % 'subject id' or 'all' to run all subjects
-settings.subjects = 'hb';
+settings.subjects = 'all';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
@@ -19,7 +19,10 @@ settings.data_sessions = 'all';
  
 % which setup
 % 'dj office', 'plexon', 'edoras'
-settings.exp_setup = 'plexon';
+% settings.exp_setup = 'plexon';
+settings.exp_setup = 'dj office';
+% settings.exp_setup = 'edoras';
+
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -78,7 +81,7 @@ end
 
 %% Preprocessing: prepare combined folder, convert eylink data into degrees, do drift correction
 
-do_this_analysis = 1;
+do_this_analysis = 0;
 
 if do_this_analysis == 1
     
@@ -86,7 +89,7 @@ if do_this_analysis == 1
     % reset saccades to degrees of visual angle; do drift correction
     settings.preprocessing_eyelink_conversion = 1;
     if settings.preprocessing_eyelink_conversion == 1
-        settings.overwrite = 1; % If 1, runs analysis again even if it was done
+        settings.overwrite = 0; % If 1, runs analysis again even if it was done
         preprocessing_eyelink_conversion_v14(settings);
     end
     
@@ -111,7 +114,7 @@ end
 
 %% Preprocessing: detect and plot saccades
 
-do_this_analysis = 0;
+do_this_analysis = 1;
 
 if do_this_analysis == 1
     
@@ -123,7 +126,7 @@ if do_this_analysis == 1
     end
     
     % Plot eye traces for manual inspection
-    settings.plot_saccades_raw = 1;
+    settings.plot_saccades_raw = 0;
     if settings.plot_saccades_raw == 1
         settings.overwrite = 0;
         look6_preprocessing_plot_saccades_raw;
@@ -133,7 +136,7 @@ end
 
 %% Behavioural data analysis
 
-do_this_analysis = 0;
+do_this_analysis = 1;
 
 if do_this_analysis == 1
     
@@ -151,12 +154,25 @@ if do_this_analysis == 1
         look6_analysis_plot_last_day_performance;
     end
     
+    % Plot day to day trials accepted/rejected
+    settings.analysis_plot_look_avoid_training = 0;
+    if settings.analysis_plot_look_avoid_training==1
+        settings.overwrite = 1;
+        look6_analysis_plot_look_avoid_training;
+    end
     
     % Bar graph of look/avoid task performance
-    settings.analysis_errors_timecourse = 0;
-    if settings.analysis_errors_timecourse==1
+    settings.analysis_srt_bar = 0;
+    if settings.analysis_srt_bar==1
         settings.overwrite = 1;
-        look6_analysis_saccade_rt_bar;
+        look6_analysis_SRT_bar;
+    end
+    
+    % Bar graph of look/avoid task performance
+    settings.analysis_srt_positions = 0;
+    if settings.analysis_srt_positions==1
+        settings.overwrite = 1;
+        look6_analysis_SRT_positions;
     end
     
 end

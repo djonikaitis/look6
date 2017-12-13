@@ -189,6 +189,7 @@ for i_subj=1:length(settings.subjects)
                     % Add element to mat1_ini
                     [~, n, o] = size(mat1_ini);
                     mat1_ini(:, n+1, 1:o) = NaN;
+                    test1(:, n+1, 1:o) = NaN;
                 end
             end
         end
