@@ -19,8 +19,8 @@ settings.data_sessions = 'all';
  
 % which setup
 % 'dj office', 'plexon', 'edoras'
-% settings.exp_setup = 'plexon';
-settings.exp_setup = 'dj office';
+settings.exp_setup = 'plexon';
+% settings.exp_setup = 'dj office';
 % settings.exp_setup = 'edoras';
 
 
@@ -196,14 +196,7 @@ end
 %     look6_preprocessing_plexon_match_events;
 %     look6_preprocessing_plexon_match_plot;
 % end
-%
-% % Combine settings and saccades files into one file;
-% % reset saccades to degrees of visual angle; do drift correction
-% settings.preprocessing_eyelink_conversion = 1;
-% if settings.preprocessing_eyelink_conversion == 1
-%     settings.overwrite = 1; % If 1, runs analysis again even if it was done
-%     preprocessing_eyelink_conversion_v13(settings);
-% end
+
 
 
 %% Neurophysiology data analysis

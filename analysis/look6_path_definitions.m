@@ -40,7 +40,7 @@ if isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon')
     settings.path_baseline_plexon = 'C:\Users\Plexon\Desktop\Experiments_data\';
     
     % Path to plexon toolbox
-    settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';
+    settings.path_plexon_toolbox = 'C:\Users\Plexon\Desktop\Experiments\toolbox\PlexonMatlabOfflineFiles\';
     
     % Path to server to download data
     settings.path_baseline_server = 'Y:\data\RigE\Experiments_data\';
@@ -66,8 +66,8 @@ if isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'edoras')
     settings.path_baseline_plexon = 'C:\Users\Rig-E\Desktop\Experiments_data\';
     
     % Path to plexon toolbox
-    settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';
-    
+    settings.path_plexon_toolbox = 'C:\Users\Rig-E\Desktop\Experiments\toolbox\PlexonMatlabOfflineFiles\';
+
     % Path to server to download data
     settings.path_baseline_server = 'Z:\data\RigE\Experiments_data\';
     

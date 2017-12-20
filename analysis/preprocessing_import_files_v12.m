@@ -64,12 +64,3 @@ for i_subj = 1:length(settings.subjects)
 end
 % End of analysis for each subject
 
-
-
-
-
-
-
-
-
-

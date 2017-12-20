@@ -23,7 +23,7 @@ elseif strcmp (settings.data_sessions, 'after')
 elseif strcmp (settings.data_sessions, 'interval')
     settings.data_sessions_temp = [20171201, 20171212]; 
 elseif strcmp(settings.data_sessions, 'selected')
-    settings.data_sessions_temp = 20171130; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
+    settings.data_sessions_temp = 20171214; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
 
 
@@ -74,6 +74,7 @@ end
 %%  Folders where different data is stored
 
 % Names of folders (no changes here needed)
+path_spec_names = cell(1);
 path_spec_names{1} = {'figures'; settings.path_baseline_figures};
 path_spec_names{2} = {'data_combined'; settings.path_baseline_data};
 path_spec_names{3} = {'data_psychtoolbox'; settings.path_baseline_data};
@@ -82,8 +83,9 @@ path_spec_names{5} = {'data_temp_1';  settings.path_baseline_data}; % Converted 
 path_spec_names{6} = {'data_temp_2'; settings.path_baseline_data}; % Combine saccades + psychtoolbox into one file
 path_spec_names{7} = {'data_plexon_mat'; settings.path_baseline_plexon};
 path_spec_names{8} = {'data_plexon_raw'; settings.path_baseline_plexon};
-path_spec_names{9} = {'data_combined_plexon'; settings.path_baseline_data};
-path_spec_names{10} = {'data_spikes'; settings.path_baseline_data};
+path_spec_names{9} = {'data_plexon_temp1'; settings.path_baseline_plexon};
+% path_spec_names{10} = {'data_combined_plexon'; settings.path_baseline_data};
+% path_spec_names{11} = {'data_spikes'; settings.path_baseline_data};
 
 
 % Generate path names
