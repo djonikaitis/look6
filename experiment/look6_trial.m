@@ -3,6 +3,16 @@
 window = expsetup.screen.window;
 
 
+%% EYETRACKER INITIALIZE
+
+% Start recording
+if expsetup.general.recordeyes==1
+    Eyelink('StartRecording');
+    msg1=['TrialStart ', num2str(tid)];
+    Eyelink('Message', msg1);
+    WaitSecs(0.1);  % Record a few samples before we actually start displaying
+end
+
 %% Luminance updating only:
 % If block number has changed, reset stimulus luminance updating
 % This is specific to only luminance changes; This works for interleaved
@@ -108,16 +118,6 @@ ind_task = sprintf('%s', expsetup.stim.esetup_block_cond{tid});
 msg1 = sprintf('%s task, trial %i of %i, block %i', ind_task, ind_tid, ind_total, ind_block);
 fprintf('%s\n', msg1)
 
-
-%% EYETRACKER INITIALIZE
-
-% Start recording
-if expsetup.general.recordeyes==1
-    Eyelink('StartRecording');
-    msg1=['TrialStart ', num2str(tid)];
-    Eyelink('Message', msg1);
-    WaitSecs(0.1);  % Record a few samples before we actually start displaying
-end
 
 % SEND MESSAGE WITH TRIAL ID TO EYELINK
 if expsetup.general.recordeyes==1
@@ -1309,16 +1309,6 @@ if tid>=expsetup.stim.trial_abort_counter
 end
 
 
-%% STOP EYELINK RECORDING
-
-if expsetup.general.recordeyes==1
-    msg1=['TrialEnd ',num2str(tid)];
-    Eyelink('Message', msg1);
-    Eyelink('StopRecording');
-end
-
-fprintf('  \n')
-
 %% Save texture as a separate file for each trial (to make memory faster)
 
 dir1 = [expsetup.general.directory_data_psychtoolbox_subject];
@@ -1328,6 +1318,7 @@ end
 f_name = ['trial_' num2str(tid), '_texture_matrix'];
 d1 = sprintf('%s%s', dir1, f_name);
 save (d1, 'xy_texture_combined');
+
 
 %% End experiment?
 
@@ -1353,6 +1344,14 @@ if expsetup.stim.esetup_block_no(tid) == expsetup.stim.number_of_blocks
 end
 
 
+%% STOP EYELINK RECORDING
 
+if expsetup.general.recordeyes==1
+    msg1=['TrialEnd ',num2str(tid)];
+    Eyelink('Message', msg1);
+    Eyelink('StopRecording');
+end
+
+fprintf('  \n')
 
 

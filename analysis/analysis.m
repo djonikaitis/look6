@@ -10,19 +10,16 @@ close all;
 settings.exp_name = 'look6';
 
 % Which subject to run?
-% 'subject id' or 'all' to run all subjects
-settings.subjects = 'all';
+% use subject initials for one subject or 'all' to run all subjects
+settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'all';
+settings.data_sessions = 'selected';
  
-% which setup
-% 'dj office', 'plexon', 'edoras'
-settings.exp_setup = 'plexon';
-% settings.exp_setup = 'dj office';
-% settings.exp_setup = 'edoras';
-
+% which setup?
+% 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
+settings.exp_setup = 'unknown';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -31,13 +28,14 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 
 % Import raw data files of psychtoolbox & eyelink
 % This step should be default for most experiments
+% Data is not analysed, only combined
 
 do_this_analysis = 0;
 
 if do_this_analysis == 1
     
     % Connect to server and import data from it
-    settings.data_import_from_server = 1;
+    settings.data_import_from_server = 0;
     if settings.data_import_from_server == 1
         settings.data_direction = 'download';
         settings.import_folders_include = {};
@@ -53,7 +51,7 @@ if do_this_analysis == 1
     % Modify raw settings file for bugs (only bugs are fixed)
     settings.overwrite_raw_settings = 1;
     if settings.overwrite_raw_settings == 1
-        settings.overwrite=1;
+        settings.overwrite=0;
         preprocessing_overwrite_raw_settings_v10(settings);
     end
     
@@ -65,13 +63,13 @@ if do_this_analysis == 1
     end
     
     % Connect to server and import data from it
-    settings.data_export_to_server = 1;
+    settings.data_export_to_server = 0;
     if settings.data_export_to_server == 1
         settings.data_direction = 'upload';
         settings.import_folders_include = {};
         settings.import_folders_include{1} = 'data_temp_1';
-        settings.import_folders_include{3} = 'data_temp_2';
-        settings.import_folders_include{2} = 'data_psychtoolbox';
+        settings.import_folders_include{2} = 'data_temp_2';
+        settings.import_folders_include{3} = 'data_psychtoolbox';
         % Run code
         preprocessing_data_import_server_v22(settings);
     end
@@ -81,9 +79,9 @@ end
 
 %% Preprocessing: prepare combined folder, convert eylink data into degrees, do drift correction
 
-do_this_analysis = 0;
+do_this_analysis = 1;
 
-if do_this_analysis == 1
+if do_this_analysis == 1 
     
     % Combine settings and saccades files into one file;
     % reset saccades to degrees of visual angle; do drift correction
@@ -105,7 +103,7 @@ if do_this_analysis == 1
     % Modify raw settings for compatibility between experiments
     settings.overwrite_all_settings = 1;
     if settings.overwrite_all_settings == 1
-        settings.overwrite=1;
+        settings.overwrite = 1;
         preprocessing_overwrite_all_settings_v10(settings);
     end
     
@@ -136,7 +134,7 @@ end
 
 %% Behavioural data analysis
 
-do_this_analysis = 1;
+do_this_analysis = 0;
 
 if do_this_analysis == 1
     
@@ -180,23 +178,28 @@ end
 
 %% Import plexon files
 
+do_this_analysis = 1;
 
-% % % % Creates folder "combined_plexon" which contains all spikes, events etc
-% % % settings.preprocessing_plexon_import = 0;
-% % % settings.overwrite = 1; % If 1, runs analysis again even if it was done
-% % % if settings.preprocessing_plexon_import == 1
-% % %     look5_preprocessing_plexon_import;
-% % % end
-%
-% % Match plexon events with psychtoolbox events. Creates matrix
-% % events_matched
-% settings.preprocessing_plexon_match_events = 1;
-% settings.overwrite = 1; % If 1, runs analysis again even if it was done
-% if settings.preprocessing_plexon_match_events == 1
-%     look6_preprocessing_plexon_match_events;
-%     look6_preprocessing_plexon_match_plot;
-% end
-
+if do_this_analysis == 1
+    
+    % Creates folder "plexon_temp2" which contains all spikes, events etc
+    settings.preprocessing_plexon_import = 1;
+    settings.overwrite = 1; % If 1, runs analysis again even if it was done
+    if settings.preprocessing_plexon_import == 1
+        preprocessing_plexon_import_events_and_analog;
+        preprocessing_plexon_import_spikes_manually_sorted;
+    end
+    
+    % Match plexon events with psychtoolbox events. Creates matrix
+    % events_matched
+    settings.preprocessing_plexon_match_events = 1;
+    settings.overwrite = 0; % If 1, runs analysis again even if it was done
+    if settings.preprocessing_plexon_match_events == 1
+        look6_preprocessing_plexon_match_events;
+        look6_preprocessing_plexon_match_events_plot;
+    end
+    
+end
 
 
 %% Neurophysiology data analysis
@@ -212,7 +215,7 @@ end
 % %     look6_analysis_spikes_timecourse;
 % % end
 %
-% % % Spiking rates for different conditions
+% % % Spiking rates for different conditions 
 % % settings.analysis_orientation_profile = 1;
 % % settings.overwrite = 1;
 % % if settings.analysis_orientation_profile==1

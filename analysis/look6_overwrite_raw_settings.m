@@ -3,6 +3,8 @@
 % fix eframes_fixation_offset & edata_fixation_off
 overwrite_temp_index{1} = 20170801:20171028;
 
+% Fix exp matrix size mismatch for HB on 12.21.2017 (remove trial no 601, as this trial does not exist)
+overwrite_temp_index{2} = 20171221;
 
 %% Fixation offset time bug
 
@@ -64,3 +66,27 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{1
     end
 end
 
+%% Fix exp matrix size mismatch for HB on 12.21.2017 (remove trial no 601, as this trial does not exist)
+
+if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{2}(1) && date_current <= overwrite_temp_index{2}(end)
+    if strcmp(var1.general.expname, 'look6') && strcmp(var1.general.subject_id, 'hb')
+        
+        f1 = fieldnames(var1.stim);
+        for i = 1:numel(f1)
+            [m,n] = size(var1.stim.(f1{i}));
+            
+            if m==601
+                
+                fprintf('Reducing the size of the field: %s\n', f1{i})
+                
+                % Remove extra cell or row
+                if iscell(var1.stim.(f1{i}))
+                    var1.stim.(f1{i})(m)=[];
+                else
+                    var1.stim.(f1{i})(m,:)=[];
+                end
+            end
+        end
+        
+    end
+end

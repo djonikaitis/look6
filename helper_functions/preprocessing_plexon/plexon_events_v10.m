@@ -23,7 +23,6 @@ function plexon_events_v10(path_in_full, path_out_full)
 % evcounts - event counts
 [tscounts, wfcounts, evcounts, contcounts] = plx_info(f_name,1);
 
-
 %% Events
 
 

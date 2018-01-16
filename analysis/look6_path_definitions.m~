@@ -1,8 +1,5 @@
 % Define the paths where code, figures, data, server access is specified.
 
-
-%% Get mac address for automatic setup assignment
-
 try
     localhost = java.net.InetAddress.getLocalHost;
     networkinterface = java.net.NetworkInterface.getByInetAddress(localhost);
@@ -12,8 +9,7 @@ catch
     error ('Could not get mac address')
 end
 
-
-%% DJ office computer
+%% DJ office
 
 if (~isempty (macaddress) && sum(macaddress==[136; 99; 223; 185; 223; 187])==6) || ...
     (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'dj office'))
@@ -38,7 +34,7 @@ if (~isempty (macaddress) && sum(macaddress==[136; 99; 223; 185; 223; 187])==6) 
 end
 
 
-%% Plexon computer lab
+%% Plexon computer
     
 if isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon')
     
@@ -92,6 +88,6 @@ end
 
 %% Catch errors
 
-if ~isfield (settings, 'path_baseline_code')
-    error ('No paths are specified in the path_definitions file');
+if ~isfield (settings.path_baseline_code) && ~isfield (settings, 'path_baseline_code')
+    error ('exp_setup not defined. No paths are specified in the path_definitions file');
 end
