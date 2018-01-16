@@ -49,17 +49,17 @@ if (~isempty (macaddress) && sum(macaddress==[100; 0; 106; 109; 3; 123])==6) || 
     settings.path_baseline_figures = 'E:\DJ_exp\Experiments_figures\';
     
     % "Experiments_data" folder with eyelink and psychtoolbox data:
-    settings.path_baseline_data = 'E:\DJ_exp\Experiments_data';
+    settings.path_baseline_data = 'E:\DJ_exp\Experiments_data\';
     
     % "Experiments_data" folder, with plexon data:
     % (might differ from other psychtoolbox data folder due to large plexon file sizes)
-    settings.path_baseline_plexon = 'E:\DJ_exp\Experiments_data';
+    settings.path_baseline_plexon = 'E:\DJ_exp\Experiments_data\';
     
     % Path to plexon toolbox
     settings.path_plexon_toolbox = 'E:\DJ_exp\Experiments\toolbox\PlexonMatlabOfflineFiles\';
     
     % Path to server to download data
-    settings.path_baseline_server = 'Z:\data\RigE\Experiments_data';
+    settings.path_baseline_server = 'Z:\data\RigE\Experiments_data\';
     
     % Path to eyelink converter
     settings.edf2asc_path = '"E:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc.exe"';
