@@ -13,7 +13,7 @@ catch
 end
 
 
-%% DJ office computer
+%% DJ office
 
 if (~isempty (macaddress) && sum(macaddress==[136; 99; 223; 185; 223; 187])==6) || ...
     (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'dj office'))
@@ -38,57 +38,87 @@ if (~isempty (macaddress) && sum(macaddress==[136; 99; 223; 185; 223; 187])==6) 
 end
 
 
-%% Plexon computer lab
-    
-if isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon')
-    
+%% Plexon office
+
+
+if (~isempty (macaddress) && sum(macaddress==[100; 0; 106; 109; 3; 123])==6) || ...
+    (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon office'))
+
     % "analysis" code is stored in:
-    settings.path_baseline_code = 'C:\Users\Plexon\Desktop\Experiments\';
-    settings.path_baseline_figures = 'C:\Users\Plexon\Desktop\Experiments_figures\';
+    settings.path_baseline_code = 'E:\DJ_exp\Experiments\';
+    settings.path_baseline_figures = 'E:\DJ_exp\Experiments_figures\';
     
     % "Experiments_data" folder with eyelink and psychtoolbox data:
-    settings.path_baseline_data = 'C:\Users\Plexon\Desktop\Experiments_data\';
+    settings.path_baseline_data = 'E:\DJ_exp\Experiments_data';
     
     % "Experiments_data" folder, with plexon data:
     % (might differ from other psychtoolbox data folder due to large plexon file sizes)
-    settings.path_baseline_plexon = 'C:\Users\Plexon\Desktop\Experiments_data\';
+    settings.path_baseline_plexon = 'E:\DJ_exp\Experiments_data';
     
     % Path to plexon toolbox
-    settings.path_plexon_toolbox = 'C:\Users\Plexon\Desktop\Experiments\toolbox\PlexonMatlabOfflineFiles\';
+    settings.path_plexon_toolbox = 'E:\DJ_exp\Experiments\toolbox\PlexonMatlabOfflineFiles\';
     
     % Path to server to download data
-    settings.path_baseline_server = 'Y:\data\RigE\Experiments_data\';
+    settings.path_baseline_server = 'Z:\data\RigE\Experiments_data';
     
     % Path to eyelink converter
-    settings.edf2asc_path = '"C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc.exe"';
+    settings.edf2asc_path = '"E:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc.exe"';
     
 end
+
+
+%% Plexon computer lab
+    
+% if isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon')
+%     
+%     % "analysis" code is stored in:
+%     settings.path_baseline_code = 'C:\Users\Plexon\Desktop\Experiments\';
+%     settings.path_baseline_figures = 'C:\Users\Plexon\Desktop\Experiments_figures\';
+%     
+%     % "Experiments_data" folder with eyelink and psychtoolbox data:
+%     settings.path_baseline_data = 'C:\Users\Plexon\Desktop\Experiments_data\';
+%     
+%     % "Experiments_data" folder, with plexon data:
+%     % (might differ from other psychtoolbox data folder due to large plexon file sizes)
+%     settings.path_baseline_plexon = 'C:\Users\Plexon\Desktop\Experiments_data\';
+%     
+%     % Path to plexon toolbox
+%     settings.path_plexon_toolbox = 'C:\Users\Plexon\Desktop\Experiments\toolbox\PlexonMatlabOfflineFiles\';
+%     
+%     % Path to server to download data
+%     settings.path_baseline_server = 'Y:\data\RigE\Experiments_data\';
+%     
+%     % Path to eyelink converter
+%     settings.edf2asc_path = '"C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc.exe"';
+%     
+% end
+
 
 %% Experiments computer
 
-if isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'edoras')
-    
-    % "analysis" code is stored in:
-    settings.path_baseline_code = 'C:\Users\Rig-E\Desktop\GitExp\';
-    settings.path_baseline_figures = 'C:\Users\Rig-E\Desktop\Experiments_figures';
-    
-    % "Experiments_data" folder with eyelink and psychtoolbox data:
-    settings.path_baseline_data = 'C:\Users\Rig-E\Desktop\Experiments_data\';
-    
-    % "Experiments_data" folder, with plexon data:
-    % (might differ from other psychtoolbox data folder due to large plexon file sizes)
-    settings.path_baseline_plexon = 'C:\Users\Rig-E\Desktop\Experiments_data\';
-    
-    % Path to plexon toolbox
-    settings.path_plexon_toolbox = 'C:\Users\Rig-E\Desktop\Experiments\toolbox\PlexonMatlabOfflineFiles\';
-
-    % Path to server to download data
-    settings.path_baseline_server = 'Z:\data\RigE\Experiments_data\';
-    
-    % Path to eyelink converter 
-    settings.edf2asc_path = '"C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc.exe"';
-    
-end
+% if isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'edoras')
+%     
+%     % "analysis" code is stored in:
+%     settings.path_baseline_code = 'C:\Users\Rig-E\Desktop\GitExp\';
+%     settings.path_baseline_figures = 'C:\Users\Rig-E\Desktop\Experiments_figures';
+%     
+%     % "Experiments_data" folder with eyelink and psychtoolbox data:
+%     settings.path_baseline_data = 'C:\Users\Rig-E\Desktop\Experiments_data\';
+%     
+%     % "Experiments_data" folder, with plexon data:
+%     % (might differ from other psychtoolbox data folder due to large plexon file sizes)
+%     settings.path_baseline_plexon = 'C:\Users\Rig-E\Desktop\Experiments_data\';
+%     
+%     % Path to plexon toolbox
+%     settings.path_plexon_toolbox = 'C:\Users\Rig-E\Desktop\Experiments\toolbox\PlexonMatlabOfflineFiles\';
+% 
+%     % Path to server to download data
+%     settings.path_baseline_server = 'Z:\data\RigE\Experiments_data\';
+%     
+%     % Path to eyelink converter 
+%     settings.edf2asc_path = '"C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc.exe"';
+%     
+% end
 
 %% Catch errors
 
