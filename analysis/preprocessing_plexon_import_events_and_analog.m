@@ -33,7 +33,7 @@ for i_subj=1:length(settings.subjects)
     
     % Else attempt to retrieve pre-processed data
     if isempty(dates_used)
-        f1 = 'path_data_plexon_temp1_subject';
+        f1 = 'path_data_plexon_temp_1_subject';
         settings = get_settings_path_and_dates_ini_v11(settings, f1);
         dates_used = settings.data_sessions_to_analyze;
         p1 = settings.(f1);
@@ -67,7 +67,7 @@ for i_subj=1:length(settings.subjects)
             %===========
             
             % Output
-            f1 = 'path_data_plexon_temp2_subject';
+            f1 = 'path_data_plexon_temp_2_subject';
             path_out =  [settings.(f1), folder_name, '/'];
             path1 = [settings.(f1), folder_name, '/' folder_name, '_events.mat'];
             
@@ -102,7 +102,7 @@ for i_subj=1:length(settings.subjects)
             %===========
             
             % Output
-            f1 = 'path_data_plexon_temp2_subject';
+            f1 = 'path_data_plexon_temp_2_subject';
             path_out =  [settings.(f1), folder_name, '/'];
             path2 = [settings.(f1), folder_name, '/' folder_name, '_analog.mat'];
             channel_names{1} = 'AI01';

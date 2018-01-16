@@ -82,8 +82,8 @@ path_spec_names{4} = {'data_eyelink_edf'; settings.path_baseline_data};
 path_spec_names{5} = {'data_temp_1';  settings.path_baseline_data}; % Converted into .asc and .dat files
 path_spec_names{6} = {'data_temp_2'; settings.path_baseline_data}; % Combine saccades + psychtoolbox into one file
 path_spec_names{7} = {'data_plexon_raw'; settings.path_baseline_plexon}; % Raw plexon data
-path_spec_names{8} = {'data_plexon_temp1'; settings.path_baseline_plexon}; % Plex sorted data (using plex utility)
-path_spec_names{9} = {'data_plexon_temp2'; settings.path_baseline_plexon}; % Extracted spikes, events, analog - not processed at all
+path_spec_names{8} = {'data_plexon_temp_1'; settings.path_baseline_plexon}; % Plex sorted data (using plex utility)
+path_spec_names{9} = {'data_plexon_temp_2'; settings.path_baseline_plexon}; % Extracted spikes, events, analog - not processed at all
 path_spec_names{10} = {'data_combined_plexon'; settings.path_baseline_plexon}; % Mat structures of plexon data
 
 % path_spec_names{11} = {'data_spikes'; settings.path_baseline_data};

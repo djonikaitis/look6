@@ -16,9 +16,9 @@ settings.subjects = 'all';
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
 settings.data_sessions = 'all'; 
 
-% which setup
-% 'dj office', 'plexon', 'edoras'
-settings.exp_setup = 'plexon';
+% which setup?
+% 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
+settings.exp_setup = 'unknown';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 

@@ -16,7 +16,11 @@ end
 %% DJ office
 
 if (~isempty (macaddress) && sum(macaddress==[136; 99; 223; 185; 223; 187])==6) || ...
-    (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'dj office'))
+        (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'dj office'))
+    
+    % save setup name
+    settings.exp_setup = 'dj office';
+    fprintf('\n Successfully changed setup to "%s"\n\n', settings.exp_setup)
     
     % "analysis" code is stored in:
     settings.path_baseline_code = sprintf('~/proj/experiments/');
@@ -34,7 +38,7 @@ if (~isempty (macaddress) && sum(macaddress==[136; 99; 223; 185; 223; 187])==6) 
     
     % Path to server to download data
     settings.path_baseline_server = '/Volumes/tirin/data/RigE/Experiments_data/';
-    
+        
 end
 
 
@@ -43,6 +47,10 @@ end
 
 if (~isempty (macaddress) && sum(macaddress==[100; 0; 106; 109; 3; 123])==6) || ...
     (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon office'))
+
+    % save setup name
+    settings.exp_setup = 'plexon office';
+    fprintf('\n Successfully changed setup to "%s"\n\n', settings.exp_setup)
 
     % "analysis" code is stored in:
     settings.path_baseline_code = 'E:\DJ_exp\Experiments\';

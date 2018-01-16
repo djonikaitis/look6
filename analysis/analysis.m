@@ -178,11 +178,22 @@ end
 
 %% Import plexon files
 
-do_this_analysis = 1;
+do_this_analysis = 0;
 
 if do_this_analysis == 1
     
-    % Creates folder "plexon_temp2" which contains all spikes, events etc
+    % Connect to server and import data from it
+    settings.data_export_to_server = 1;
+    if settings.data_export_to_server == 1
+        settings.data_direction = 'download';
+        settings.import_folders_include = {};
+        settings.import_folders_include{1} = 'data_plexon_temp_2';
+        
+        % Run code
+        preprocessing_data_import_server_v22(settings);
+    end
+    
+    % Creates folder "plexon_temp_2" which contains all spikes, events etc
     settings.preprocessing_plexon_import = 1;
     settings.overwrite = 1; % If 1, runs analysis again even if it was done
     if settings.preprocessing_plexon_import == 1
@@ -190,26 +201,26 @@ if do_this_analysis == 1
         preprocessing_plexon_import_spikes_manually_sorted;
     end
     
-    % Match plexon events with psychtoolbox events. Creates matrix
-    % events_matched
-    settings.preprocessing_plexon_match_events = 1;
-    settings.overwrite = 0; % If 1, runs analysis again even if it was done
-    if settings.preprocessing_plexon_match_events == 1
-        look6_preprocessing_plexon_match_events;
-        look6_preprocessing_plexon_match_events_plot;
-    end
-    
-    % Connect to server and import data from it
-    settings.data_export_to_server = 1;
-    if settings.data_export_to_server == 1
-        settings.data_direction = 'upload';
-        settings.import_folders_include = {};
-        settings.import_folders_include{1} = 'data_plexon_temp_1';
-        settings.import_folders_include{2} = 'data_plexon_temp_2';
-
-        % Run code
-        preprocessing_data_import_server_v22(settings);
-    end
+%     % Match plexon events with psychtoolbox events. Creates matrix
+%     % events_matched
+%     settings.preprocessing_plexon_match_events = 1;
+%     settings.overwrite = 0; % If 1, runs analysis again even if it was done
+%     if settings.preprocessing_plexon_match_events == 1
+%         look6_preprocessing_plexon_match_events;
+%         look6_preprocessing_plexon_match_events_plot;
+%     end
+%     
+%     % Connect to server and import data from it
+%     settings.data_export_to_server = 1;
+%     if settings.data_export_to_server == 1
+%         settings.data_direction = 'upload';
+%         settings.import_folders_include = {};
+%         settings.import_folders_include{1} = 'data_plexon_temp_1';
+%         settings.import_folders_include{2} = 'data_plexon_temp_2';
+% 
+%         % Run code
+%         preprocessing_data_import_server_v22(settings);
+%     end
     
 end
 
