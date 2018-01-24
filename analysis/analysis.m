@@ -15,7 +15,7 @@ settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'selected';
+settings.data_sessions = 'all';
  
 % which setup?
 % 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
@@ -182,62 +182,43 @@ do_this_analysis = 0;
 
 if do_this_analysis == 1
     
-    % Connect to server and import data from it
-    settings.data_export_to_server = 1;
-    if settings.data_export_to_server == 1
-        settings.data_direction = 'download';
-        settings.import_folders_include = {};
-        settings.import_folders_include{1} = 'data_plexon_temp_2';
-        
-        % Run code
-        preprocessing_data_import_server_v22(settings);
-    end
-    
     % Creates folder "plexon_temp_2" which contains all spikes, events etc
     settings.preprocessing_plexon_import = 1;
-    settings.overwrite = 1; % If 1, runs analysis again even if it was done
+    settings.overwrite = 0; % If 1, runs analysis again even if it was done
     if settings.preprocessing_plexon_import == 1
         preprocessing_plexon_import_events_and_analog;
         preprocessing_plexon_import_spikes_manually_sorted;
     end
     
-%     % Match plexon events with psychtoolbox events. Creates matrix
-%     % events_matched
-%     settings.preprocessing_plexon_match_events = 1;
-%     settings.overwrite = 0; % If 1, runs analysis again even if it was done
-%     if settings.preprocessing_plexon_match_events == 1
-%         look6_preprocessing_plexon_match_events;
-%         look6_preprocessing_plexon_match_events_plot;
-%     end
-%     
-%     % Connect to server and import data from it
-%     settings.data_export_to_server = 1;
-%     if settings.data_export_to_server == 1
-%         settings.data_direction = 'upload';
-%         settings.import_folders_include = {};
-%         settings.import_folders_include{1} = 'data_plexon_temp_1';
-%         settings.import_folders_include{2} = 'data_plexon_temp_2';
-% 
-%         % Run code
-%         preprocessing_data_import_server_v22(settings);
-%     end
+    % Creates folder "plexon_data_combined" which contains all spikes, events etc
+    settings.preprocessing_plexon_spikes_prep = 1;
+    settings.overwrite = 0; % If 1, runs analysis again even if it was done
+    if settings.preprocessing_plexon_spikes_prep == 1
+        look6_preprocessing_plexon_spikes_prep;
+    end
+    
+    % Match plexon events with psychtoolbox events. Creates matrix
+    % events_matched
+    settings.preprocessing_plexon_match_events = 1;
+    settings.overwrite = 0; % If 1, runs analysis again even if it was done
+    if settings.preprocessing_plexon_match_events == 1
+        look6_preprocessing_plexon_match_events;
+        look6_preprocessing_plexon_match_events_plot;
+    end
     
 end
 
 
 %% Neurophysiology data analysis
 
-%
-%
-% %% Neurophysiology data analysis
-%
-% % % Spiking rates for different conditions
-% % settings.analysis_spikes_timecourse = 0;
-% % settings.overwrite = 1;
-% % if settings.analysis_spikes_timecourse==1
-% %     look6_analysis_spikes_timecourse;
-% % end
-%
+
+% Spiking rates for different conditions
+settings.analysis_spikes_timecourse = 0;
+settings.overwrite = 1;
+if settings.analysis_spikes_timecourse==1
+    look6_analysis_spikes_timecourse;
+end
+
 % % % Spiking rates for different conditions 
 % % settings.analysis_orientation_profile = 1;
 % % settings.overwrite = 1;

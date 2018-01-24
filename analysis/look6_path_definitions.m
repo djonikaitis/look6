@@ -20,7 +20,6 @@ if (~isempty (macaddress) && sum(macaddress==[136; 99; 223; 185; 223; 187])==6) 
     
     % save setup name
     settings.exp_setup = 'dj office';
-    fprintf('\n Successfully changed setup to "%s"\n\n', settings.exp_setup)
     
     % "analysis" code is stored in:
     settings.path_baseline_code = sprintf('~/proj/experiments/');
@@ -50,7 +49,6 @@ if (~isempty (macaddress) && sum(macaddress==[100; 0; 106; 109; 3; 123])==6) || 
 
     % save setup name
     settings.exp_setup = 'plexon office';
-    fprintf('\n Successfully changed setup to "%s"\n\n', settings.exp_setup)
 
     % "analysis" code is stored in:
     settings.path_baseline_code = 'E:\DJ_exp\Experiments\';

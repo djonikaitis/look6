@@ -5,10 +5,10 @@
 % Donatas Jonikaitis
 
 % Show file you are running
-p1_plex = mfilename;
+p1 = mfilename;
 fprintf('\n=========\n')
-fprintf('\n Current file:  %s\n', p1_plex)
-fprintf('\n=========\n')
+fprintf('Current file:  %s\n', p1)
+fprintf('=========\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')
@@ -32,9 +32,8 @@ for i_subj=1:length(settings.subjects)
     settings.subject_current = settings.subjects{i_subj};
         
     % Get info about existing plexon files
-    f1 = 'path_data_plexon_temp2_subject';
+    f1 = 'path_data_plexon_temp_2_subject';
     settings = get_settings_path_and_dates_ini_v11(settings, f1);
-    dates_used = settings.data_sessions_to_analyze;
     p1_plex = settings.(f1);
     
     % Get info about psychtoolbox files
@@ -43,12 +42,18 @@ for i_subj=1:length(settings.subjects)
     p1_psy = settings.(f1);
     
     clear var1; clear var2; clear var3;
+    
+    % Which dates are used?
+    dates_used = settings.data_sessions_to_analyze;
 
     % Analysis for each day
     for i_date = 1:numel(dates_used)
-           
-        % Psychtoolbox file path
+        
+        % Which date is it
         date_current = dates_used(i_date);
+          
+        %============
+        % Psychtoolbox path
         ind = date_current==settings_psy.index_dates;
         folder_name_psy = settings_psy.index_directory{ind};
         path1_psy = [p1_psy, folder_name_psy, '/', folder_name_psy, '.mat'];
@@ -56,14 +61,14 @@ for i_subj=1:length(settings.subjects)
         % Load psychtoolbox file
         var1 = get_struct_v11(path1_psy);
         
-        % Plexon matched events output file
+        %==============
+        % Plexon path output
         f1 = 'path_data_combined_plexon_subject';
         folder_name_plex = folder_name_psy;
         path_out_folder =  [settings.(f1), folder_name_plex, '/'];
         path1_out = [settings.(f1), folder_name_plex, '/' folder_name_plex, '_events_matched.mat'];
 
         % Current plexon folder to be analysed (multiple sessions)
-        date_current = dates_used(i_date);
         sessions_used = find(date_current==settings.index_dates);
         
         % Initialize output fields with matched events
@@ -74,13 +79,10 @@ for i_subj=1:length(settings.subjects)
         % Do analysis for each session
         for i_session = 1:numel(sessions_used)
             
-            % Which recorded to use
-            session_ind = sessions_used(i_session);
-            
-            % Folder name to be used
-            folder_name = settings.index_directory{session_ind};
-            
-            % Plexon input file
+            %==============
+            % Plexon path input
+            ind = sessions_used(i_session);
+            folder_name = settings.index_directory{ind};
             path1_in = [p1_plex, folder_name, '/' folder_name, '_events.mat'];
             
             %================

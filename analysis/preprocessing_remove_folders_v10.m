@@ -9,8 +9,8 @@ function preprocessing_remove_folders_v10(settings, varargin)
 % Show file you are running
 p1 = mfilename;
 fprintf('\n=========\n')
-fprintf('\n Current file:  %s\n', p1)
-fprintf('\n=========\n')
+fprintf('Current file:  %s\n', p1)
+fprintf('=========\n')
 
 if length(varargin)>=1
     varx1 = varargin{1};

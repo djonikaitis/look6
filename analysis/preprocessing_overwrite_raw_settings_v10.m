@@ -10,8 +10,8 @@ function  preprocessing_overwrite_raw_settings_v10(settings)
 % Show file you are running
 p1 = mfilename;
 fprintf('\n=========\n')
-fprintf('\n Current file:  %s\n', p1)
-fprintf('\n=========\n')
+fprintf('Current file:  %s\n', p1)
+fprintf('=========\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')

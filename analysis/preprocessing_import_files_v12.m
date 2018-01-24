@@ -18,8 +18,8 @@ function  preprocessing_import_files_v12(settings)
 % Show file you are running
 p1 = mfilename;
 fprintf('\n=========\n')
-fprintf('\n Current file:  %s\n', p1)
-fprintf('\n=========\n')
+fprintf('Current file:  %s\n', p1)
+fprintf('=========\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')

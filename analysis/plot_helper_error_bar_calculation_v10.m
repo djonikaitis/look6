@@ -1,3 +1,4 @@
+
 % Calculate error bars
 
 function e_bars = plot_helper_error_bar_calculation_v10(mat1, settings)

@@ -32,9 +32,9 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 % Connect to server and import data from it
 settings.data_import_from_server = 1;
 if settings.data_import_from_server == 1
-    settings.data_direction = 'upload';
+    settings.data_direction = 'download';
     settings.import_folders_include = {};
-    settings.import_folders_include{1} = 'data_plexon_raw';
+    settings.import_folders_include{1} = 'data_plexon_temp_2';
 %     settings.import_folders_include{1} = 'data_eyelink_edf';
 %     settings.import_folders_include{2} = 'data_psychtoolbox';
     settings.import_folders_exclude = {};

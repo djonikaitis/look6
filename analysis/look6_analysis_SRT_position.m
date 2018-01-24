@@ -3,14 +3,14 @@
 % Show file you are running
 p1 = mfilename;
 fprintf('\n=========\n')
-fprintf('\n Current file:  %s\n', p1)
-fprintf('\n=========\n')
+fprintf('Current file:  %s\n', p1)
+fprintf('=========\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')
     settings = struct;
 end
-settings = get_settings_ini_v10(settings);
+settings = get_settings_ini_v11(settings);
 
 
 %% Extra settings
