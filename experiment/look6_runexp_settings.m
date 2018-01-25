@@ -63,21 +63,30 @@ stim.distractor_coord_x = -4;
 
 %% Quick settings
 
-% Specify target coordinates based on a RF mapping
-x = -4;
-y = -4;
-stim.target_spacing_arc = 90;
-
 % Probe positions
-stim.probe_extended_map = 1; % If 1, then probe timing and duration is extended
+if expsetup.general.record_plexon == 1
+    stim.probe_extended_map = 0;
+else
+    stim.probe_extended_map = 2;
+end
 
-if stim.probe_extended_map==1
-    stim.probe_spacing_arc = 15;
-    % Over-write x y for consistent mapping
+if stim.probe_extended_map==0 % Plexon recording
+    x = -3;
+    y = -3;
+    stim.target_spacing_arc = 90;
+    stim.probe_spacing_arc = 180;
+    
+elseif stim.probe_extended_map==1 % Psychophysics
     x = -5;
     y = -5;
-else
-    stim.probe_spacing_arc = 180;
+    stim.target_spacing_arc = 90;
+    stim.probe_spacing_arc = 15;
+    
+elseif stim.probe_extended_map==2 % Psychophysics
+    x = -3;
+    y = -3;
+    stim.target_spacing_arc = 60;
+    stim.probe_spacing_arc = 15;
 end
 
 %==================
@@ -271,7 +280,7 @@ stim.response_t3_color_avoid = [20,20,20];
 stim.response_t3_color_control_fixate = [20,20,20];
 stim.response_t3_shape = 'circle'; % circle, square, empty_circle, empty_quare
 
-if stim.probe_extended_map ==1
+if stim.probe_extended_map > 0
     stim.memory_delay_duration_probe = [0.05:0.01:max(stim.memory_delay_duration)];
 else
     stim.memory_delay_duration_probe = stim.memory_delay_duration;

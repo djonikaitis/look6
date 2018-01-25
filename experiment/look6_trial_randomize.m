@@ -544,7 +544,7 @@ end
 
 if tid>1
     if expsetup.stim.trial_error_repeat == 1 % Repeat error trial immediately
-        if  ~strcmp(expsetup.stim.edata_error_code{tid-1}, 'correct')
+        if  ~strcmp(expsetup.stim.edata_error_code{tid-1}, 'correct') && ~strcmp(expsetup.stim.edata_error_code{tid-1}, 'experimenter terminated the trial')
             f1 = fieldnames(expsetup.stim);
             ind = strncmp(f1,'esetup', 6);
             for i=1:numel(ind)
@@ -568,7 +568,7 @@ end
 
 if tid>1
     if expsetup.stim.trial_error_repeat == 1 % Repeat error trial immediately
-        if  ~strcmp(expsetup.stim.edata_error_code{tid-1}, 'correct')
+        if  ~strcmp(expsetup.stim.edata_error_code{tid-1}, 'correct') && ~strcmp(expsetup.stim.edata_error_code{tid-1}, 'experimenter terminated the trial')
             if ~isempty(fieldnames(var_copy))
                 f1 = fieldnames(var_copy);
                 for i=1:numel(f1)

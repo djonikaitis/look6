@@ -29,7 +29,6 @@ try
         end
         [a, b] = system(['edf2asc', ' ', sprintf('%s', path_edf),' -s -miss -1.0 -y']);
         if a~=0
-            sprintf('%s', b);
             error('edf2asc conversion could not be completed')
         end
     end
@@ -63,7 +62,6 @@ try
         end
         [a, b] = system(['edf2asc', ' ', sprintf('%s', path_edf),' -e -y']);
         if a~=0
-            sprintf('%s', b);
             error('edf2asc conversion could not be completed')
         end
     end
