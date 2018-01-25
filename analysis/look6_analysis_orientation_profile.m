@@ -12,9 +12,11 @@ if ~exist('settings', 'var')
 end
 settings = get_settings_ini_v10(settings);
 
-%% Extra settings
 
-settings.figure_folder_name = 'spikes_timecourse';
+%% Some settings
+
+% Path to figures and statistics
+settings.figure_folder_name = 'spikes_orientation';
 settings.figure_size_temp = settings.figsize_1col;
 settings.stats_file_name = sprintf('stats.txt');
 
@@ -53,7 +55,6 @@ for i_subj=1:length(settings.subjects)
                 mkdir(path_fig)
             end
             fprintf('\nCreating figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current))
-
             
             %============
             % Psychtoolbox file path & file
@@ -76,13 +77,12 @@ for i_subj=1:length(settings.subjects)
             % Run analysis for each unit
             for i_unit = 1 %:numel(units_used)
                 
-                
                 current_unit = units_used(i_unit);
                 
                 % Prepare unit name
                 neuron_name = ['ch', num2str(spikes_init.index_channel(i_unit)), '_u',  num2str(spikes_init.index_unit(i_unit))];
                 fprintf('Working on analysis for the unit %s\n', neuron_name)
-
+                
                 %=================
                 % Load spikes data
                 path1 = spikes_init.index_path{current_unit};
@@ -98,102 +98,100 @@ for i_subj=1:length(settings.subjects)
                 
                 %% Figure calculations
                 
-                for fig1 = 1:7 % Plot figures
+                for fig1 = 1 % Plot figures
                     
                     fprintf('Preparing figure %s\n', num2str(fig1))
                     
                     S.expcond = NaN(size(S.START));
                     
-                    %==============
-                    % Texture vs no texture condition, works as basic
-                    % selection criterion for visual responsiveness of
-                    % neurons
+                    
                     if fig1==1
                         
-                        % Setup conditions
+                        % Texture
+                        m1 = unique(S.esetup_background_texture_line_angle(:,1));
+                        orientation1 = m1;
+                        
+                        % One condition per texture
                         index = S.esetup_background_texture_on(:,1)==1 & strcmp(S.edata_error_code, 'correct');
                         S.expcond(index)=1;
-                        index = S.esetup_background_texture_on(:,1)==0 & strcmp(S.edata_error_code, 'correct');
-                        S.expcond(index)=2;
                         
                         % Indicate what is expected condition number
-                        cond1 = 1:2;
+                        cond1 = 1;
                         
                         % Determine selected offset in the time (for example between first display and memory onset)
-                        S.tconst = S.fixation_on - S.first_display;
+                        S.tconst = NaN(numel(S.START), 1);
+                        ind = S.expcond == 1;
+                        S.tconst(ind) = S.fixation_on(ind) - S.first_display(ind);
                         
                         % Select appropriate interval for plottings
-                        int_bins = settings.intervalbins_tex;
+                        int_bins = [-200, 0];
                         
                         new_mat = 1;
                         
                     end
                     
-                    %==============
-                    % Plot data for look, avoid or control conditions
-                    % (for each location separatelly)
-                    
-                    if fig1==2 || fig1==3 || fig1==4 || fig1==5 || fig1==6 || fig1==7
+                    if fig1==2 || fig1==3 || fig1==4
                         
-                        m1 = unique(S.esetup_memory_coord, 'rows');
-                        [th,radiusdeg] = cart2pol(m1(:,1), m1(:,2));
-                        theta = (th*180)/pi;
-                        legend1_values = theta;
+                        % Texture
+                        m1 = unique(S.esetup_background_texture_line_angle(:,1));
+                        orientation1 = m1;
+                        
+                        % Find memory target arc
+                        [th,radiusdeg] = cart2pol(S.esetup_memory_coord(:,1), S.esetup_memory_coord(:,2));
+                        objposdeg = (th*180)/pi;
+                        S.em_mem_arc = objposdeg;
+                        S.em_mem_rad = radiusdeg;
+                        
+                        % Reset memory arc relative to RF center (assumes
+                        % RF is in left lower visual field)
+                        
+                        % Find relative probe-memory position
+                        a = unique(S.em_mem_arc);
+                        a = min(a);
+                        S.rel_arc = S.em_mem_arc - a;
+                        ind = S.rel_arc<-180;
+                        S.rel_arc(ind)=S.rel_arc(ind)+360;
+                        ind = S.rel_arc>=180;
+                        S.rel_arc(ind)=S.rel_arc(ind)-360;
+                        S.rel_arc = round(S.rel_arc, 1);
+                        
+                        % Find how many relative positions are recorded relative to memory
+                        m1 = unique(S.rel_arc);
+                        legend1_values = m1;
                         
                         % Look task
                         i1=0;
                         for i=1:size(m1,1)
-                            index = S.esetup_memory_coord(:,1)==m1(i,1) & S.esetup_memory_coord(:,2)==m1(i,2) & strcmp(S.esetup_block_cond, 'look') & S.esetup_background_texture_on(:,1)==1 & strcmp(S.edata_error_code, 'correct');
+                            index = S.rel_arc==m1(i) & strcmp(S.esetup_block_cond, 'look') & S.esetup_background_texture_on(:,1)==1  & strcmp(S.edata_error_code, 'correct');
                             S.expcond(index)=i+i1;
                         end
                         % Avoid task
                         i1=size(m1,1);
                         for i=1:size(m1,1)
-                            index = S.esetup_memory_coord(:,1)==m1(i,1) & S.esetup_memory_coord(:,2)==m1(i,2) & strcmp(S.esetup_block_cond, 'avoid') & S.esetup_background_texture_on(:,1)==1  & strcmp(S.edata_error_code, 'correct');
+                            index = S.rel_arc==m1(i) & strcmp(S.esetup_block_cond, 'avoid') & S.esetup_background_texture_on(:,1)==1  & strcmp(S.edata_error_code, 'correct');
                             S.expcond(index)=i+i1;
                         end
                         % Control task
                         i1=size(m1,1)*2;
                         for i=1:size(m1,1)
-                            index = S.esetup_memory_coord(:,1)==m1(i,1) & S.esetup_memory_coord(:,2)==m1(i,2) & strcmp(S.esetup_block_cond, 'control fixate') & S.esetup_background_texture_on(:,1)==1  & strcmp(S.edata_error_code, 'correct');
-                            S.expcond(index)=i+i1;
-                        end
-                        
-                        % Look task, no texture
-                        i1=size(m1,1)*3;
-                        for i=1:size(m1,1)
-                            index = S.esetup_memory_coord(:,1)==m1(i,1) & S.esetup_memory_coord(:,2)==m1(i,2) & strcmp(S.esetup_block_cond, 'look') & S.esetup_background_texture_on(:,1)==0  & strcmp(S.edata_error_code, 'correct');
-                            S.expcond(index)=i+i1;
-                        end
-                        % Avoid task, no texture
-                        i1=size(m1,1)*4;
-                        for i=1:size(m1,1)
-                            index = S.esetup_memory_coord(:,1)==m1(i,1) & S.esetup_memory_coord(:,2)==m1(i,2) & strcmp(S.esetup_block_cond, 'avoid') & S.esetup_background_texture_on(:,1)==0  & strcmp(S.edata_error_code, 'correct');
-                            S.expcond(index)=i+i1;
-                        end
-                        % Control task, no texture
-                        i1=size(m1,1)*5;
-                        for i=1:size(m1,1)
-                            index = S.esetup_memory_coord(:,1)==m1(i,1) & S.esetup_memory_coord(:,2)==m1(i,2) & strcmp(S.esetup_block_cond, 'control fixate') & S.esetup_background_texture_on(:,1)==0  & strcmp(S.edata_error_code, 'correct');
+                            index = S.rel_arc==m1(i) & strcmp(S.esetup_block_cond, 'control fixate') & S.esetup_background_texture_on(:,1)==1  & strcmp(S.edata_error_code, 'correct');
                             S.expcond(index)=i+i1;
                         end
                         
                         % Indicate what is expected condition number
-                        cond1 = 1:size(m1,1)*6;
-                        
-                        % Determine selected offset in the time (for example between first display and memory onset)
-                        S.tconst = S.memory_on - S.first_display;
-                        
-                        % Select appropriate interval for plottings
-                        int_bins = settings.intervalbins_mem;
-                        
+                        cond1 = 1:length(m1)*3;
                         
                         % Over-write spike rates?
                         if fig1==2
                             new_mat = 1;
-                        elseif fig1>2
+                        else
                             new_mat = 0;
                         end
+                        
+                        % Data collected during memory delay, before
+                        % target onset
+                        S.tconst = S.memory_on - S.first_display;
+                        int_bins = [300, 500];
                         
                     end
                     
@@ -206,7 +204,6 @@ for i_subj=1:length(settings.subjects)
                     t1 = events_mat.msg_1;
                     t1 = t1 + S.tconst; % Reset to time relative to tconst
                     
-                    
                     %============
                     % Find spikes
                     
@@ -214,20 +211,20 @@ for i_subj=1:length(settings.subjects)
                         
                         %============
                         % Initialize empty matrix
-                        mat1_ini = NaN(size(S.expcond,1), numel(int_bins), numel(cond1));
-                        test1 = NaN(1, length(cond1));
+                        mat1_ini = NaN(size(S.expcond,1), numel(orientation1), length(cond1));
+                        test1 = NaN(1, numel(orientation1), length(cond1));
                         
                         % How many trials recorded for each condition?
-                        for k=1:length(cond1)
-                            index = S.expcond == cond1(k);
-                            test1(k)=sum(index);
+                        for i=1:numel(orientation1)
+                            for k=1:length(cond1)
+                                index = S.expcond == cond1(k) & S.esetup_background_texture_line_angle(:,1)==orientation1(i);
+                                test1(1,i,k)=sum(index);
+                            end
                         end
                         
-                        %=============
-                        % Calculate spiking rates
-                        
+                        % Find spikes
                         for tid = 1:size(mat1_ini,1)
-                            for j = 1:length(int_bins)
+                            for j=1:length(orientation1)
                                 for k=1:length(cond1)
                                     
                                     c1 = S.expcond(tid); % Which condition it is currently?
@@ -237,9 +234,10 @@ for i_subj=1:length(settings.subjects)
                                     if ~isnan(c1) && c1==k
                                         
                                         % Index
-                                        index = t1_spike >= t1(tid) + int_bins(j) & ...
-                                            t1_spike <= t1(tid) + int_bins(j) + settings.bin_length & ...
-                                            S.expcond(tid) == cond1(k);
+                                        index = t1_spike >= t1(tid) + int_bins(1) & ...
+                                            t1_spike <= t1(tid) + int_bins(2) & ...
+                                            S.expcond(tid) == cond1(k) &...
+                                            S.esetup_background_texture_line_angle(tid,1) == orientation1(j);
                                         
                                         % Save data
                                         if sum(index)==0
@@ -253,15 +251,14 @@ for i_subj=1:length(settings.subjects)
                             end
                         end
                         
+                        % Initialize plot bins
+                        pbins=[orientation1'];
+                        
                         % Convert to HZ
                         mat1_ini = mat1_ini*(1000/settings.bin_length);
                         
-                        % Initialize plot bins
-                        pbins=int_bins+settings.bin_length/2;
-                        
                     end
                     % End of checking whether new_mat==1
-                    
                     
                     
                     %% Select data for plotting
@@ -306,7 +303,7 @@ for i_subj=1:length(settings.subjects)
                         
                         % Data
                         mat1 = [];
-                        mat1(:,:,1:2) = mat2_ini(:,:,1:2);
+                        mat1(:,:,1) = mat2_ini(:,:,1);
                         
                         % Initialize structure with data
                         plot_set = struct;
@@ -317,21 +314,13 @@ for i_subj=1:length(settings.subjects)
                         plot_set.ebars_shade = 1;
                         
                         % Colors
-                        plot_set.data_color = [23, 21];
-                        
-                        % Legend
-                        for i=1:size(mat1,3)
-                            plot_set.legend{1} = 'Texture';
-                            plot_set.legend{2} = 'No texture';
-                            plot_set.legend_y_coord(i) = h_max - (h_max - h_min)*0.1*i;
-                            plot_set.legend_x_coord(i) = [pbins(1)];
-                        end
+                        plot_set.data_color = [10];
                         
                         % Labels for plotting
-                        plot_set.XTick = [-100:100:500];
+                        plot_set.XTick = [0:45:180];
                         plot_set.YLim = [h_min, h_max];
-                        plot_set.figure_title = 'Responses to texture';
-                        plot_set.xlabel = 'Time after texture onset, ms';
+                        plot_set.figure_title = 'Texture responses';
+                        plot_set.xlabel = 'Background orientation';
                         plot_set.ylabel = 'Firing rate, Hz';
                         
                         % Save data
@@ -349,9 +338,7 @@ for i_subj=1:length(settings.subjects)
                     end
                     
                     
-                    %% Plot data
-                    
-                    if fig1>=2 && fig1<=7
+                    if fig1==2 || fig1==3 || fig1==4
                         
                         plot_set = struct;
                         
@@ -359,32 +346,17 @@ for i_subj=1:length(settings.subjects)
                         if fig1==2
                             ind = 1:length(legend1_values);
                             plot_set.data_color_min = [1];
-                            plot_set.figure_title = 'Look, texture on';
+                            plot_set.figure_title = 'Look';
                         elseif fig1==3
                             m = length(legend1_values);
                             ind = m+1:m*2;
                             plot_set.data_color_min = [2];
-                            plot_set.figure_title = 'Avoid, texture on';
+                            plot_set.figure_title = 'Avoid';
                         elseif fig1==4
                             m = length(legend1_values);
                             ind = m*2+1:m*3;
                             plot_set.data_color_min = [4];
-                            plot_set.figure_title = 'Control, texture on';
-                        elseif fig1==5
-                            m = length(legend1_values);
-                            ind = m*3+1:m*4;
-                            plot_set.data_color_min = [1];
-                            plot_set.figure_title = 'Look, no texture';
-                        elseif fig1==6
-                            m = length(legend1_values);
-                            ind = m*4+1:m*5;
-                            plot_set.data_color_min = [2];
-                            plot_set.figure_title = 'Avoid, no texture';
-                        elseif fig1==7
-                            m = length(legend1_values);
-                            ind = m*5+1:m*6;
-                            plot_set.data_color_min = [4];
-                            plot_set.figure_title = 'Control, no texture';
+                            plot_set.figure_title = 'Control';
                         end
                         
                         % Data
@@ -407,9 +379,9 @@ for i_subj=1:length(settings.subjects)
                             plot_set.data_color_max = [10];
                             
                             % Labels for plotting
-                            plot_set.XTick = [-100:100:500];
+                            plot_set.XTick = [0:45:180];
                             plot_set.YLim = [h_min, h_max];
-                            plot_set.xlabel = 'Time after memory on, ms';
+                            plot_set.xlabel = 'Background orientation';
                             plot_set.ylabel = 'Firing rate, Hz';
                             
                             % Save data
@@ -479,11 +451,9 @@ for i_subj=1:length(settings.subjects)
                         
                     end
                     
-                    %% Plot more data?
-                    
                     
                 end
-                % End of plotting each figure
+                % End of each figure
                 
             end
             % End of each neuron

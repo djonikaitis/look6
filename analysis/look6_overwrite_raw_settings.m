@@ -6,6 +6,9 @@ overwrite_temp_index{1} = 20170801:20171028;
 % Fix exp matrix size mismatch for HB on 12.21.2017 (remove trial no 601, as this trial does not exist)
 overwrite_temp_index{2} = 20171221;
 
+% Fix exp matrix size mismatch for HB on 12.21.2017 (remove trial no 601, as this trial does not exist)
+overwrite_temp_index{3} = 20160101:20171231;
+
 %% Fixation offset time bug
 
 if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{1}(1) && date_current <= overwrite_temp_index{1}(end)
@@ -87,6 +90,381 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{2
                 end
             end
         end
+        
+    end
+end
+
+%% Over-write settings file from look5
+
+
+if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3}(1) && date_current <= overwrite_temp_index{3}(end)
+    if strcmp(var1.general.expname, 'look5') && strcmp(var1.general.subject_id, 'hb')
+        
+        fprintf('Early exp version detected: look5. Splitting exp_setup and exp_data matrices into variables\n')
+        
+        %% Restructure expsetup matrix
+        
+        % Setup column names in expmatrix
+        % This part to be removed in future experiments
+        em_name = cell(1,100);  % Initialize empty matrix for var names
+        
+        % Exp setup
+        em_name{1} = 'esetup_fixation_acquire_duration';  % Time to acquire fixation
+        em_name{2} = 'em_fixation_maintain_duration'; % Time to maintain fixation
+        em_name{3} = 'esetup_fixation_arc'; % Position of st 1 (deg on a circle)
+        em_name{4} = 'esetup_fixation_radius'; % Distance to st 1 (radius)
+        %         em_name{5} = 'em_fixation_window'; % Fixation accuracy
+        %         % 6
+        em_name{7} = 'esetup_memory_coord_x'; % Position of  memory target (x)
+        em_name{8} = 'esetup_memory_coord_y'; % Distance of memory target (y)
+        %         em_name{9} = 'em_t1_coord1';
+        %         em_name{10} = 'em_t1_coord2';
+        %         em_name{11} = 'em_t2_coord1';
+        %         em_name{12} = 'em_t2_coord2';
+        %         em_name{13} = 'em_t3_coord1'; % Probe position
+        %         em_name{14} = 'em_t3_coord2'; % Distance to the probe
+        %         em_name{15} = 'em_eye_window'; % Saccade accuracy
+        %         % 16
+        %         % 17
+                em_name{18} = 'esetup_target_number'; % 1 or 2 targets
+        %         em_name{19} = 'em_probe_trial'; %  1 - probe; 0 - no probe;
+        %         em_name{20} = 'em_distractor_soa'; % SOA between t1 & t2
+                em_name{21} = 'esetup_memory_duration'; % Duration of memory target
+                em_name{22} = 'esetup_memory_delay'; % Delay duration
+        %         em_name{23} = 'em_reward_size_ms'; % REMOVE THIS FIELD
+        %         em_name{24} = 'em_reward_size_ml'; % REMOVE THIS FIELD
+                em_name{25} = 'esetup_total_fixation_duration'; % How long delay + fixation lasts
+                em_name{26} = 'esetup_background_texture_on'; % Is texture shown
+                em_name{27} = 'esetup_background_texture_line_angle'; % Angle of the lines in the texture
+        %         % 28
+        %         % 29
+        
+        % Necessary columns
+        em_name{30} = 'esetup_block_no';
+        em_name{31} = 'esetup_block_cond'; % Which blocked condition is presented (example: 2 blocked conditions in a 4 block experiment) NECESSARY COLUMN FOR ALL EXPS
+        em_name{32} = 'em_data_reject'; % Was the trial online accepted or rejected? NECESSARY COLUMN FOR ALL EXPS
+        % 33
+        % 34
+        
+        % Recorded data
+        em_name{35} = 'edata_first_display';
+        %         em_name{36} = 'em_data_last_display';
+        em_name{37} = 'edata_fixation_on';
+        em_name{38} = 'edata_fixation_off';
+        %         em_name{39} = 'em_data_response_on';
+        em_name{40} = 'edata_fixation_acquired';
+        em_name{41} = 'edata_fixation_drift_maintained';
+        em_name{42} = 'edata_fixation_maintained';
+        em_name{43} = 'edata_st1_on';
+        em_name{44} = 'edata_response_acquired';
+        em_name{45} = 'edata_response_maintained';
+        em_name{46} = 'edata_st1_off';
+        em_name{47} = 'edata_st2_on';
+        em_name{48} = 'edata_memory_on';
+        em_name{49} = 'edata_memory_off';
+        em_name{50} = 'edata_st2_off';
+        %         % 51
+        %         em_name{52} = 'em_data_button_press'; % REMOVE THIS FIELD
+        %         % 53
+        %         % 54
+        %         % 55
+        %         % 56
+        %         % 57
+        %         % 58
+        %         % 59
+        %         % 60
+        %         em_name{61} = 'em_data_reject';
+        %         em_name{62} = 'em_data_drift_x1';
+        %         em_name{63} = 'em_data_drift_y1';
+        %         em_name{64} = 'em_data_error_counter';
+        em_name{65} = 'edata_reward_size_ms';
+        em_name{66} = 'edata_reward_size_ml';
+        em_name{67} = 'edata_reward_on';
+        em_name{68} = 'edata_reward_image_on';
+        
+        % Calculate how many trials are there
+        a = numel (var1.stim.trialmatrix);
+        b = numel (var1.stim.refresh_rate_mat);
+        if a==b
+            ind = 1:a;
+            % Restructure the matrices
+            for i=1:numel(em_name)
+                if ~isempty(em_name{i})
+                    var1.stim.(em_name{i}) = var1.stim.expmatrix(:,i);
+                end
+            end
+        else
+            error ('Non-matching trial counts for "trialmatrix" and "refresh_rate_mat" - figure out whats wrong')
+        end
+        
+        % Clear out expmatrix field
+        %         var1.stim = rmfield(var1.stim, 'expmatrix');
+        
+        
+        %% Change exp_cond variable
+        
+        fprintf('Renaming conditions of the esetup_block_cond varialbe\n')
+        a = numel (var1.stim.trialmatrix);
+        b = cell(a,1);
+        ind = var1.stim.esetup_block_cond==1;
+        b(ind)={'look'};
+        ind = var1.stim.esetup_block_cond==2;
+        b(ind)={'avoid'};
+        ind = var1.stim.esetup_block_cond==5;
+        b(ind)={'control fixate'};
+        
+        var1.stim.esetup_block_cond = b;
+        
+        
+        
+        %% Concatenate a few variables
+        
+        fprintf('Concatenating a few of the variables (for each trial)\n')
+        
+        % Memory position
+        var1.stim.esetup_memory_coord = [var1.stim.esetup_memory_coord_x; var1.stim.esetup_memory_coord_y];
+        var1.stim = rmfield(var1.stim, 'esetup_memory_coord_x');
+        var1.stim = rmfield(var1.stim, 'esetup_memory_coord_y');
+        
+        %% Add additional long variables
+        
+        fprintf('Adding a few empty variables (for each trial)\n')
+
+        a = numel (var1.stim.trialmatrix);
+        b = numel (var1.stim.refresh_rate_mat);
+        if a==b
+            ind = a;
+            
+            % background_texture_line_number
+            var1.stim.esetup_background_texture_line_number(1:ind,1) = var1.stim.background_texture_line_number;
+            % background_texture_line_length
+            var1.stim.esetup_background_texture_line_length(1:ind,1) = var1.stim.background_texture_line_length;
+
+            % Add missing fields
+            var1.stim.edata_fixation_drift_calculated = NaN(ind,1);
+            var1.stim.esetup_background_textures_per_trial = NaN(ind,1);
+            var1.stim.edata_eyelinkscreen_drift_on = NaN(ind,1);
+            var1.stim.edata_eyelinkscreen_fixation = NaN(ind,1);
+            var1.stim.edata_eyelinkscreen_memory = NaN(ind,1);
+            var1.stim.edata_eyelinkscreen_st1 = NaN(ind,1);
+            var1.stim.edata_eyelinkscreen_st2 = NaN(ind,1);
+            var1.stim.edata_eyelinkscreen_distractor = NaN(ind,1);
+        end
+        
+        %% Rename a few of variables
+        
+        fprintf('Renaming a few of variables\n')
+        
+        % Fixation look
+        a = 'fixation_color_task1';
+        b = 'fixation_color_look';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'fixation_shape_task1';
+        b = 'fixation_shape_look';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Fixation avpid
+        a = 'fixation_color_task2';
+        b = 'fixation_color_avoid';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'fixation_shape_task2';
+        b = 'fixation_shape_avoid';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Fixation control
+        a = 'fixation_color_task5';
+        b = 'fixation_color_control_fixate';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'fixation_shape_task5';
+        b = 'fixation_shape_control_fixate';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Fixation size eyetrack
+        if numel(var1.stim.memory_size)>1
+            var1.stim.fixation_size = var1.stim.fixation_size(end);
+        end
+        
+        % Fixation arc
+        var1.stim.fixation_arc = var1.stim.fixation_position;
+        var1.stim = rmfield(var1.stim, 'fixation_position');
+
+        
+        % Drift correction
+        var1.stim.fixation_size_drift = var1.stim.fixation_accuracy_drift;
+        var1.stim = rmfield(var1.stim, 'fixation_accuracy_drift');
+        
+        % Fixation size eyetrack
+        var1.stim.fixation_size_eyetrack = var1.stim.fixation_accuracy;
+        var1.stim = rmfield(var1.stim, 'fixation_accuracy');
+        
+        % Memory
+        if numel(var1.stim.memory_size)>1
+            var1.stim.memory_size = var1.stim.memory_size(end);
+        end
+        
+        % Memory look
+        a = 'memory_color_task1';
+        b = 'memory_color_look';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'memory_shape_task1';
+        b = 'memory_shape_look';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'memory_pen_width_task1';
+        b = 'memory_pen_width_look';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Memory avoid
+        a = 'memory_color_task2';
+        b = 'memory_color_avoid';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'memory_shape_task2';
+        b = 'memory_shape_avoid';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'memory_pen_width_task2';
+        b = 'memory_pen_width_avoid';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+
+        % Memory control
+        a = 'memory_color_task5';
+        b = 'memory_color_control_fixate';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'memory_shape_task5';
+        b = 'memory_shape_control_fixate';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'memory_pen_width_task5';
+        b = 'memory_pen_width_control_fixate';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Background texture
+        a = 'background_color_task1';
+        b = 'background_color_look';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Background texture
+        a = 'background_color_task2';
+        b = 'background_color_avoid';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Background texture
+        a = 'background_color_task5';
+        b = 'background_color_control_fixate';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Response size
+        if numel(var1.stim.response_size)>1
+            var1.stim.response_size = var1.stim.response_size(end);
+        end
+        
+        % T3 colors
+        a = 'response_t3_color_task1';
+        b = 'response_t3_color_look';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'response_t3_color_task2';
+        b = 'response_t3_color_avoid';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Control fixate value not saved, copy it from look task
+        a = 'response_t3_color_task1';
+        b = 'response_t3_color_control_fixate';
+        var1.stim.(b) = var1.stim.(a);
+        
+        % Response soa
+        a = 'response_distractor_soa';
+        b = 'response_soa';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        
+        %% Remove few varialbes
+        
+        fprintf('Removing a few temorary variables\n')
+
+        var1.stim = rmfield(var1.stim, 'fixation_color');
+        var1.stim = rmfield(var1.stim, 'fixation_shape');
+        var1.stim = rmfield(var1.stim, 'background_color');
+        var1.stim = rmfield(var1.stim, 'response_t3_color');
+        var1.stim = rmfield(var1.stim, 'memory_color');
+        var1.stim = rmfield(var1.stim, 'memory_shape');
+        var1.stim = rmfield(var1.stim, 'memory_pen_width');
+
+
+        %% Add fields that are based on expsetup values
+        
+        
+        
+
         
     end
 end

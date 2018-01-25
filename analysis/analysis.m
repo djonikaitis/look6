@@ -15,8 +15,8 @@ settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'all';
- 
+settings.data_sessions = 'selected';
+
 % which setup?
 % 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
 settings.exp_setup = 'unknown';
@@ -30,7 +30,7 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 % This step should be default for most experiments
 % Data is not analysed, only combined
 
-do_this_analysis = 0;
+do_this_analysis = 1;
 
 if do_this_analysis == 1
     
@@ -51,12 +51,12 @@ if do_this_analysis == 1
     % Modify raw settings file for bugs (only bugs are fixed)
     settings.overwrite_raw_settings = 1;
     if settings.overwrite_raw_settings == 1
-        settings.overwrite=0;
+        settings.overwrite=1;
         preprocessing_overwrite_raw_settings_v10(settings);
     end
     
     % Import .mat and .edf files into one folder
-    settings.preprocessing_import_files = 1;
+    settings.preprocessing_import_files = 0;
     if settings.preprocessing_import_files == 1
         settings.overwrite = 0; % If 1, runs analysis again even if it was done
         preprocessing_import_files_v12(settings);
@@ -81,7 +81,7 @@ end
 
 do_this_analysis = 0;
 
-if do_this_analysis == 1 
+if do_this_analysis == 1
     
     % Combine settings and saccades files into one file;
     % reset saccades to degrees of visual angle; do drift correction
@@ -211,17 +211,22 @@ end
 
 %% Neurophysiology data analysis
 
+do_this_analysis = 0;
 
-% Spiking rates for different conditions
-settings.analysis_spikes_timecourse = 0;
-settings.overwrite = 1;
-if settings.analysis_spikes_timecourse==1
-    look6_analysis_spikes_timecourse;
+if do_this_analysis == 1
+    
+    % Spiking rates for different conditions
+    settings.analysis_spikes_timecourse = 0;
+    settings.overwrite = 1;
+    if settings.analysis_spikes_timecourse==1
+        look6_analysis_spikes_timecourse;
+    end
+    
+    % Spiking rates for different conditions
+    settings.analysis_orientation_profile = 0;
+    settings.overwrite = 1;
+    if settings.analysis_orientation_profile==1
+        look6_analysis_orientation_profile;
+    end
+    
 end
-
-% % % Spiking rates for different conditions 
-% % settings.analysis_orientation_profile = 1;
-% % settings.overwrite = 1;
-% % if settings.analysis_orientation_profile==1
-% %     look5_analysis_orientation_profile;
-% % end
