@@ -93,22 +93,21 @@ if settings.data_import_from_server ==1
                 end
                 if sum(a)>0
                     dont_analyze_this_folder = 1;
-                else
-                    dont_analyze_this_folder = 0;
                 end
             end
             
             % Are there some pre-specified included folders?
             if dont_analyze_this_folder == 0
-                if isfield(settings, 'import_folders_include') && ~isempty(settings.import_folders_exclude)
+                fprintf ('Checking whether to analyse folder: %s\n', dir_index(folder_i).name)
+                if isfield(settings, 'import_folders_include')
                     a = strcmp(settings.import_folders_include, dir_index(folder_i).name);
                 else
                     a = 0;
                 end
                 if sum(a)>0
-                    dont_analyze_this_folder = 1;
-                else 
                     dont_analyze_this_folder = 0;
+                else 
+                    dont_analyze_this_folder = 1;
                 end
             end
             

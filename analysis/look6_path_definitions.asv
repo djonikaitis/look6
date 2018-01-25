@@ -40,32 +40,6 @@ if (~isempty (macaddress) && sum(macaddress==[136; 99; 223; 185; 223; 187])==6) 
         
 end
 
-%% DJ laptop
-
-if (~isempty (macaddress) && sum(macaddress==[0; 0; 0; 0; 0; 0])==6) || ...
-        (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'dj laptop'))
-    
-    % save setup name
-    settings.exp_setup = 'dj laptop';
-    
-    % "analysis" code is stored in:
-    settings.path_baseline_code = sprintf('~/proj/experiments/');
-    settings.path_baseline_figures = sprintf('~/Dropbox/Experiments/');
-    
-    % "Experiments_data" folder with eyelink and psychtoolbox data:
-    settings.path_baseline_data = sprintf('~/proj/experiments_data/');
-    
-    % "Experiments_data" folder, with plexon data:
-    % (might differ from other psychtoolbox data folder due to large plexon file sizes)
-    settings.path_baseline_plexon = sprintf('~/proj/experiments_data/');
-
-    % Path to plexon toolbox
-    settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';
-    
-    % Path to server to download data
-    settings.path_baseline_server = '/Volumes/tirin/data/RigE/Experiments_data/';
-        
-end
 
 %% Plexon office
 
@@ -104,9 +78,6 @@ end
 if (~isempty (macaddress) && sum(macaddress==[0; 0; 0; 0; 0; 0])==6) || ...
     (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon lab'))
 
-    % save setup name
-    settings.exp_setup = 'plexon lab';
-
     % "analysis" code is stored in:
     settings.path_baseline_code = 'C:\Users\Plexon\Desktop\Experiments\';
     settings.path_baseline_figures = 'C:\Users\Plexon\Desktop\Experiments_figures\';
@@ -123,12 +94,6 @@ if (~isempty (macaddress) && sum(macaddress==[0; 0; 0; 0; 0; 0])==6) || ...
     
     % Path to server to download data
     settings.path_baseline_server = 'Y:\data\RigE\Experiments_data\';
-    if ~isdir (settings.path_baseline_server)
-        settings.path_baseline_server = 'Z:\data\RigE\Experiments_data\';
-        if ~isdir (settings.path_baseline_server)
-            fprintf('\n\nServer path does not work, make sure its correctly specified in path_definitions file\n')
-        end
-    end
     
     % Path to eyelink converter
     settings.edf2asc_path = '"C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc.exe"';
@@ -140,9 +105,6 @@ end
 
 if (~isempty (macaddress) && sum(macaddress==[160; 54; 159; 160; 223; 212])==6) || ...
     (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'edoras'))
-
-    % save setup name
-    settings.exp_setup = 'edoras';
     
     % "analysis" code is stored in:
     settings.path_baseline_code = 'C:\Users\Rig-E\Desktop\GitExp\';
@@ -159,13 +121,7 @@ if (~isempty (macaddress) && sum(macaddress==[160; 54; 159; 160; 223; 212])==6) 
     settings.path_plexon_toolbox = 'C:\Users\Rig-E\Desktop\Experiments\toolbox\PlexonMatlabOfflineFiles\';
 
     % Path to server to download data
-    settings.path_baseline_server = 'Y:\data\RigE\Experiments_data\';
-    if ~isdir (settings.path_baseline_server)
-        settings.path_baseline_server = 'Z:\data\RigE\Experiments_data\';
-        if ~isdir (settings.path_baseline_server)
-            fprintf('\n\nServer path does not work, make sure its correctly specified in path_definitions file\n')
-        end
-    end
+    settings.path_baseline_server = 'Z:\data\RigE\Experiments_data\';
     
     % Path to eyelink converter 
     settings.edf2asc_path = '"C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc.exe"';

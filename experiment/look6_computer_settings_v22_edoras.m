@@ -51,7 +51,7 @@ expsetup.tcpip.plex_port = 4013;
 expsetup.tcpip.psych_address = '192.168.0.1';
 expsetup.tcpip.psych_port = 4013;
 expsetup.tcpip.success_ini = 0; % Starting state
-expsetup.tcpip.data_file_size = 10000; % How many elements in one packet
+expsetup.tcpip.data_file_size = 50000; % How many elements in one packet
 
   
 % Path to edf file, PC only
