@@ -126,21 +126,21 @@ esetup_exp_version: {1161x1 cell}
 % esetup_block_cond: {1161x1 cell}
 % esetup_fixation_arc: [1161x1 double]
 % esetup_fixation_radius: [1161x1 double]
-% esetup_fixation_color: [1161x3 double]
-% esetup_fixation_shape: {1161x1 cell}
+esetup_fixation_color: [1161x3 double]
+esetup_fixation_shape: {1161x1 cell}
 % esetup_fixation_size: [1161x4 double]
 % esetup_fixation_size_drift: [1161x4 double]
 % esetup_fixation_size_eyetrack: [1161x4 double]
 % esetup_fixation_acquire_duration: [1161x1 double]
 % esetup_fixation_maintain_duration: [1161x1 double]
 % esetup_total_fixation_duration: [1161x1 double]
-% esetup_fixation_drift_correction_on: [1161x1 double]
-% esetup_fixation_drift_offset: [1161x2 double]
+esetup_fixation_drift_correction_on: [1161x1 double]
+esetup_fixation_drift_offset: [1161x2 double]
 % esetup_memory_coord: [1161x2 double]
-% esetup_memory_size: [1161x4 double]
-% esetup_memory_color: [1161x3 double]
-% esetup_memory_shape: {1161x1 cell}
-% esetup_memory_pen_width: [1161x1 double]
+esetup_memory_size: [1161x4 double]
+esetup_memory_color: [1161x3 double]
+esetup_memory_shape: {1161x1 cell}
+esetup_memory_pen_width: [1161x1 double]
 esetup_st1_coord: [1161x2 double]
 esetup_st1_color: [1161x3 double]
 esetup_st2_coord: [1161x2 double]

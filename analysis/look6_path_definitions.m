@@ -101,7 +101,7 @@ end
 
 %% Plexon computer lab
     
-if (~isempty (macaddress) && sum(macaddress==[0; 0; 0; 0; 0; 0])==6) || ...
+if (~isempty (macaddress) && sum(macaddress==[188; 48; 91; 218; 166; 148])==6) || ...
     (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon lab'))
 
     % save setup name
@@ -136,7 +136,7 @@ if (~isempty (macaddress) && sum(macaddress==[0; 0; 0; 0; 0; 0])==6) || ...
 end
 
 
-%% Experiments computer
+%% Experiments computer in RIG E 
 
 if (~isempty (macaddress) && sum(macaddress==[160; 54; 159; 160; 223; 212])==6) || ...
     (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'edoras'))
