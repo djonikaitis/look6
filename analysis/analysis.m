@@ -30,7 +30,7 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 % This step should be default for most experiments
 % Data is not analysed, only combined
 
-do_this_analysis = 1;
+do_this_analysis = 0;
 
 if do_this_analysis == 1
     
