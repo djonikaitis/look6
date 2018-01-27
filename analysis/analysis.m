@@ -227,6 +227,8 @@ if do_this_analysis == 1
     settings.overwrite = 1;
     if settings.analysis_orientation_profile==1
         look6_analysis_orientation_profile;
+        look6_analysis_orientation_timecourse;
+        look6_analysis_dual_orientation_timecourse;
     end
     
 end
