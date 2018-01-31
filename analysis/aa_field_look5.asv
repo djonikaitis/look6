@@ -27,10 +27,10 @@ exp_version: 2
 % fixation_shape_task1: 'circle'
 % fixation_color_task2: [20 20 200]
 % fixation_shape_task2: 'circle'
-% fixation_color_task3: [20 20 200]
-% fixation_shape_task3: 'circle'
-% fixation_color_task4: [20 20 200]
-% fixation_shape_task4: 'circle'
+fixation_color_task3: [20 20 200]
+fixation_shape_task3: 'circle'
+fixation_color_task4: [20 20 200]
+fixation_shape_task4: 'circle'
 % fixation_color_task5: [20 20 200]
 % fixation_shape_task5: 'circle'
 % fixation_color_change_soa: -0.3000
@@ -53,18 +53,18 @@ exp_version: 2
 % response_duration: 0.5000
 % response_saccade_hold_duration: 0.2000
 % response_pen_width: 5
-% response_shape_task1: 'circle'
+response_shape_task1: 'circle'
 % response_t1_color_task1: [20 20 200]
 % response_t2_color_task1: [20 20 200]
-% response_shape_task2: 'circle'
+response_shape_task2: 'circle'
 % response_t1_color_task2: [20 20 200]
 % response_t2_color_task2: [20 20 200]
-% response_shape_task3: 'circle'
-% response_t1_color_task3: [20 20 200]
+response_shape_task3: 'circle'
+response_t1_color_task3: [20 20 200]
 % response_t3_color_task1: [20 20 20]
 % response_t3_color_task2: [20 20 20]
-% response_t3_color_task3: [20 20 20]
-% response_t3_color_task4: [20 20 20]
+response_t3_color_task3: [20 20 20]
+response_t3_color_task4: [20 20 20]
 % response_t3_shape: 'circle'
 
 % memory_size: [0 0 1 1]

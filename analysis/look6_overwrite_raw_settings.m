@@ -100,6 +100,10 @@ end
 if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3}(1) && date_current <= overwrite_temp_index{3}(end)
     if strcmp(var1.general.expname, 'look5') && strcmp(var1.general.subject_id, 'hb')
         
+        % Initialize an empty variable
+        fprintf('Early exp version detected: look5, initialize new data structure\n');
+        vtemp1 = struct;
+        
         fprintf('Early exp version detected: look5. Splitting exp_setup and exp_data matrices into variables\n')
         
         %% Restructure expsetup matrix
@@ -117,18 +121,19 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
         %         % 6
         em_name{7} = 'esetup_memory_coord_x'; % Position of  memory target (x)
         em_name{8} = 'esetup_memory_coord_y'; % Distance of memory target (y)
-        %         em_name{9} = 'em_t1_coord1';
-        %         em_name{10} = 'em_t1_coord2';
-        %         em_name{11} = 'em_t2_coord1';
-        %         em_name{12} = 'em_t2_coord2';
-        %         em_name{13} = 'em_t3_coord1'; % Probe position
-        %         em_name{14} = 'em_t3_coord2'; % Distance to the probe
+        em_name{9} = 'em_t1_coord1'; % REMOVE FIELD
+        em_name{10} = 'em_t1_coord2'; % REMOVE FIELD
+        em_name{11} = 'em_t2_coord1'; % REMOVE
+        em_name{12} = 'em_t2_coord2'; % REMOVE
+        em_name{13} = 'em_t3_coord1'; % REMOVE
+        em_name{14} = 'em_t3_coord2'; % REMOVE
+        
         %         em_name{15} = 'em_eye_window'; % Saccade accuracy
         %         % 16
         %         % 17
                 em_name{18} = 'esetup_target_number'; % 1 or 2 targets
-        %         em_name{19} = 'em_probe_trial'; %  1 - probe; 0 - no probe;
-        %         em_name{20} = 'em_distractor_soa'; % SOA between t1 & t2
+                em_name{19} = 'em_probe_trial'; %  1 - probe; 0 - no probe; % DEAL WITH THIS
+                em_name{20} = 'em_distractor_soa'; % SOA between t1 & t2
                 em_name{21} = 'esetup_memory_duration'; % Duration of memory target
                 em_name{22} = 'esetup_memory_delay'; % Delay duration
         %         em_name{23} = 'em_reward_size_ms'; % REMOVE THIS FIELD
@@ -163,9 +168,9 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
         em_name{48} = 'edata_memory_on';
         em_name{49} = 'edata_memory_off';
         em_name{50} = 'edata_st2_off';
-        %         % 51
+        em_name{51} = 'edata_background_texture_onset_time';
         %         em_name{52} = 'em_data_button_press'; % REMOVE THIS FIELD
-        %         % 53
+        em_name{53} = 'edata_fixation_color_change';
         %         % 54
         %         % 55
         %         % 56
@@ -173,7 +178,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
         %         % 58
         %         % 59
         %         % 60
-        %         em_name{61} = 'em_data_reject';
+        em_name{61} = 'em_data_reject';
         em_name{62} = 'temp1_data_drift_x1';
         em_name{63} = 'temp1_data_drift_y1';
         %         em_name{64} = 'em_data_error_counter';
@@ -198,8 +203,27 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
         end
         
         % Clear out expmatrix field
-        %         var1.stim = rmfield(var1.stim, 'expmatrix');
+        var1.stim = rmfield(var1.stim, 'expmatrix');
         
+        %% Rename error codes
+        
+        fprintf('Renaming error codes\n')
+% % % %         a = numel (var1.stim.trialmatrix);
+% % % %         b = cell(a,1);
+% % % %         ind = var1.stim.em_data_reject==1;
+% % % %         b(ind)={'look'};
+% % % %         ind = var1.stim.em_data_reject==2;
+% % % %         b(ind)={'avoid'};
+% % % %         ind = var1.stim.em_data_reject==3;
+% % % %         b(ind)={'control irrelevant cue and single target or probe'};
+% % % %         ind = var1.stim.em_data_reject==4;
+% % % %         b(ind)={'control no cue and probe'};
+% % % %         ind = var1.stim.em_data_reject==5;
+% % % %         b(ind)={'control fixate'};
+% % % %         
+% % % %         var1.stim.edata_error_code = b;
+% % % %         var1.stim = rmfield(var1.stim, 'em_data_reject');
+
         
         %% Change exp_cond variable
         
@@ -210,12 +234,37 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
         b(ind)={'look'};
         ind = var1.stim.esetup_block_cond==2;
         b(ind)={'avoid'};
+        ind = var1.stim.maincond==3;
+        b(ind)={'control irrelevant cue and single target or probe'};
+        ind = var1.stim.maincond==4;
+        b(ind)={'control no cue and probe'};
         ind = var1.stim.esetup_block_cond==5;
         b(ind)={'control fixate'};
         
         var1.stim.esetup_block_cond = b;
         
+        a = numel(var1.stim.maincond);
+        b = cell(a, 1);
+        ind = var1.stim.maincond==1;
+        b(ind)={'look'};
+        ind = var1.stim.maincond==2;
+        b(ind)={'avoid'};
+        ind = var1.stim.maincond==3;
+        b(ind)={'control irrelevant cue and single target or probe'};
+        ind = var1.stim.maincond==4;
+        b(ind)={'control no cue and probe'};
+        ind = var1.stim.maincond==5;
+        b(ind)={'control fixate'};
         
+        var1.stim.maincond = b;
+        
+        if var1.stim.exp_version == 1
+            var1.stim.probe_extended_map = 0;
+        elseif var1.stim.exp_version == 1
+            var1.stim.probe_extended_map = 3;
+        end
+        var1.stim = rmfield(var1.stim, 'exp_version');
+
         
         %% Concatenate a few variables
         
@@ -253,6 +302,17 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
         a = numel(var1.stim.trialmatrix);
         b =  repmat(var1.stim.memory_size, a, 1);
         var1.stim.esetup_memory_size = b;
+        
+        % esetup_target_size
+        a = zeros(numel(var1.stim.trialmatrix), 1);
+        b = ones(numel(var1.stim.trialmatrix), 1) * var1.stim.response_size;
+        var1.stim.esetup_target_size = [a; a; b; b];
+        
+        % esetup_target_size_eyetrack
+        a = zeros(numel(var1.stim.trialmatrix), 1);
+        b = ones(numel(var1.stim.trialmatrix), 1) * var1.stim.response_saccade_accuracy;
+        var1.stim.esetup_target_size = [a; a; b; b];
+        esetup_target_size_eyetrack
         
         %% Condition specific variables
         
@@ -300,6 +360,111 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
         b(ind_5,1)=var1.stim.memory_pen_width_task5;
         var1.stim.esetup_memory_pen_width = b;
         
+        %=====================
+        % saccade target
+        a = numel (var1.stim.trialmatrix);
+        var1.stim.esetup_st1_coord=NaN(a,2);
+        var1.stim.esetup_st2_coord=NaN(a,2);
+        var1.stim.esetup_st1_color = NaN(a,3);
+        var1.stim.esetup_st2_color = NaN(a,3);
+        var1.stim.esetup_target_shape = cell(a,1);
+        var1.stim.esetup_target_pen_width = NaN(a,1);
+
+        % Look task, 2 targets
+        ind = strcmp(var1.stim.esetup_block_cond, 'look') & var1.stim.esetup_target_number=2 & var1.stim.em_probe_trial==0;
+        var1.stim.esetup_st1_coord(ind,1:2) = [var1.stim.em_t1_coord1(ind,:); var1.stim.em_t1_coord2(ind,:)];
+        var1.stim.esetup_st2_coord(ind,1:2) = [var1.stim.em_t2_coord1(ind,:); var1.stim.em_t2_coord2(ind,:)];
+        var1.stim.esetup_st1_color(ind,1;3) = var1.stim.response_t1_color_task1;
+        var1.stim.esetup_st2_color(ind,1:3) = var1.stim.response_t2_color_task1;
+        var1.stim.esetup_target_shape(ind) = {var1.stim.response_shape_task1};
+        var1.stim.esetup_target_pen_width(ind,1) = var1.stim.response_pen_width;
+        
+        % Look task, 1 target
+        ind = strcmp(var1.stim.esetup_block_cond, 'look') & var1.stim.esetup_target_number=1 & var1.stim.em_probe_trial==0;
+        var1.stim.esetup_st1_coord(ind,1:2) = [var1.stim.em_t1_coord1(ind,:); var1.stim.em_t1_coord2(ind,:)];
+        var1.stim.esetup_st1_color(ind,1;3) = var1.stim.response_t1_color_task1;
+        var1.stim.esetup_target_shape(ind) = {var1.stim.response_shape_task1};
+        var1.stim.esetup_target_pen_width(ind,1) = var1.stim.response_pen_width;
+        
+        % Look task, probe
+        ind = strcmp(var1.stim.esetup_block_cond, 'look') & var1.stim.esetup_target_number=1 & var1.stim.em_probe_trial==1;
+        var1.stim.esetup_st1_coord(ind,1:2) = [var1.stim.em_t3_coord1(ind,:); var1.stim.em_t3_coord2(ind,:)];
+        var1.stim.esetup_st1_color(ind,1;3) = var1.stim.response_t3_color_task1;
+        var1.stim.esetup_target_shape(ind) = {var1.stim.response_t3_shape};
+        var1.stim.esetup_target_pen_width(ind,1) = var1.stim.response_pen_width;
+        
+        % Avoid task, 2 targets
+        ind = strcmp(var1.stim.esetup_block_cond, 'avoid') & var1.stim.esetup_target_number=2 & var1.stim.em_probe_trial==0;
+        var1.stim.esetup_st1_coord(ind,1:2) = [var1.stim.em_t2_coord1(ind,:); var1.stim.em_t2_coord2(ind,:)];
+        var1.stim.esetup_st2_coord(ind,1:2) = [var1.stim.em_t1_coord1(ind,:); var1.stim.em_t1_coord2(ind,:)];
+        var1.stim.esetup_st1_color(ind,1;3) = var1.stim.response_t2_color_task2;
+        var1.stim.esetup_st2_color(ind,1:3) = var1.stim.response_t1_color_task2;
+        var1.stim.esetup_target_shape(ind) = {var1.stim.response_shape_task2};
+        var1.stim.esetup_target_pen_width(ind,1) = var1.stim.response_pen_width;
+        
+        % Avoid task, 1 target
+        ind = strcmp(var1.stim.esetup_block_cond, 'avoid') & var1.stim.esetup_target_number=1 & var1.stim.em_probe_trial==0;
+        var1.stim.esetup_st1_coord(ind,1:2) = [var1.stim.em_t2_coord1(ind,:); var1.stim.em_t2_coord2(ind,:)];
+        var1.stim.esetup_st1_color(ind,1;3) = var1.stim.response_t2_color_task2;
+        var1.stim.esetup_target_shape(ind) = {var1.stim.response_shape_task2};
+        var1.stim.esetup_target_pen_width(ind,1) = var1.stim.response_pen_width;
+        
+        % Avoid task, probe
+        ind = strcmp(var1.stim.esetup_block_cond, 'avoid') & var1.stim.esetup_target_number=1 & var1.stim.em_probe_trial==1;
+        var1.stim.esetup_st1_coord(ind,1:2) = [var1.stim.em_t3_coord1(ind,:); var1.stim.em_t3_coord2(ind,:)];
+        var1.stim.esetup_st1_color(ind,1;3) = var1.stim.response_t3_color_task2;
+        var1.stim.esetup_target_shape(ind) = {var1.stim.response_t3_shape};
+        var1.stim.esetup_target_pen_width(ind,1) = var1.stim.response_pen_width;
+        
+        %==================
+        % Task 3, 1 target
+        ind = strcmp(var1.stim.esetup_block_cond, 'control - irrelevant cue and single target or probe') & var1.stim.esetup_target_number=1 & var1.stim.em_probe_trial==0;
+        var1.stim.esetup_st1_coord(ind,1:2) = [var1.stim.em_t3_coord1(ind,:); var1.stim.em_t3_coord2(ind,:)];
+        var1.stim.esetup_st1_color(ind,1;3) = var1.stim.response_t1_color_task3;
+        var1.stim.esetup_target_shape(ind) = {var1.stim.response_shape_task3};
+        var1.stim.esetup_target_pen_width(ind,1) = var1.stim.response_pen_width;
+        
+        % Task 3, probe
+        ind = strcmp(var1.stim.esetup_block_cond, 'control - irrelevant cue and single target or probe') & var1.stim.esetup_target_number=1 & var1.stim.em_probe_trial==1;
+        var1.stim.esetup_st1_coord(ind,1:2) = [var1.stim.em_t3_coord1(ind,:); var1.stim.em_t3_coord2(ind,:)];
+        var1.stim.esetup_st1_color(ind,1;3) = var1.stim.response_t3_color_task3;
+        var1.stim.esetup_target_shape(ind) = {var1.stim.response_t3_shape};
+        var1.stim.esetup_target_pen_width(ind,1) = var1.stim.response_pen_width;
+       
+        %===================
+        % Task 4, probe
+        ind = strcmp(var1.stim.esetup_block_cond, 'control - no cue and probe') & var1.stim.esetup_target_number=1 & var1.stim.em_probe_trial==1;
+        var1.stim.esetup_st1_coord(ind,1:2) = [var1.stim.em_t3_coord1(ind,:); var1.stim.em_t3_coord2(ind,:)];
+        var1.stim.esetup_st1_color(ind,1;3) = var1.stim.response_t3_color_task4;
+        var1.stim.esetup_target_shape(ind) = {var1.stim.response_t3_shape};
+        var1.stim.esetup_target_pen_width(ind,1) = var1.stim.response_pen_width;
+        
+        %===================
+        % Task 5, control fixation
+        ind = strcmp(var1.stim.esetup_block_cond, 'control fixation');
+        var1.stim.esetup_target_number(ind,:) = 0;
+        
+        % Remove fields
+        var1.stim = rmfield (var1.stim, 'em_t1_coord1');
+        var1.stim = rmfield (var1.stim, 'em_t1_coord2');
+        var1.stim = rmfield (var1.stim, 'em_t2_coord1');
+        var1.stim = rmfield (var1.stim, 'em_t2_coord2');
+        var1.stim = rmfield (var1.stim, 'em_t3_coord1');
+        var1.stim = rmfield (var1.stim, 'em_t3_coord2');
+        var1.stim = rmfield (var1.stim, 'em_probe_trial');
+        
+        var1.stim = rmfield(var1.stim, 'em_reward_size_ms');
+        var1.stim = rmfield(var1.stim, 'em_reward_size_ml');
+        
+        % esetup_background_color
+        a = numel (var1.stim.trialmatrix);
+        b = NaN(a,3);
+        b(ind_1,1:3)=var1.stim.fixation_color_look;
+        b(ind_2,1:3)=var1.stim.fixation_color_avoid;
+        b(ind_3,1:3)=var1.stim.fixation_color_control_irrelevant_cue_and_single_target_or_probe;
+        b(ind_4,1:3)=var1.stim.fixation_color_control_no_texture_and_probe;
+        b(ind_5,1:3)=var1.stim.fixation_color_control_fixate;
+        var1.stim.esetup_memory_color = b;
         
         %% Add additional long variables
         
@@ -326,6 +491,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
             var1.stim.edata_eyelinkscreen_st1 = NaN(ind,1);
             var1.stim.edata_eyelinkscreen_st2 = NaN(ind,1);
             var1.stim.edata_eyelinkscreen_distractor = NaN(ind,1);
+            var1.stim.esetup_st2_color_level = zeros(ind,1);
         end
         
         %% Rename a few of variables
@@ -362,6 +528,37 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
             var1.stim = rmfield(var1.stim, a);
         end
         
+        % Fixation task 3
+        a = 'fixation_color_task3';
+        b = 'fixation_color_control_irrelevant_cue_and_single_target_or_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'fixation_shape_task3';
+        b = 'fixation_shape_control_irrelevant_cue_and_single_target_or_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+                % Fixation task 4
+        a = 'fixation_color_task4';
+        b = 'fixation_color_control_no_cue_and_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'fixation_shape_task4';
+        b = 'fixation_shape_control_no_cue_and_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        
         % Fixation control
         a = 'fixation_color_task5';
         b = 'fixation_color_control_fixate';
@@ -376,6 +573,17 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
             var1.stim.(b) = var1.stim.(a);
             var1.stim = rmfield(var1.stim, a);
         end
+        
+        % Distractor soa
+        a = 'em_distractor_soa';
+        b = 'esetup_response_soa';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Color level variable does not exist
+        var1.stim.st2_color_level = 0;
         
         % Fixation size eyetrack
         if numel(var1.stim.memory_size)>1
@@ -443,6 +651,28 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
             var1.stim.(b) = var1.stim.(a);
             var1.stim = rmfield(var1.stim, a);
         end
+        
+                % Memory control_irrelevant_cue_and_single_target_or_probe
+        a = 'memory_color_task3';
+        b = 'memory_color_control_irrelevant_cue_and_single_target_or_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'memory_shape_task3';
+        b = 'memory_shape_control_irrelevant_cue_and_single_target_or_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'memory_pen_width_task3';
+        b = 'memory_pen_control_irrelevant_cue_and_single_target_or_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
 
         % Memory control
         a = 'memory_color_task5';
@@ -483,6 +713,22 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
         end
         
         % Background texture
+        a = 'background_color_task3';
+        b = 'background_color_control_irrelevant_cue_and_single_target_or_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Background texture
+        a = 'background_color_task4';
+        b = 'background_color_control_no_cue_and_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        % Background texture
         a = 'background_color_task5';
         b = 'background_color_control_fixate';
         if isfield(var1.stim, a)
@@ -495,6 +741,69 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
             var1.stim.response_size = var1.stim.response_size(end);
         end
         
+        %====================
+        % T1 colors look
+        a = 'response_t1_color_task1';
+        b = 'response_t1_color_look';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'response_t2_color_task1';
+        b = 'response_t2_color_look';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'response_shape_task1';
+        b = 'response_shape_look';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        %================
+        % T1 colors avoid
+        a = 'response_t1_color_task2';
+        b = 'response_t1_color_avoid';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'response_t2_color_task2';
+        b = 'response_t2_color_avoid';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'response_shape_task2';
+        b = 'response_shape_avoid';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        %================
+        % T1 colors control
+        a = 'response_t1_color_task3';
+        b = 'response_t1_control_irrelevant_cue_and_single_target_or_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'response_shape_task3';
+        b = 'response_shape_control_irrelevant_cue_and_single_target_or_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        %==================
         % T3 colors
         a = 'response_t3_color_task1';
         b = 'response_t3_color_look';
@@ -510,8 +819,23 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
             var1.stim = rmfield(var1.stim, a);
         end
         
+        a = 'response_t3_color_task3';
+        b = 'response_t3_color_control_irrelevant_cue_and_single_target_or_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        a = 'response_t3_color_task4';
+        b = 'response_t3_color_control_no_cue_and_probe';
+        if isfield(var1.stim, a)
+            var1.stim.(b) = var1.stim.(a);
+            var1.stim = rmfield(var1.stim, a);
+        end
+        
+        %================
         % Control fixate value not saved, copy it from look task
-        a = 'response_t3_color_task1';
+        a = 'response_t3_color_look';
         b = 'response_t3_color_control_fixate';
         var1.stim.(b) = var1.stim.(a);
         
@@ -535,6 +859,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
         var1.stim = rmfield(var1.stim, 'memory_color');
         var1.stim = rmfield(var1.stim, 'memory_shape');
         var1.stim = rmfield(var1.stim, 'memory_pen_width');
+
 
 
         %% Add fields that are based on expsetup values
