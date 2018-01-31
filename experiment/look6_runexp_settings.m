@@ -43,7 +43,7 @@ stim.fixation_maintain_duration_ini_step = -0.1;
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
     stim.st2_color_level_ini = 0.4;
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
-    stim.st2_color_level_ini = 0.3;
+    stim.st2_color_level_ini = 0.5;
 else
     stim.st2_color_level_ini = 0.9;
 end
@@ -93,17 +93,17 @@ end
 % Conditions to run
 stim.main_cond{1} = 'avoid';
 stim.main_cond{2} = 'look';
-stim.main_cond{3} = 'control fixate';
+% stim.main_cond{3} = 'control fixate';
 
-stim.number_of_trials_per_block = 150;
-stim.number_of_blocks = 6;
+stim.number_of_trials_per_block = 250;
+stim.number_of_blocks = 4;
 
 %====================
 % Memory delay duration
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
     stim.memory_delay_duration = [0.8:0.01:1.3]; % How long memory delay lasts
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
-    stim.memory_delay_duration = [2.1:0.01:2.2]; % How long memory delay lasts
+    stim.memory_delay_duration = [1.2:0.01:1.3]; % How long memory delay lasts
 else
     stim.memory_delay_duration = [2.1:0.01:2.2]; % How long memory delay lasts
 end
@@ -160,7 +160,7 @@ stim.reward_coeff1 = [881.4887   -3.3301]; % Pump reward measure as of 10.19.201
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'aq')
     stim.reward_size_ml = 0.23; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'hb')
-    stim.reward_size_ml = 0.16; % Typical reward to start with
+    stim.reward_size_ml = 0.19; % Typical reward to start with
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id, 'jw')
     stim.reward_size_ml = 0.25; % Typical reward to start with
 else

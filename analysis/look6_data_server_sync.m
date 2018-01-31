@@ -18,7 +18,7 @@ settings.data_sessions = 'all';
 
 % which setup?
 % 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
-settings.exp_setup = 'unknown';
+settings.exp_setup = 'edoras';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -32,6 +32,7 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 % Connect to server and import data from it
 settings.data_import_from_server = 1;
 if settings.data_import_from_server == 1
+    settings.server_overwrite = 0;
     settings.data_direction = 'upload';
     settings.import_folders_include = {};
 % %     settings.import_folders_include{1} = 'data_plexon_temp_2';
