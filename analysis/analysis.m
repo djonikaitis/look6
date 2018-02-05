@@ -11,7 +11,7 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % use subject initials for one subject or 'all' to run all subjects
-settings.subjects = 'hb';
+settings.subjects = 'aq';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
