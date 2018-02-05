@@ -88,7 +88,7 @@ if settings.data_import_from_server ==1
             if dont_analyze_this_folder == 0
                 if isfield(settings, 'import_folders_exclude') && ~isempty(settings.import_folders_exclude)
                     a = strcmp(settings.import_folders_exclude, dir_index(folder_i).name);
-                else 
+                else
                     a = 0;
                 end
                 if sum(a)>0
@@ -107,7 +107,7 @@ if settings.data_import_from_server ==1
                 end
                 if sum(a)>0
                     dont_analyze_this_folder = 1;
-                else 
+                else
                     dont_analyze_this_folder = 0;
                 end
             end
@@ -122,7 +122,7 @@ if settings.data_import_from_server ==1
                 fprintf('Will synchronise following data sub-folder: \n');
                 fprintf('%s\n', settings.path_server_server_in_subject)
                 fprintf('============\n\n')
-
+                
                 settings = get_settings_path_and_dates_ini_v11(settings, 'path_server_server_in_subject');
                 dates_used = settings.data_sessions_to_analyze;
                 
@@ -156,7 +156,7 @@ if settings.data_import_from_server ==1
                         for file_i = 1:length(index_file)
                             if ~strncmp(index_file(file_i).name, '.', 1) && ~strncmp(index_file(file_i).name, '..', 2)
                                 
-                                fprintf('Will synchronise following file %s in the folder %s \n', index_file(file_i).name, folder_name);
+                                fprintf('Will synchronise following file "%s" in the folder "%s" \n', index_file(file_i).name, folder_name);
                                 
                                 % Make such a folder on the server
                                 path1_source = sprintf('%s%s', path1_temp_inp_folder, index_file(file_i).name);
@@ -164,15 +164,47 @@ if settings.data_import_from_server ==1
                                 
                                 %========
                                 if exist(path1_destination) == 2
-                                    fprintf('Data file %s exists, no sync \n\n', index_file(file_i).name);
+                                    if isfield(settings, 'server_overwrite') && settings.server_overwrite==1
+                                        fprintf('Data file "%s" exists, overwriting as specified by user input in settings.overwrite\n', index_file(file_i).name);
+                                        delete(path1_destination);
+                                        if exist(path1_destination) ~= 2
+                                            fprintf('File successfully deleted\n');
+                                        elseif exist(path1_destination) == 2
+                                            error ('File deletion failed, no contingency code written')
+                                        end
+                                        status = 0; temp_counter = 1;
+                                        while status==0
+                                            [status, message] = copyfile(path1_source, path1_destination);
+                                            if status ~=0
+                                                fprintf('Success, file copied\n');
+                                            end
+                                            if status == 0
+                                                fprintf('Failed to sync file "%s", will attempt again. Error id: %s\n', index_file(file_i).name, message);
+                                                temp_counter = temp_counter+1;
+                                                if temp_counter==3
+                                                    status = -1;
+                                                    fprintf('Failed to sync file "%s", skipping the sync\n', index_file(file_i).name);
+                                                end
+                                            end
+                                        end
+                                    else
+                                        fprintf('Data file "%s" exists, no sync\n', index_file(file_i).name);
+                                    end
                                 else
-                                    fprintf('Will synchronise data file %s \n', index_file(file_i).name);
-                                    status = 0;
+                                    fprintf('Will synchronise data file "%s" \n', index_file(file_i).name);
+                                    status = 0; temp_counter = 1;
                                     while status==0
                                         [status, message] = copyfile(path1_source, path1_destination);
-                                        fprintf('Success \n\n');
+                                        if status ~=0
+                                            fprintf('Success, file copied\n\n');
+                                        end
                                         if status == 0
-                                            fprintf('Failed to sync file %s \n\n', index_file(file_i).name);
+                                            fprintf('Failed to sync file "%s", will attempt again. Error id: %s\n', index_file(file_i).name, message);
+                                            temp_counter = temp_counter+1;
+                                            if temp_counter==3
+                                                status = -1;
+                                                fprintf('Failed to sync file "%s", skipping the sync\n\n', index_file(file_i).name);
+                                            end
                                         end
                                     end
                                 end
@@ -196,7 +228,7 @@ if settings.data_import_from_server ==1
             % End of checking exp folder exists (exclude '..') or
             % pre-specified folders
         end
-        % End of analysis for each data folder (pyschtoolbox, raw etc)        
+        % End of analysis for each data folder (pyschtoolbox, raw etc)
     end
     % End of anlaysis for each subject
     

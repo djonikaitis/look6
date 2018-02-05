@@ -1,4 +1,3 @@
-
 % Script running main experiment file. Initializes and closes all devices.
 % V2.1 Update as of May 16, 2017
 % V2.2 July 15, 2017: Improved compatability with new framework
@@ -6,6 +5,7 @@
 % V2.4 August 23, 2017: Added helper functions folder to the path
 % V2.5 October 28, 2017: renamed _settings file into _runexp_settings (to
 % distingish from analysis_settings)
+% V2.6 January 29, 2018: Unified analysis and experiment path setup.
 
 
 close all;
