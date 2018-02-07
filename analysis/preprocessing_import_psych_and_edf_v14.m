@@ -5,7 +5,8 @@
 % V1.2 - September 14, 2017. Neurophys setup. Re-written experiment design.
 % Converted into function.
 % V1.3 - October 25, 2017. Minor adjustments to code. Incompatible with
-% earlier versions. 
+% earlier versions.
+% V1.4 - February 1, 2018. Simplified path definitions.
 %
 % Output - saved structures in 'temp2' folder:
 % xx_settings
@@ -13,7 +14,7 @@
 %
 % Donatas Jonikaitis
 
-function  preprocessing_import_files_v12(settings)
+function  preprocessing_import_psych_and_edf_v14(settings)
 
 % Show file you are running
 p1 = mfilename;
@@ -33,29 +34,26 @@ for i_subj = 1:length(settings.subjects)
     % Select curent subject
     settings.subject_current = settings.subjects{i_subj};
     
-    % Get subject folder paths and dates to analyze
-    settings = get_settings_path_and_dates_ini_v11(settings, 'path_data_eyelink_edf_subject');
-    dates_used = settings.data_sessions_to_analyze;
+    % Which dates to run?
+    settings.dates_used = get_dates_used_v10 (settings, 'data_psychtoolbox');
     
     % Analysis for each separate day
-    for i_date = 1:length(dates_used)
+    for i_date = 1:length(settings.dates_used)
         
-        % Current folder to be analysed (raw date, with session index)
-        date_current = dates_used(i_date);
-        settings.date_current = date_current; % Variable needed for data import
-        ind = date_current==settings.index_dates;
-        folder_name = [settings.subject_current, num2str(settings.date_current)];
-        
-        path1 = [settings.path_data_temp_2_subject, folder_name, '/' folder_name, '_settings.mat'];
-        
+        % Which date is it
+        settings.date_current = settings.dates_used(i_date);
+                       
+        % Generate output path
+        path1 = get_generate_path_v10(settings, 'data_temp_2', '_settings.mat');
+
         if ~exist(path1, 'file') || settings.overwrite==1
-            fprintf('\nStarting file conversion and combining for the folder name %s\n', folder_name)
+            fprintf('\nStarting file conversion and combining for the date %s\n', num2str(settings.date_current))
             %===========
             % Main preprocessing function
-            preprocessing_psych_eye_combine_v24 (settings, 'stim');
+            preprocessing_import_psych_and_edf_sub_v25 (settings, 'stim');
             %===========
         else
-            fprintf('\nFolder name %s already exists, skipping file import\n', folder_name)
+            fprintf('\nFDate for the date %s already exists, skipping file import\n', num2str(settings.date_current))
             % Do nothing
         end
         

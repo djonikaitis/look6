@@ -1,26 +1,28 @@
-% Preprocessing of raw data files - combining them, adding eye movements
+% Preprocessing of raw psychtoolbox and edf data files - combining sessions
+% into daily data file, extract eye movements.
 % Make sure to provide folders for data access
 % Typically, this file does not have to be modified, unless recorded data
 % formats change
 %
 % Donatas Jonikaitis
 %
-% V2.0: 6 September 2016. Combines psycthoolbox, eyelink and plexon files and
+% V2.0: September 6, 2016. Combines psycthoolbox, eyelink and plexon files and
 % saves them. It does not do any data analysis.
 % Only prerequisite is that START message exists in eyelink
 % messages file (to parse trials, can be replaces with any other
 % message).
-% V2.0 24 September 2016. Combines matrices only if all data is present
-% V2.1 27 October 2016. Separated spike detection from event detection due
+% V2.0 September24, 2016. Combines matrices only if all data is present
+% V2.1 October 27, 2016. Separated spike detection from event detection due
 % to bugs in pl2 file export.
-% V2.2 31 October 2016. Removed spike detection as it made too many
+% V2.2 October 31, 2016. Removed spike detection as it made too many
 % complications given plexon data formats. Now it deals with eyelink and
 % psychtoolbox data only.
-% V2.3 24 August 2017. Updated file for re-written exp design.
-% V2.4 6 November 2017. Eye movements recording is now optional
+% V2.3 August 24, 2017. Updated file for re-written exp design.
+% V2.4 November 6, 2017. Eye movements recording is now optional
+% V2.5 February 1, 2018. Simplified path definitions
 %
-% Format:
-% preprocessing_psychtoolbox_v24 (settings, varargin)
+% Input format:
+% preprocessing_import_psych_and_edf_sub_v25 (settings, varargin)
 % settings: settings containing path to data folders;
 % varargin text input: names of structures (.stim usually) to be
 % concatenated as 1 trial - 1 row (1 cell)
@@ -34,29 +36,50 @@
 % are necessary for the code to work
 
 
-function preprocessing_psych_eye_combine_v24(settings, varargin)
+% function preprocessing_import_psych_and_edf_sub_v25(settings, varargin)
 
 %==============
 
 % Pre-specified folder names imported from settings
-% Right hand side of equation can be easily substituted with other folder
-% names wihtout rewriting the rest of this code
 
-try
-    settings.path_data_psychtoolbox = settings.path_data_psychtoolbox_subject; % Psychtoolbox settings
-    settings.path_data_eyelink_edf = settings.path_data_eyelink_edf_subject; % Eyelink input
-    settings.path_data_eyelink_asc = settings.path_data_temp_1_subject; % Eyelink output
-    settings.path_data_output = settings.path_data_temp_2_subject; % To which folder the data is saved
-catch
-    error ('settings.path_ for data preprocessing is not specified/is incorrect')
+a = 'path_data_psychtoolbox';
+if isfield (settings, a)
+else
+    error ('settings.%s for data preprocessing is not specified/is incorrect', a)
 end
 
-if ~isfield (settings, 'date_current')
-    error ('settings.date_current is not specified. Aborting data pre-processing')
+a = 'path_data_eyelink_edf';
+if isfield (settings, a)
+else
+    error ('settings.%s for data preprocessing is not specified/is incorrect', a)
 end
 
-if ~isfield (settings, 'index_directory')
-    error ('settings.index_directory is not specified. Aborting data pre-processing')
+a = 'path_data_temp_1';
+if isfield (settings, a)
+else
+    error ('settings.%s for data preprocessing is not specified/is incorrect', a)
+end
+
+a = 'path_data_temp_2';
+if isfield (settings, a)
+else
+    error ('settings.%s for data preprocessing is not specified/is incorrect', a)
+end
+
+a = 'date_current';
+if ~isfield (settings, a)
+    error ('settings.%s is not specified. Aborting data pre-processing', a)
+end
+
+a = 'subject_current';
+if ~isfield (settings, a)
+    error ('settings.%s is not specified. Aborting data pre-processing', a)
+end
+
+a = 'date_current';
+if ~isfield (settings, a)
+    error ('settings.%s is not specified. Aborting data pre-processing', a)
+    date_current = settings.date_current;
 end
 
 overwrite_saccades_EK2003 = 0; % 1 - will over-write saccade detection for EK algorithm
@@ -64,87 +87,63 @@ overwrite_saccades_EK2003 = 0; % 1 - will over-write saccade detection for EK al
 
 %% Do analysis
 
-sessions_used = find(settings.date_current==settings.index_dates);
-i_date = settings.date_current;
+% How many sessions are used?
+p1 = get_generate_path_v10(settings, 'data_psychtoolbox');
+temp1 = get_path_dates_v20(p1, settings.subject_current);
+ind = settings.date_current==temp1.index_dates;
+sessions_used = temp1.index_sessions(ind);
 
 % Do analysis for each desired session
 % No changes needed for this section
 for i_session = 1:numel(sessions_used)
     
+    
     % Which recorded to use
     session_ind = sessions_used(i_session);
     
-    % Folder name to be used
-    folder_name = settings.index_directory{session_ind};
-    
-    
+
     %% Load psychtoolbox data (no processing needed)
     
-    file_name = [folder_name, '_data_structure.mat']; % How file is called
-    path_psych = [settings.path_data_psychtoolbox, folder_name, '/', file_name];
+    [path1, ~, file_name] = get_generate_path_v10(settings, 'data_psychtoolbox', '_data_structure.mat', session_ind);
+    var1 = get_struct_v11(path1);
     
-    if exist (path_psych, 'file')
-        varx = load(path_psych);
+    if ~isempty(fieldnames(var1))
+        fprintf('\nPsychtoolbox file "%s" successfully loaded\n', file_name)
     else
-        varx = struct;
+        fprintf('\nPsychtoolbox file "%s" does not exist; it was not loaded\n', file_name)
     end
-    if ~isempty(fieldnames(varx))
-        fprintf('\nPsychtoolbox file %s successfully loaded\n', file_name)
-    else
-        fprintf('\nPsychtoolbox file %s does not exist; it was not loaded\n', file_name)
-    end
-    
-    % Extract a structure which is in the var1
-    var1 = struct; % Initialize empty structure
-    f1 = fieldnames(varx);
-    if length(f1)==1
-        var1 = varx.(f1{1});
-    end
-    
-    %  Save the path of loaded files
-    var3 = struct;
-    if isempty(fieldnames(var1))
-        var3 = struct;
-    elseif ~isempty(fieldnames(var1))
-        var3.settings_preprocessing.path_psychtoolbox{i_session} = path_psych;
-    end
-    
-    % var1 is psychtoolbox file
-    % var3 contains paths to the files loaded
-    
-    
+          
     
     %% Load/preprocess eye-tracker data
     
-    
     % General path setup
-    path_in=[settings.path_data_eyelink_edf, folder_name, '/']; % Load edf file
-    path_out=[settings.path_data_eyelink_asc, folder_name, '/']; % Save into asc folder
-    file_name = folder_name;
-    
+    [path_edf] = get_generate_path_v10(settings, 'data_eyelink_edf', '.edf', session_ind);
+    [path_asc, mk_dir_out] = get_generate_path_v10(settings, 'data_temp_1', '.asc', session_ind);
+    [path_dat] = get_generate_path_v10(settings, 'data_temp_1', '.dat', session_ind);
     
     %============
     % Convert .edf into .asc .dat
     
-    path_asc = sprintf('%s%s.asc', path_out, file_name); % Full path to .asc file
-    path_edf = sprintf('%s%s.edf', path_in, file_name); % Full path to .asc file
-    if ~exist (path_asc,'file') && exist (path_edf,'file') % If asc file doesn't exist - do the conversion
+    if exist(path_edf,'file') && (~exist (path_asc,'file') || ~exist (path_dat,'file')) % If asc file doesn't exist - do the conversion
         
-        if ~isdir(path_out)
-            mkdir (path_out)
+        if ~isdir(mk_dir_out)
+            mkdir (mk_dir_out)
         end
         
-        preprocessing_eye_edf2asc_v12(path_in, path_out, file_name, settings) % Script doing conversion
-        if exist (path_asc,'file')
-            fprintf ('\n\nFile %s.edf was converted to .asc and .dat files \n', file_name)
+        preprocessing_eye_edf2asc_v13(path_edf, path_asc, path_dat) % Script doing conversion
+        
+        if exist (path_asc,'file') && exist (path_dat,'file')
+            fprintf ('\n\n.edf file was converted to .asc and .dat files \n')
         else
-            fprintf ('\n\n %s.edf conversion failed (no .asc and .dat files created) \n', file_name)
+            fprintf ('\n\n.edf file conversion failed (no .asc and .dat files created) \n')
         end
         
-    elseif ~exist (path_asc,'file') && ~exist (path_edf,'file')
-        fprintf ('Eyelink files %s.edf does not exist, skipping edf conversion  \n', file_name)
+    elseif ~exist (path_edf,'file')
+        fprintf ('.edf file does not exist, skipping edf conversion  \n')
+    elseif exist (path_asc,'file') && exist (path_dat,'file')
+        fprintf ('Eyelink files .asc and .dat exist, no conversion done  \n')
     else
-        fprintf ('Eyelink files  .asc and .dat in the folder %s exist, no conversion done  \n', file_name)
+        fprintf ('.edf file conversion failed, error not specified\n')
     end
     
     
@@ -152,50 +151,45 @@ for i_session = 1:numel(sessions_used)
     % Get eyelink messages from .asc file
     
     % Check whether message file exist. If it does, skip analysis
-    path_events = sprintf('%s%s_events.mat',path_out, file_name); % Full path to events file
-    if ~exist (path_events,'file')
-        path_asc = sprintf('%s%s.asc', path_out, file_name); % Full path to .asc file
-        if exist (path_asc,'file')
-            preprocessing_eye_msg2tab_v21(path_out, file_name);
+    path_in = get_generate_path_v10(settings, 'data_temp_1', '.asc', session_ind);
+    [path_out, ~, file_name] = get_generate_path_v10(settings, 'data_temp_1', '_events.mat', session_ind);
+            
+    if ~exist (path_out,'file')
+        if exist (path_in,'file')
+            preprocessing_eye_msg2tab_v22(path_in, path_out);
         else
             fprintf ('.asc file does not exist. Can not proceed with event extraction\n')
         end
-        if exist(path_events,'file')
-            fprintf ('Extracted all messages into file %s_events successfully.\n', file_name)
+        if exist(path_out,'file')
+            fprintf ('Extracted all messages into file "%s" successfully.\n', file_name)
         end
     else
-        fprintf ('Messages file %s_events already exist, no conversion done  \n', file_name)
+        fprintf ('Messages file "%s" already exist, no conversion done  \n', file_name)
     end
     
     % Load messages file
-    if exist (path_events, 'file')
-        varx = load(path_events);
+    [path1, ~, file_name] = get_generate_path_v10(settings, 'data_temp_1', '_events.mat', session_ind);
+    var4.events = get_struct_v11(path1);
+    
+    if ~isempty(fieldnames(var4))
+        fprintf('Messages file "%s" successfully loaded\n', file_name)
     else
-        varx = struct;
-    end
-    
-    % Extract a structure which is in the var1
-    var4 = struct;
-    f1 = fieldnames(varx);
-    if length(f1)==1
-        var4.eyelink_events = varx.(f1{1});
+        fprintf('Messages file "%s" does not exist; it was not loaded\n', file_name)
     end
     
     
+
     %==============
     % Find saccades using Engbert & Kliegl (2003) algorithm
     
     
     % Extract saccades
-    path_saccades_EK = sprintf('%s%s_saccades_EK.mat', path_out, file_name); % Full path to saccades_EK file
-    
-    
+    path_in = get_generate_path_v10(settings, 'data_temp_1', '.dat', session_ind);
+    [path_out, ~, file_name] = get_generate_path_v10(settings, 'data_temp_1', '_saccades_EK.mat', session_ind);
+
     % IF converted file does not exist, then do conversion
-    if ~exist (path_saccades_EK, 'file')  || overwrite_saccades_EK2003==1
-        
-        path_dat = sprintf('%s%s.dat', path_out, file_name);  % Full path to .asc file
-        
-        if exist (path_dat,'file') && isfield(var4, 'eyelink_events')
+    if ~exist (path_out, 'file')  || overwrite_saccades_EK2003==1     
+        if exist (path_in,'file') && ~isempty(fieldnames(var4))
             
             % Saccade detection settings
             const.SAMPRATE  = []; % Sampling rate of Eye Tracker
@@ -203,49 +197,35 @@ for i_session = 1:numel(sessions_used)
             const.minDur    = 6; % Duration threshold for saccade detection
             const.VELTYPE   = 2; % Velocity type for saccade detection (using default)
             const.mergeInt  = 20; % Interval within which saccades/microsaccades will be merged; ms
-            const.SAMPRATE = var4.eyelink_events.sampling_frequency(1); % Assumes sampling frequency does not change
-            const.trial_start = var4.eyelink_events.START;
-            const.trial_end = var4.eyelink_events.END;
+            const.SAMPRATE = var4.events.sampling_frequency(1); % Assumes sampling frequency does not change
+            const.trial_start = var4.events.START;
+            const.trial_end = var4.events.END;
             
-            fprintf('Processing %s eye data based on Engbert & Kliegl (2003) algorithm \n', file_name);
+            fprintf('Processing eye data based on Engbert & Kliegl (2003) algorithm \n');
             tic
-            preprocessing_eye_saccades_EK2003_v15(path_out, file_name, const); % Eye movement analysis
+            preprocessing_eye_saccades_EK2003_v16(path_in, path_out, const); % Eye movement analysis
             a = toc;
             a = round(a, 2);
             fprintf('Time taken to extract saccades was %d seconds \n', a);
         else
             fprintf ('.dat file does not exist. Can not proceed with saccade detection\n')
         end
-        if exist(path_saccades_EK,'file')
-            fprintf ('Prepared saccades file %s_saccades_EK based on Engbert & Kliegl (2003); conversion complete \n', file_name)
+        if exist(path_out,'file')
+            fprintf ('Prepared saccades "%s" based on Engbert & Kliegl (2003); conversion complete \n', file_name)
         end
     else
-        fprintf ('Saccades file %s_saccades_EK already exist, no conversion done  \n', file_name)
+        fprintf ('Saccades file "%s" already exist, no conversion done\n', file_name)
     end
     
-    % Load saccades file
-    if exist (path_saccades_EK, 'file')
-        varx = load(path_saccades_EK);
+    % Load messages file
+    [path1, ~, file_name] = get_generate_path_v10(settings, 'data_temp_1', '_saccades_EK.mat', session_ind);
+    var2.eye_data = get_struct_v11(path1);
+    
+    if ~isempty(fieldnames(var2))
+        fprintf('Saccades file "%s" successfully loaded\n', file_name)
     else
-        varx = struct;
+        fprintf('Saccades file "%s" does not exist; it was not loaded\n', file_name)
     end
-    
-    % Extract a structure which is in the varx
-    var2 = struct;
-    f1 = fieldnames(varx);
-    if length(f1)==1
-        var2.eye_data = varx.(f1{1});
-    end
-    
-    % Save the path of loaded files
-    if ~isempty(fieldnames(var3))
-        var3.settings_preprocessing.path_eyelink_in{i_session} = path_in;
-        var3.settings_preprocessing.path_eyelink_out{i_session} = path_out;
-    end
-    
-    % var2 is eye data - saccaddes using Engbert & Kliegl (2003) algorithm
-    % var4 contains all eyelink detected messages
-    % var3 contains paths to the files loaded
     
     
     %% Combine psychtoolbox & eyelink into one structure
@@ -254,23 +234,21 @@ for i_session = 1:numel(sessions_used)
     
     % Only if all data was successfully loaded
     a = [~isempty(fieldnames(var1)); ~isempty(fieldnames(var2)); ...
-        ~isempty(fieldnames(var3)); ~isempty(fieldnames(var4))];
+         ~isempty(fieldnames(var4))];
     
-    if sum(a)==4
+    if sum(a)==3
         
         %==================
-        for rep1 = 1:4
+        for rep1 = 1:3
             
             % Select variable for combining
             % Particular order is just for convenience of displaying structure
             % in command window
             if rep1==1
-                temp1 = var3; % Path to files
-            elseif rep1==2
                 temp1 = var1; % Psychtoolbox matrix
-            elseif rep1==3
+            elseif rep1==2
                 temp1 = var4; % Eye messages
-            elseif rep1==4
+            elseif rep1==3
                 temp1 = var2; % Saccades
             end
             
@@ -291,21 +269,19 @@ for i_session = 1:numel(sessions_used)
         %=====================
         
         
-    elseif sum(a)==2 &&~isempty(fieldnames(var1)) && ~isempty(fieldnames(var3)) && var1.general.recordeyes==0 % For psychtoolbox recording only
+    elseif sum(a)==1 &&~isempty(fieldnames(var1)) && var1.general.recordeyes==0 % For psychtoolbox recording only
         
         %==================
-        for rep1 = 1:4
+        for rep1 = 1:3
             
             % Select variable for combining
             % Particular order is just for convenience of displaying structure
             % in command window
             if rep1==1
-                temp1 = var3; % Path to files
-            elseif rep1==2
                 temp1 = var1; % Psychtoolbox matrix
-            elseif rep1==3
+            elseif rep1==2
                 temp1 = struct; % Eye messages (SKIP)
-            elseif rep1==4
+            elseif rep1==3
                 temp1 = struct; % Saccades (SKIP)
             end
             
@@ -332,17 +308,16 @@ for i_session = 1:numel(sessions_used)
     
     %% Combine multiple sessions into one strucutre called S
     
-    
     if ~isempty(fieldnames(comb_mat))
         
         temp0 = comb_mat; % Matrix with data
         
         if isfield(temp0, 'eyelink_events')  % If eyetracking is on
             temp0.session{1} = ones(size(temp0.eyelink_events.START{1}, 1), 1); % Save session number
-            temp0.date{1} = ones(length(temp0.eyelink_events.START{1}), 1) * i_date; % Save current date
+            temp0.date{1} = ones(length(temp0.eyelink_events.START{1}), 1) * date_current; % Save current date
         elseif isfield(temp0.stim, 'edata_first_display')   % If no eye tracking
             temp0.session{1} = ones(size(temp0.stim.edata_first_display{1}, 1), 1); % Save session number
-            temp0.date{1} = ones(length(temp0.stim.edata_first_display{1}), 1) * i_date; % Save current date
+            temp0.date{1} = ones(length(temp0.stim.edata_first_display{1}), 1) * date_current; % Save current date
         else
             error('Files can not be combined, as field for trial numbers not specified')
         end
@@ -698,37 +673,37 @@ end
 %% Save
 
 if exist('S', 'var')
-    
-    folder_name = [settings.subject_current, num2str(settings.date_current)];
-    path1=[settings.path_data_output, folder_name, '/'];
-    
-    if isdir(path1)
-        rmdir(path1, 's')
-        fprintf('\nPreprocessing folder already exists, contents cleared\n')
-        mkdir(path1);
-    else
-        fprintf('\nCreated new preprocessing directory\n')
-        mkdir(path1);
-    end
-    
-    
-    % Save main data
-    path_in = [path1, folder_name, '_settings'];
-    save (eval('path_in'), 'S')
-    
-    % Save raw eye position data separately, as usually it does not need to be
-    % loaded
-    if exist ('SR', 'var')
-        path_in = [path1, folder_name, '_eye_traces'];
-        save (eval('path_in'), 'SR')
-    end
-    
-    % Output
-    fprintf('Preprocessed data successfully saved under following name:\n')
-    fprintf ('%s\n', path1)
-    
-else
-    fprintf('Data for given day did not exist, no files saved\n')
-end
-
-
+%     
+%     folder_name = [settings.subject_current, num2str(settings.date_current)];
+%     path1=[settings.path_data_output, folder_name, '/'];
+%     
+%     if isdir(path1)
+%         rmdir(path1, 's')
+%         fprintf('\nPreprocessing folder already exists, contents cleared\n')
+%         mkdir(path1);
+%     else
+%         fprintf('\nCreated new preprocessing directory\n')
+%         mkdir(path1);
+%     end
+%     
+%     
+%     % Save main data
+%     path_in = [path1, folder_name, '_settings'];
+%     save (eval('path_in'), 'S')
+%     
+%     % Save raw eye position data separately, as usually it does not need to be
+%     % loaded
+%     if exist ('SR', 'var')
+%         path_in = [path1, folder_name, '_eye_traces'];
+%         save (eval('path_in'), 'SR')
+%     end
+%     
+%     % Output
+%     fprintf('Preprocessed data successfully saved under following name:\n')
+%     fprintf ('%s\n', path1)
+%     
+% else
+%     fprintf('Data for given day did not exist, no files saved\n')
+% end
+% 
+% 

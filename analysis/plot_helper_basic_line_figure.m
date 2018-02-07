@@ -24,30 +24,30 @@
 
 %% Make sure pbins exists
 
-if ~isfield (plot_set, 'pbins') && isfield (plot_set, 'mat1')
-    plot_set.pbins = 1:numel(plot_set.mat1);
+if ~isfield (plot_set, 'mat_x') && isfield (plot_set, 'mat_y')
+    plot_set.mat_x = 1:numel(plot_set.mat_y);
 end
 
 
 %%  Calculate colors if it is a range
 % Else it will read out specified colors
 
-if isfield (plot_set, 'data_color_min') && isfield (plot_set, 'data_color_max') && isfield (plot_set, 'mat1')
+if isfield (plot_set, 'data_color_min') && isfield (plot_set, 'data_color_max') && isfield (plot_set, 'mat_y')
         
     % Settings
     if numel(plot_set.data_color_min)==1 && numel(plot_set.data_color_max)==1
         col_min = settings.color1 (plot_set.data_color_min,:);
         col_max = settings.color1 (plot_set.data_color_max,:);
-        n = size(plot_set.mat1,3);
+        n = size(plot_set.mat_y,3);
     elseif numel(plot_set.data_color_min)==3 && numel(plot_set.data_color_max)==3
         col_min = plot_set.data_color_min;
         col_max = plot_set.data_color_max;
-        n = size(plot_set.mat1,3);
+        n = size(plot_set.mat_y,3);
     else
         sprintf('data_color_min and data_color_max not specified correctly, using default color scheme')
         col_min = [0.3, 0.3, 0.3];
         col_max = [1, 0.2, 0.2];
-        n = size(plot_set.mat1,3);
+        n = size(plot_set.mat_y,3);
     end
     
     % Other location colors are calculated as a range
@@ -73,18 +73,18 @@ if isfield (plot_set, 'ebars_min') && isfield (plot_set, 'ebars_max') && isfield
     
     d1 = plot_set.ebars_min;
     f1 = plot_set.ebars_max;
-    pbins = plot_set.pbins;
+    mat_x = plot_set.mat_x;
     
     for k=1:size(d1,3)
         
             graphcond=k;
             
-            xc1 = pbins(1); % Min x, min y
-            xc2 = pbins(1); % Min x, max y
-            xc3 = pbins; % Upper bound of errors
-            xc4 = pbins(end); % Max x, max y
-            xc5 = pbins(end); % Max x, min y
-            xc6 = pbins;
+            xc1 = mat_x(1); % Min x, min y
+            xc2 = mat_x(1); % Min x, max y
+            xc3 = mat_x; % Upper bound of errors
+            xc4 = mat_x(end); % Max x, max y
+            xc5 = mat_x(end); % Max x, min y
+            xc6 = mat_x;
             xc6 = fliplr(xc6);
             
             yc1 = d1(:,1,k); % Lower bound of errors
@@ -121,18 +121,18 @@ end
 
 %%  Plot lines
 
-if isfield (plot_set, 'mat1')
+if isfield (plot_set, 'mat_y')
     
-    mat1 = plot_set.mat1;
-    pbins = plot_set.pbins;
+    mat_y = plot_set.mat_y;
+    mat_x = plot_set.mat_x;
     
-    for k=1:size(mat1,3)
+    for k=1:size(mat_y,3)
         
         % Draw line
-        if size(mat1,1)>1
-            h=plot(pbins, nanmean(mat1(1,:,k),1));
-        elseif size(mat1,1)==1
-            h=plot(pbins, mat1(1,:,k));
+        if size(mat_y,1)>1
+            h=plot(mat_x, nanmean(mat_y(1,:,k),1));
+        elseif size(mat_y,1)==1
+            h=plot(mat_x, mat_y(1,:,k));
         end
         
         % Select color
@@ -209,9 +209,9 @@ else % If y-ticks do not exist, calculate your own
     if isfield (plot_set, 'ebars_min') && isfield (plot_set, 'ebars_max')
         t0 = plot_set.ebars_min;
         t1 = plot_set.ebars_max;
-    elseif isfield (plot_set, 'mat1')
-        t0 = plot_set.mat1;
-        t1 = plot_set.mat1;
+    elseif isfield (plot_set, 'mat_y')
+        t0 = plot_set.mat_y;
+        t1 = plot_set.mat_y;
     else
         sprintf('No values for YTick provided, using defaults')
         t0 = 0;
@@ -260,27 +260,27 @@ if isfield (plot_set, 'XTick') && ~isempty(plot_set.XTick)
    
     hfig.XTick = plot_set.XTick;
 
-elseif isfield (plot_set, 'pbins')
+elseif isfield (plot_set, 'mat_x')
     
-    pbins = plot_set.pbins;
-    if pbins(end)<=10
+    mat_x = plot_set.mat_x;
+    if mat_x(end)<=10
         hfig.XTick = [1,5,10];
-    elseif pbins(end)<=20
-        hfig.XTick = [1,5:5:pbins(end)];
-    elseif pbins(end)<=50
-        hfig.XTick = [1,10:10:pbins(end)];
-    elseif pbins(end)<=100
-        hfig.XTick = [1,20:20:pbins(end)];
-    elseif pbins(end)<=250
-        hfig.XTick = [1,50:50:pbins(end)];
-    elseif pbins(end)<=500
-        hfig.XTick = [1,100:100:pbins(end)];
-    elseif pbins(end)<=1000
-        hfig.XTick = [1,250:250:pbins(end)];
-    elseif pbins(end)<=2500
-        hfig.XTick = [1,500:500:pbins(end)];
-    elseif pbins(end)<=5000
-        hfig.XTick = [1,1000:1000:pbins(end)];
+    elseif mat_x(end)<=20
+        hfig.XTick = [1,5:5:mat_x(end)];
+    elseif mat_x(end)<=50
+        hfig.XTick = [1,10:10:mat_x(end)];
+    elseif mat_x(end)<=100
+        hfig.XTick = [1,20:20:mat_x(end)];
+    elseif mat_x(end)<=250
+        hfig.XTick = [1,50:50:mat_x(end)];
+    elseif mat_x(end)<=500
+        hfig.XTick = [1,100:100:mat_x(end)];
+    elseif mat_x(end)<=1000
+        hfig.XTick = [1,250:250:mat_x(end)];
+    elseif mat_x(end)<=2500
+        hfig.XTick = [1,500:500:mat_x(end)];
+    elseif mat_x(end)<=5000
+        hfig.XTick = [1,1000:1000:mat_x(end)];
     end
     
 else
@@ -303,10 +303,10 @@ end
 if isfield (plot_set, 'XLim')
     hfig.XLim = plot_set.XLim;
 else
-    if isfield (plot_set, 'pbins')
-        r1 = abs(plot_set.pbins(end) - plot_set.pbins(1));
-        a = plot_set.pbins(1) - r1*0.05;
-        b = plot_set.pbins(end) + r1*0.05;
+    if isfield (plot_set, 'mat_x')
+        r1 = abs(plot_set.mat_x(end) - plot_set.mat_x(1));
+        a = plot_set.mat_x(1) - r1*0.05;
+        b = plot_set.mat_x(end) + r1*0.05;
         hfig.XLim = [a, b];
     else
         sprintf('No values for XLim provided, using defaults')

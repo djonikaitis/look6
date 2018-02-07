@@ -14,7 +14,7 @@ settings = get_settings_ini_v10(settings);
 
 %% Extra settings
 
-settings.figure_folder_name = 'orientation_timecourse';
+settings.figure_folder_name = 'spikes_orientation_timecourse';
 settings.figure_size_temp = settings.figsize_1col;
 settings.stats_file_name = sprintf('stats.txt');
 
