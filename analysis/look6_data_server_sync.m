@@ -29,19 +29,16 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 % This step should be default for most experiments
 
 % Connect to server and import data from it
-% Connect to server and import data from it
-settings.data_import_from_server = 1;
-if settings.data_import_from_server == 1
+settings.this_analysis = 0;
+if settings.this_analysis == 1
     settings.server_overwrite = 0;
-    settings.data_direction = 'upload';
-    settings.import_folders_include = {};
-% %     settings.import_folders_include{1} = 'data_plexon_temp_2';
-%     settings.import_folders_include{1} = 'data_eyelink_edf';
-    settings.import_folders_include{1} = 'data_psychtoolbox';
+    settings.data_direction = 'download';
+    settings.server_folders_include = {};
+    settings.server_folders_include{1} = 'data_eyelink_edf';
+    settings.server_folders_include{2} = 'data_psychtoolbox';
     settings.import_folders_exclude = {};
-%     settings.import_folders_exclude{1} = 'data_plexon_raw';
-%     settings.import_folders_exclude{2} = 'data_plexon_mat';
     % Run code
-    preprocessing_data_import_server_v22(settings);
+    preprocessing_data_import_server_v23(settings);
+    settings.this_analysis = 0;
 end
 

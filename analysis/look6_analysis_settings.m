@@ -23,7 +23,7 @@ elseif strcmp (settings.data_sessions, 'after')
 elseif strcmp (settings.data_sessions, 'interval')
     settings.data_sessions_temp = [20171201, 20171212]; 
 elseif strcmp(settings.data_sessions, 'selected')
-    settings.data_sessions_temp = 20171222; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
+    settings.data_sessions_temp = 20170706; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
 
 
@@ -100,7 +100,8 @@ settings.drift_correction_on = 1;
 settings.drift_correction_window_min = 0.3; % Min eye distance from fixation for drift correction (1/2 fixation size)
 settings.drift_correction_window_max = 'esetup_fixation_size_drift'; % Max eye distance from fixation for drift correction
 settings.drift_correction_sacc_amp = 0.5; % Max eye distance from fixation for drift correction
-settings.drift_correction_time = 'fixation_drift_maintained'; % Field used for drift correction
+settings.drift_correction_time = 'fixation_drift_maintained'; % Field used for drift correction in LOOK 6
+settings.drift_correction_time_backup = 'drift_maintained'; % Field used for drift correction in LOOK 5
 settings.drift_correction_tstart = -110;
 settings.drift_correction_tend = -10;
 settings.drift_correction_trials = 11; % How many trials to use for drift correction

@@ -8,7 +8,7 @@ close all;
 p1 = mfilename;
 fprintf('\n=========\n')
 fprintf('Current file:  %s\n', p1)
-fprintf('=========\n')
+fprintf('=========\n\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')
@@ -20,11 +20,11 @@ settings = get_settings_ini_v10(settings);
 %% Some settings
 
 settings.figure_folder_name = 'saccades_raw_traces';
-settings.fig_size_current = [0, 0, 6, 2.5]; % Unique figure size settings in this case
+settings.figure_size_temp = [0, 0, 6, 2.5]; % Unique figure size settings in this case
 
 % How many trials per error type to plot?
-trials_to_plot = 25;
-trials_to_plot = 'all';
+trials_to_plot = 5;
+% trials_to_plot = 'all';
 
 
 %% Run preprocessing
@@ -34,22 +34,19 @@ for i_subj=1:length(settings.subjects)
     % Select curent subject
     settings.subject_current = settings.subjects{i_subj};
     
-    % Get subject folder paths and dates to analyze
-    settings = get_settings_path_and_dates_ini_v11(settings);
-    dates_used = settings.data_sessions_to_analyze;
+    % Which dates to run?
+    settings.dates_used = get_dates_used_v10 (settings, 'data_combined');
     
     % Analysis for each day
-    for i_date = 1:numel(dates_used)
+    for i_date = 1:numel(settings.dates_used)
         
-        % Current folder to be analysed (raw date, with session index)
-        date_current = dates_used(i_date);
-        ind = date_current==settings.index_dates;
-        folder_name = settings.index_directory{ind};
+        % Which date is it
+        settings.date_current = settings.dates_used(i_date);
         
-        % Figure folder
-        path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name);
+        %==========
+        % Create figure folders
         
-        % Overwrite figure folders
+        [~, path_fig, ~] = get_generate_path_v10(settings, 'figures');
         if ~isdir(path_fig)
             mkdir(path_fig)
         elseif isdir(path_fig)
@@ -59,17 +56,19 @@ for i_subj=1:length(settings.subjects)
             mkdir(path_fig)
         end
         
-        % Data folders
-        path1 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '.mat'];
-        path2 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_eye_traces.mat'];
-        path3 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_saccades.mat'];
-        path4 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_individual_saccades.mat'];
-        
+        %============
         % Load all settings
+        path1 = get_generate_path_v10(settings, 'data_combined', '.mat');
         S = get_struct_v11(path1);
-        saccraw1 = get_struct_v11(path2);
-        sacc1 = get_struct_v11(path3);
-        sacc1_individual = get_struct_v11(path4);
+        
+        path1 = get_generate_path_v10(settings, 'data_combined', '_eye_traces.mat');
+        saccraw1 = get_struct_v11(path1);
+        
+        path1 = get_generate_path_v10(settings, 'data_combined', '_saccades.mat');
+        sacc1 = get_struct_v11(path1);
+        
+        path1 = get_generate_path_v10(settings, 'data_combined', '_individual_saccades.mat');
+        sacc1_individual = get_struct_v11(path1);
         
         
         %% Select trials to plot
@@ -213,33 +212,34 @@ for i_subj=1:length(settings.subjects)
             
             %====================
             % Plot memory target in single probe trials (otherwise we know where memory is)
-            if S.esetup_target_number(tid)==1
-                
-                % Size
-                objsize = S.esetup_memory_size(tid,3:4);
-                % Position
-                pos1 = S.esetup_memory_coord(tid,:);
-                % Color
-                fcolor1=S.esetup_memory_color(tid,:)./255;
-                if sum(fcolor1)>2.7 % For very bright colors reduce brightness
-                    fcolor1 = [0.5, 0.5, 0.5];
+            if ~isnan(S.esetup_memory_coord(tid,1))
+                if S.esetup_target_number(tid)==1
+                    
+                    % Size
+                    objsize = S.esetup_memory_size(tid,3:4);
+                    % Position
+                    pos1 = S.esetup_memory_coord(tid,:);
+                    % Color
+                    fcolor1=S.esetup_memory_color(tid,:)./255;
+                    if sum(fcolor1)>2.7 % For very bright colors reduce brightness
+                        fcolor1 = [0.5, 0.5, 0.5];
+                    end
+                    
+                    if strcmp(S.esetup_memory_shape{tid}, 'empty_circle')
+                        v1 = 1; c1 = [1,1,1];
+                    elseif strcmp(S.esetup_memory_shape{tid}, 'empty_square')
+                        v1 = 0; c1 = [1,1,1];
+                    elseif strcmp(S.esetup_memory_shape{tid}, 'circle')
+                        v1 = 1; c1 = fcolor1;
+                    elseif strcmp(S.esetup_memory_shape{tid}, 'square')
+                        v1 = 0; c1 = fcolor1;
+                    end
+                    
+                    % Plot
+                    h=rectangle('Position', [pos1(1)-objsize(1)/2, pos1(2)-objsize(2)/2, objsize(1), objsize(2)],...
+                        'EdgeColor', fcolor1, 'FaceColor', c1, 'Curvature', v1, 'LineWidth', 1);
                 end
-                
-                if strcmp(S.esetup_memory_shape{tid}, 'empty_circle')
-                    v1 = 1; c1 = [1,1,1];
-                elseif strcmp(S.esetup_memory_shape{tid}, 'empty_square')
-                    v1 = 0; c1 = [1,1,1];
-                elseif strcmp(S.esetup_memory_shape{tid}, 'circle')
-                    v1 = 1; c1 = fcolor1;
-                elseif strcmp(S.esetup_memory_shape{tid}, 'square')
-                    v1 = 0; c1 = fcolor1;
-                end
-                
-                % Plot
-                h=rectangle('Position', [pos1(1)-objsize(1)/2, pos1(2)-objsize(2)/2, objsize(1), objsize(2)],...
-                    'EdgeColor', fcolor1, 'FaceColor', c1, 'Curvature', v1, 'LineWidth', 1);
             end
-            
             
             %====================
             % Plot raw data (select only part of the time for it)
@@ -542,19 +542,14 @@ for i_subj=1:length(settings.subjects)
                 mkdir(p_temp)
             end
             
-            % Save figure
-            f_name = sprintf('%strial %s', p_temp, num2str(tid));
-            set(gcf, 'PaperPositionMode', 'manual');
-            set(gcf, 'PaperUnits', 'inches');
-            set(gcf, 'PaperPosition', settings.fig_size_current)
-            set(gcf, 'PaperSize', [settings.fig_size_current(3),settings.fig_size_current(4)]);
-            print (f_name, '-dpdf')
-            %===============
+            % Save data
+            plot_set.figure_size = settings.figure_size_temp;
+            plot_set.figure_save_name = sprintf('trial %s', num2str(tid));
+            plot_set.path_figure = p_temp;
+            plot_helper_save_figure;
             
             close all;
-            
-            
-            
+                        
         end
         % End of analysis for each trial
         

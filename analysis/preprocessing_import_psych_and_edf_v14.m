@@ -6,7 +6,7 @@
 % Converted into function.
 % V1.3 - October 25, 2017. Minor adjustments to code. Incompatible with
 % earlier versions.
-% V1.4 - February 1, 2018. Simplified path definitions.
+% V1.4 - February 1, 2018. Updated path definitions.
 %
 % Output - saved structures in 'temp2' folder:
 % xx_settings
@@ -20,7 +20,7 @@ function  preprocessing_import_psych_and_edf_v14(settings)
 p1 = mfilename;
 fprintf('\n=========\n')
 fprintf('Current file:  %s\n', p1)
-fprintf('=========\n')
+fprintf('=========\n\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')
@@ -44,7 +44,7 @@ for i_subj = 1:length(settings.subjects)
         settings.date_current = settings.dates_used(i_date);
                        
         % Generate output path
-        path1 = get_generate_path_v10(settings, 'data_temp_2', '_settings.mat');
+        [path1, ~, file_name] = get_generate_path_v10(settings, 'data_temp_2', '_settings.mat');
 
         if ~exist(path1, 'file') || settings.overwrite==1
             fprintf('\nStarting file conversion and combining for the date %s\n', num2str(settings.date_current))
@@ -53,7 +53,7 @@ for i_subj = 1:length(settings.subjects)
             preprocessing_import_psych_and_edf_sub_v25 (settings, 'stim');
             %===========
         else
-            fprintf('\nFDate for the date %s already exists, skipping file import\n', num2str(settings.date_current))
+            fprintf('\nFile %s for the date %s already exists, skipping file import\n', file_name, num2str(settings.date_current))
             % Do nothing
         end
         

@@ -4,7 +4,7 @@
 p1 = mfilename;
 fprintf('\n=========\n')
 fprintf('Current file:  %s\n', p1)
-fprintf('=========\n')
+fprintf('=========\n\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')
@@ -24,45 +24,41 @@ for i_subj=1:length(settings.subjects)
     % Select curent subject
     settings.subject_current = settings.subjects{i_subj};
     
-    % Get subject folder paths and dates to analyze
-    settings = get_settings_path_and_dates_ini_v11(settings);
-    dates_used = settings.data_sessions_to_analyze;
+    % Which dates to run?
+    settings.dates_used = get_dates_used_v10 (settings, 'data_psychtoolbox');
     
     % Analysis for each day
-    for i_date = 1:numel(dates_used)
+    for i_date = 1:numel(settings.dates_used)
         
-        % Current folder to be analysed (raw date, with session index)
-        date_current = dates_used(i_date);
-        ind0 = date_current==settings.index_dates;
-        folder_name = settings.index_directory{ind0};
+        % Which date is it
+        settings.date_current = settings.dates_used(i_date);
+                       
+        %==========
+        % Create figure folders
         
-        % Figure folder
-        path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name);
-        
-        % Overwrite figure folders
-        if ~isdir(path_fig) || settings.overwrite==1
-            if ~isdir(path_fig)
-                mkdir(path_fig)
-            elseif isdir(path_fig)
-                try
-                    rmdir(path_fig, 's')
-                end
-                mkdir(path_fig)
+        [~, path_fig, ~] = get_generate_path_v10(settings, 'figures');
+        if ~isdir(path_fig)
+            mkdir(path_fig)
+        elseif isdir(path_fig)
+            try
+                rmdir(path_fig, 's')
             end
+            mkdir(path_fig)
         end
-        
-        % Initialize text file for statistics
-        nameOut = sprintf('%s%s.txt', path_fig, settings.stats_file_name); % File to be outputed
+
+        % Initialize empty file
+        f1 = sprintf('%s%s.txt', settings.subject_current, num2str(settings.date_current));
+        f_name = sprintf('%s%s', path_fig, f1);
         fclose('all');
-        fout = fopen(nameOut,'w');
-        
-        % Data folders
-        path1 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '.mat'];
-        path2 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_saccades.mat'];
-        
-        % Load all files
+        fout = fopen(f_name,'w');
+
+        %============
+        % Load all settings
+        path1 = get_generate_path_v10(settings, 'data_combined', '.mat');
         S = get_struct_v11(path1);
-        sacc1 = get_struct_v11(path2);
+        
+        path1 = get_generate_path_v10(settings, 'data_combined', '_saccades.mat');
+        sacc1 = get_struct_v11(path1);
         
         %===============
         % Data analysis
@@ -111,7 +107,6 @@ for i_subj=1:length(settings.subjects)
         num_figs = 2;
         
         
-        
         %% Figure 1
         
         % Initialize data
@@ -126,12 +121,11 @@ for i_subj=1:length(settings.subjects)
         
         % Initialize structure
         plot_set = struct;
-        plot_set.mat1 = mat1;
-        plot_set.pbins = pbins;
+        plot_set.mat_y = mat1;
+        plot_set.mat_x = pbins;
         
         plot_set.data_color_min = [0.5,0.5,0.5];
         plot_set.data_color_max = settings.color1(42,:);
-        plot_set.data_color = [];
         
         for i=1:size(mat1,3)
             plot_set.legend{i} = conds1{i};
@@ -207,12 +201,11 @@ for i_subj=1:length(settings.subjects)
         
         % Initialize structure
         plot_set = struct;
-        plot_set.mat1 = mat1;
-        plot_set.pbins = pbins;
+        plot_set.mat_y = mat1;
+        plot_set.mat_x = pbins;
         
         plot_set.data_color_min = [0.5,0.5,0.5];
         plot_set.data_color_max = settings.color1(42,:);
-        plot_set.data_color = [];
         
         for i=1:size(mat1,3)
             plot_set.legend{i} = conds1{i};

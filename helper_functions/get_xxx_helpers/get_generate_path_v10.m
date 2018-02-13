@@ -68,6 +68,8 @@ if strcmp(dir_name, 'figures')
         else
             path1 = sprintf('%s%s/', path1, f1);
         end
+    else
+        error ('Field "settings.figure_folder_name" not specified')
     end
 end
 

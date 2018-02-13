@@ -110,6 +110,7 @@ for i_session = 1:numel(sessions_used)
     if ~isempty(fieldnames(var1))
         fprintf('\nPsychtoolbox file "%s" successfully loaded\n', file_name)
     else
+        var1 = struct;
         fprintf('\nPsychtoolbox file "%s" does not exist; it was not loaded\n', file_name)
     end
           
@@ -169,11 +170,13 @@ for i_session = 1:numel(sessions_used)
     
     % Load messages file
     [path1, ~, file_name] = get_generate_path_v10(settings, 'data_temp_1', '_events.mat', session_ind);
-    var4.events = get_struct_v11(path1);
+    var_temp = get_struct_v11(path1);
     
-    if ~isempty(fieldnames(var4))
+    if ~isempty(fieldnames(var_temp))
+        var4.eyelink_events = var_temp;
         fprintf('Messages file "%s" successfully loaded\n', file_name)
     else
+        var4 = var_temp;
         fprintf('Messages file "%s" does not exist; it was not loaded\n', file_name)
     end
     
@@ -197,9 +200,9 @@ for i_session = 1:numel(sessions_used)
             const.minDur    = 6; % Duration threshold for saccade detection
             const.VELTYPE   = 2; % Velocity type for saccade detection (using default)
             const.mergeInt  = 20; % Interval within which saccades/microsaccades will be merged; ms
-            const.SAMPRATE = var4.events.sampling_frequency(1); % Assumes sampling frequency does not change
-            const.trial_start = var4.events.START;
-            const.trial_end = var4.events.END;
+            const.SAMPRATE = var4.eyelink_events.sampling_frequency(1); % Assumes sampling frequency does not change
+            const.trial_start = var4.eyelink_events.START;
+            const.trial_end = var4.eyelink_events.END;
             
             fprintf('Processing eye data based on Engbert & Kliegl (2003) algorithm \n');
             tic
@@ -219,14 +222,17 @@ for i_session = 1:numel(sessions_used)
     
     % Load messages file
     [path1, ~, file_name] = get_generate_path_v10(settings, 'data_temp_1', '_saccades_EK.mat', session_ind);
-    var2.eye_data = get_struct_v11(path1);
+    var_temp = get_struct_v11(path1);
     
-    if ~isempty(fieldnames(var2))
+    if ~isempty(fieldnames(var_temp))
+        var2.eye_data = var_temp;
         fprintf('Saccades file "%s" successfully loaded\n', file_name)
     else
+        var2 = var_temp;
         fprintf('Saccades file "%s" does not exist; it was not loaded\n', file_name)
     end
     
+
     
     %% Combine psychtoolbox & eyelink into one structure
     
@@ -315,7 +321,7 @@ for i_session = 1:numel(sessions_used)
         if isfield(temp0, 'eyelink_events')  % If eyetracking is on
             temp0.session{1} = ones(size(temp0.eyelink_events.START{1}, 1), 1); % Save session number
             temp0.date{1} = ones(length(temp0.eyelink_events.START{1}), 1) * settings.date_current; % Save current date
-        elseif isfield(temp0.stim, 'edata_first_display')   % If no eye tracking
+        elseif isfield(temp0.stim, 'edata_first_display')  % If no eye tracking
             temp0.session{1} = ones(size(temp0.stim.edata_first_display{1}, 1), 1); % Save session number
             temp0.date{1} = ones(length(temp0.stim.edata_first_display{1}), 1) * settings.date_current; % Save current date
         else
@@ -694,7 +700,7 @@ if exist('S', 'var')
     % loaded
     if exist ('SR', 'var')
         path1 = get_generate_path_v10(settings, 'data_temp_2', '_eye_traces.mat');
-        save (path1, 'S')
+        save (path1, 'SR')
     end
     
     % Output

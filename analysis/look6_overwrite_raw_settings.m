@@ -1100,5 +1100,9 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
         var0 = rmfield(var0, 'trialmatrix');
         var0 = rmfield(var0, 'refresh_rate_mat');
         
+        %% Save output
+        
+        var1.stim = var0;
+        
     end
 end
