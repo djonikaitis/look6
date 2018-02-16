@@ -234,43 +234,65 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
             var0.memory_size = var0.memory_size(end);
         end
         
+        % If memory color does not exist
         % Color and shape
         for i = 1:numel(cond_text_long)
             
             % memory_color_
             a = ['memory_color_task', num2str(i)];
             b = ['memory_color_', cond_text_long{i}];
-            c = 'memory_color';
             if isfield(var0, a)
                 var0.(b) = var0.(a);
                 var0 = rmfield(var0, a);
-            end
-            if ~isfield(var0, a) && isfield (var0, c)
-                var0.(b) = var0.(c);
             end
             
             % memory_shape_
             a = ['memory_shape_task', num2str(i)];
             b = ['memory_shape_', cond_text_long{i}];
-            c = 'memory_shape';
             if isfield(var0, a)
                 var0.(b) = var0.(a);
                 var0 = rmfield(var0, a);
-            end
-            if ~isfield(var0, a) && isfield (var0, c)
-                var0.(b) = var0.(c);
             end
             
             % memory_pen_
             a = ['memory_pen_width_task', num2str(i)];
             b = ['memory_pen_width_', cond_text_long{i}];
-            c = 'memory_pen_width';
             if isfield(var0, a)
                 var0.(b) = var0.(a);
                 var0 = rmfield(var0, a);
             end
-            if ~isfield(var0, a) && isfield (var0, c)
-                var0.(b) = var0.(c);
+            
+        end
+        
+        % If memory color exists
+        % Color and shape
+        for i = 1:numel(cond_text_long)
+            
+            % memory_color_
+            a = ['memory_color_task', num2str(i)];
+            b = ['memory_color_', cond_text_long{i}];
+            if isfield(var0, a)
+                var0.(b) = var0.(a);
+                var0 = rmfield(var0, a);
+            end
+            if ~isfield(var0, a)
+                var0.(b) = var0.(a);
+            end
+            
+            % memory_shape_
+            a = ['memory_shape_task', num2str(i)];
+            b = ['memory_shape_', cond_text_long{i}];
+            if isfield(var0, a)
+                var0.(b) = var0.(a);
+                var0 = rmfield(var0, a);
+            end
+            
+            % memory_pen_
+            a = ['memory_pen_width_task', num2str(i)];
+            b = ['memory_pen_width_', cond_text_long{i}];
+            if isfield(var0, a)
+                var0.(b) = var0.(a);
+                var0 = rmfield(var0, a);
             end
             
         end

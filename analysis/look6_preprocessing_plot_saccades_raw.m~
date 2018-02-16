@@ -43,7 +43,7 @@ for i_subj=1:length(settings.subjects)
         % Which date is it
         settings.date_current = settings.dates_used(i_date);
         
-        fprintf('Plotting saccades for the date %s\n', num2str(settings.date_current))
+        fprintf('\nPlotting raw saccade data for the date %s', num2str(settings.date_current))
         
         %==========
         % Create figure folders
@@ -215,7 +215,7 @@ for i_subj=1:length(settings.subjects)
             %====================
             % Plot memory target in single probe trials (otherwise we know where memory is)
             if ~isnan(S.esetup_memory_coord(tid,1))
-                if S.esetup_target_number(tid)==1 && ~strcmp(S.esetup_block_cond{tid}, 'control no cue')
+                if S.esetup_target_number(tid)==1
                     
                     % Size
                     objsize = S.esetup_memory_size(tid,3:4);

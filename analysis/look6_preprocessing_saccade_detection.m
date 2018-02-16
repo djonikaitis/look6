@@ -45,6 +45,8 @@ for i_subj=1:length(settings.subjects)
 
         if exist(path1_in, 'file') && (~exist(path1_out, 'file') || settings.overwrite==1)
             
+            fprintf('Saccade detection for the date %s\n', num2str(settings.date_current))
+            
             %==========
             % Create figure folders
             

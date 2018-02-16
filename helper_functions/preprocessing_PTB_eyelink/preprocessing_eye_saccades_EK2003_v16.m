@@ -48,12 +48,16 @@ end
 
 warning off MATLAB:divideByZero  % Warning could be encountered during calcullation
 
-S = struct;
 
 trial_start = const.trial_start;
 trial_end = const.trial_end;
 
-for i_trial = 1:(size(trial_start,1))
+S = struct;
+S.saccades_EK = cell(numel(trial_start), 1);
+S.eye_raw = cell(numel(trial_start), 1);
+S.eye_preblink = cell(numel(trial_start), 1);
+
+for i_trial = 1:numel(trial_start)
         
     % If pupil size is not recorded, add a default missing value
     if size(dat,2)==3

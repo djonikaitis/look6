@@ -201,7 +201,6 @@ for i_subj=1:length(settings.subjects)
     % Get means and bootstrap data;
     [~,n,o] = size(mat1_ini);
     mat2_ini = NaN(1, n, o);
-    test2_ini = NaN(1, n, o);
     mat2_ini_upper = NaN(1, n, o);
     mat2_ini_lower = NaN(1, n, o);
 
@@ -214,35 +213,33 @@ for i_subj=1:length(settings.subjects)
         end
         
         % Restructure data in ascending order
-        mat0 = cell(1, numel(b_ind));
         for j1 = 1:numel(b_ind)
             ind1 = b_ind(j1);
             c1 = mat1_ini(:,ind1,i1);
-            mat0{1,j1} = cell2mat(c1);
+            mat0{j1} = cell2mat(c1);
+        end
+        
+        % Combine days into one matrix
+        mat0 = cell(size(conds1,1), 1);
+        for i=1:size(conds1,1)
+            c1 = cell(1);
+            c1{1} = mat1_ini(:,i,i1);
+            mat0{i} = cell2mat(c1{1});
         end
         
         % Get average data
         for j1=1:size(mat2_ini, 2)
-            if numel(mat0{j1})>=settings.trial_total_threshold
-                mat2_ini(1,j1,i1)= mean(mat0{j1});
-            end
+            mat2_ini(1,j1,i1)= mean(mat0{b_ind(j1)});
         end
         
         % Get error bars
         for j1=1:size(mat2_ini, 2)
-            temp1 = mat0{j1};
-            if numel(mat0{j1})>=settings.trial_total_threshold
-                a = plot_helper_error_bar_calculation_v10(temp1, settings);
-                try
-                    mat2_ini_upper(1,j1,i1)= a.se_upper;
-                    mat2_ini_lower(1,j1,i1)= a.se_lower;
-                end
+            temp1 = mat0{b_ind(j1)};
+            a = plot_helper_error_bar_calculation_v10(temp1, settings);
+            try
+                mat2_ini_upper(1,j1,i1)= a.se_upper;
+                mat2_ini_lower(1,j1,i1)= a.se_lower;
             end
-        end
-        
-        % Save number of trials for controlling effects
-        for j1=1:size(test2_ini, 2)
-            test2_ini(1,j1,i1)= numel(mat0{j1});
         end
         
     end
@@ -263,7 +260,6 @@ for i_subj=1:length(settings.subjects)
         plot_set = struct;
         plot_set.mat_y = mat1;
         plot_set.mat_x = pbins;
-        plot_set.plot_remove_nan = 1;
         plot_set.ebars_min = mat2_ini_lower(:,:,1:3);
         plot_set.ebars_max = mat2_ini_upper(:,:,1:3);
         plot_set.ebars_shade = 0;

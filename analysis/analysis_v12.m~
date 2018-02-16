@@ -122,7 +122,7 @@ if run_this_section_of_analysis == 1
     % Plot eye traces for manual inspection
     settings.this_analysis = 1;
     if settings.this_analysis == 1
-        settings.overwrite = 1;
+        settings.overwrite = 0;
         look6_preprocessing_plot_saccades_raw;
     end
     
