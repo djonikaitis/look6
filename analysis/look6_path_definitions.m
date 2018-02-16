@@ -53,7 +53,8 @@ if (~isempty (macaddress) && sum(macaddress==[0; 0; 0; 0; 0; 0])==6) || ...
     settings.path_baseline_figures = sprintf('~/Dropbox/Experiments/');
     
     % "Experiments_data" folder with eyelink and psychtoolbox data:
-    settings.path_baseline_data = sprintf('~/proj/experiments_data/');
+%     settings.path_baseline_data = sprintf('~/proj/experiments_data/');
+    settings.path_baseline_data = sprintf('~/Dropbox/Experiments_Data/');
     
     % "Experiments_data" folder, with plexon data:
     % (might differ from other psychtoolbox data folder due to large plexon file sizes)
@@ -64,6 +65,10 @@ if (~isempty (macaddress) && sum(macaddress==[0; 0; 0; 0; 0; 0])==6) || ...
     
     % Path to server to download data
     settings.path_baseline_server = '/Volumes/tirin/data/RigE/Experiments_data/';
+    
+    % Path to eyelink converter
+    settings.edf2asc_path = '~/Dropbox/MatlabToolbox/eyelink_developers_kit/edf2asc';
+ 
         
 end
 

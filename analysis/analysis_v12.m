@@ -12,15 +12,15 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % use subject initials for one subject or 'all' to run all subjects
-settings.subjects = 'hb';
+settings.subjects = 'aq';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'last';
+settings.data_sessions = 'selected';
 
 % which setup?
 % 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
-settings.exp_setup = 'unknown';
+settings.exp_setup = 'dj laptop';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -51,7 +51,7 @@ if do_this_analysis == 1
     end
     
     % Modify raw settings file for bugs (only bugs are fixed)
-    settings.this_analysis = 0;
+    settings.this_analysis = 1;
     if settings.this_analysis == 1
         settings.overwrite=1;
         preprocessing_overwrite_raw_settings_v10(settings);

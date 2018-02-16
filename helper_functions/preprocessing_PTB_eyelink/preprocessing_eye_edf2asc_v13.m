@@ -7,7 +7,9 @@
 %
 % For mac system, add edf2asc in "/bin" folder;
 % use the file from
-% "/Applications/EyeLink/EDF_Access_API/Example/"
+% "/Applications/EyeLink/EDF_Access_API/Example/".
+% For example in terminal type in;
+% sudo cp /Users/dj/Desktop/edf2asc /usr/local/bin
 % Otherwise this analysis wont work
 %
 % V1.0 September 6, 2016. Initial version
@@ -28,7 +30,12 @@ end
 % Create .dat file
 try
     if ismac
-        system(['edf2asc', ' ', sprintf('%s', path_edf),' -s -miss -1.0 -y']);
+        if isfield(settings, 'edf2asc_path')
+            edf2asc = settings.edf2asc_path;
+        else
+            edf2asc = 'edf2asc';
+        end
+        system([sprintf('%s', edf2asc), ' ', sprintf('%s', path_edf),' -s -miss -1.0 -y']);
     elseif ispc
         if isfield(settings, 'edf2asc_path')
             edf2asc = settings.edf2asc_path;
