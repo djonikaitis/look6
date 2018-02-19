@@ -1,5 +1,5 @@
 % Detection of correct saccades
-% Latest version: November 30, 2017
+% Latest version: February 12, 2018
 % Donatas Jonikaitis
 
 
@@ -7,7 +7,7 @@
 p1 = mfilename;
 fprintf('\n=========\n')
 fprintf('Current file:  %s\n', p1)
-fprintf('=========\n')
+fprintf('=========\n\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')
@@ -20,7 +20,7 @@ settings = get_settings_ini_v10(settings);
 
 settings.figure_folder_name = 'saccade_detection';
 settings.figure_size_temp = [0, 0, 4.5, 2];
-figure_on_temp = 0;
+figure_on_temp = 1;
 
 %% Analysis
 
@@ -30,23 +30,27 @@ for i_subj=1:length(settings.subjects)
     % Select curent subject
     settings.subject_current = settings.subjects{i_subj};
     
-    % Get subject folder paths and dates to analyze
-    settings = get_settings_path_and_dates_ini_v11(settings);
-    dates_used = settings.data_sessions_to_analyze;
+    % Which dates to run?
+    settings.dates_used = get_dates_used_v10 (settings, 'data_combined');
     
     % Analysis for each day
-    for i_date = 1:numel(dates_used)
+    for i_date = 1:numel(settings.dates_used)
         
-        % Current folder to be analysed (raw date, with session index)
-        date_current = dates_used(i_date);
-        ind = date_current==settings.index_dates;
-        folder_name = settings.index_directory{ind};
-        
-        % Figure folder
-        path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name);
-        
-        % Overwrite figure folders
-        if ~isdir(path_fig) || settings.overwrite==1
+        % Which date is it
+        settings.date_current = settings.dates_used(i_date);
+               
+        % Generate output path
+        path1_in = get_generate_path_v10(settings, 'data_combined', '.mat');
+        path1_out = get_generate_path_v10(settings, 'data_combined', '_saccades.mat');
+
+        if exist(path1_in, 'file') && (~exist(path1_out, 'file') || settings.overwrite==1)
+            
+            fprintf('Saccade detection for the date %s\n', num2str(settings.date_current))
+            
+            %==========
+            % Create figure folders
+            
+            [~, path_fig, ~] = get_generate_path_v10(settings, 'figures');
             if ~isdir(path_fig)
                 mkdir(path_fig)
             elseif isdir(path_fig)
@@ -55,23 +59,15 @@ for i_subj=1:length(settings.subjects)
                 end
                 mkdir(path_fig)
             end
-        end
-        
-        % Data folders
-        path1 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '.mat'];
-        path2 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_eye_traces.mat'];
-        path3 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_saccades.mat'];
-        path4 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_individual_saccades.mat'];
-        
-        % Run analysis
-        if exist(path1, 'file') && (~exist(path3, 'file') || settings.overwrite==1)
-            
-            
+
             %% Reshape saccades matrix
             
             % Load all settings
+            path1 = get_generate_path_v10(settings, 'data_combined', '.mat');
             var1 = get_struct_v11(path1);
-            sacc1_raw = get_struct_v11(path2);
+            
+            path1 = get_generate_path_v10(settings, 'data_combined', '_eye_traces.mat');
+            sacc1_raw = get_struct_v11(path1);
             
             % Initialize few variables
             sacc1 = var1.saccades_EK;
@@ -848,7 +844,8 @@ for i_subj=1:length(settings.subjects)
             %% Save errors into text file
             
             % Initialize empty file
-            f_name = sprintf('%s%s.txt', path_fig, folder_name);
+            f1 = sprintf('%s%s.txt', settings.subject_current, num2str(settings.date_current));
+            f_name = sprintf('%s%s', path_fig, f1);
             fclose('all');
             fout = fopen(f_name,'w');
             
@@ -876,9 +873,9 @@ for i_subj=1:length(settings.subjects)
             sacc1 = struct;
             sacc1.saccade_matrix = saccade_matrix;
             sacc1.trial_accepted = trial_accepted;
-            save (eval('path3'), 'sacc1')
+            save (path1_out, 'sacc1')
             targettext='Saved saccades data: %s; \n\n';
-            fprintf(targettext, path3);
+            fprintf(targettext, path1_out);
             
             
             %% Save ST structure
@@ -887,12 +884,13 @@ for i_subj=1:length(settings.subjects)
             sacc2.trial_no = ST.trial_no;
             sacc2.sacc_classify = ST.sacc_classify;
             sacc2.sacc1 = ST.sacc1;
-            save (eval('path4'), 'sacc2')
+            p1 = get_generate_path_v10(settings, 'data_combined', '_individual_saccades.mat');
+            save (p1, 'sacc2')
             
-        elseif ~exist(path3, 'file')
-            fprintf('\nInput folder %s does not exist, skipping saccade detection\n', folder_name)
-        elseif exist(path1, 'file')
-            fprintf('\nFolder name %s already exists, skipping saccade detection\n', folder_name)
+        elseif ~exist(path1_in, 'file')
+            fprintf('\nInput file does not exist, skipping saccade detection\n')
+        elseif exist(path1_out, 'file')
+            fprintf('\nOutput file already exists, skipping saccade detection\n')
         end
         % End of analysis
         

@@ -1,16 +1,14 @@
 % Plots lines and sets up figure settings 
 % Options:
-% plot_set.mat_y - data for y axis (else wont plot any data) 
-% plot_set.mat_x - data for x axis. (else it will plot as a range 1:x
+% plot_set.mat1 is data for y axis (else wont plot any data) 
+% plot_set.pbins is data for x axis. (else it will plot as a range 1:x
 % elements)
-% plot_set.plot_remove_nan - removes NaN values from line plotting (if
-% extrapolation is needed) 
-% plot_set.ebars_min - is lower bound of error bars (else wont plot error bars)
-% plot_set.ebars_min - is upper bound of error bars (else wont plot error bars)
-% plot_set.ebars_shade - plots error bars as shaded area
-% plot_set.ebars_line - plots error bars as lines area
+% plot_set.ebars_min is lower bound of error bars (else wont plot error bars)
+% plot_set.ebars_min is upper bound of error bars (else wont plot error bars)
+% plot_set.ebars_shade plots error bars as shaded area
+% plot_set.ebars_line plots error bars as lines area
 %
-% plot_set.data_color - colors for the figure. It either refers to
+% plot_set.data_color is colors for the figure. It either refers to
 % settings.color1 variable or can be direct colors values (1:numberOfColors, 3RGB)
 %
 % plot_set.data_color_min & plot_set.data_color_max is colors for the range
@@ -130,39 +128,15 @@ if isfield (plot_set, 'mat_y')
     
     for k=1:size(mat_y,3)
         
-        if isfield(plot_set, 'plot_remove_nan') && plot_set.plot_remove_nan==1
-            
-            % Remove missing data for easier plotting
-            a = mat_y(:,:,k);
-            if size(a,1)>1
-                b = nanmean(a);
-                ind = isnan(b);
-            else
-                b = a;
-                ind = isnan(b);
-            end
-            mat_y_copy = b(:, ~ind);
-            mat_x_copy = mat_x(:, ~ind);
-            
-        else
-            
-            a = mat_y(:,:,k);
-            if size(a,1)>1
-                b = nanmean(a);
-            else
-                b = a;
-            end
-            mat_y_copy = b;
-            mat_x_copy = mat_x;
-            
-        end
-        
+        % Remove missing data for easier plotting
+        ind = isnan(mat_y);
+        mat_y_cop
         
         % Draw line
-        if size(mat_y_copy,1)>1
-            h=plot(mat_x_copy, nanmean(mat_y_copy(1,:),1));
-        elseif size(mat_y_copy,1)==1
-            h=plot(mat_x_copy, mat_y_copy(1,:));
+        if size(mat_y,1)>1
+            h=plot(mat_x, nanmean(mat_y(1,:,k),1));
+        elseif size(mat_y,1)==1
+            h=plot(mat_x, mat_y(1,:,k));
         end
         
         % Select color

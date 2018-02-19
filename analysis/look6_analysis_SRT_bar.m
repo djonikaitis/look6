@@ -4,7 +4,7 @@
 p1 = mfilename;
 fprintf('\n=========\n')
 fprintf('Current file:  %s\n', p1)
-fprintf('=========\n')
+fprintf('=========\n\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')
@@ -25,59 +25,56 @@ for i_subj=1:length(settings.subjects)
     % Select curent subject
     settings.subject_current = settings.subjects{i_subj};
     
-    % Get subject folder paths and dates to analyze
-    settings = get_settings_path_and_dates_ini_v11(settings);
-    dates_used = settings.data_sessions_to_analyze;
+    % Which dates to run?
+    settings.dates_used = get_dates_used_v10 (settings, 'data_psychtoolbox');
     
     % Analysis for each day
-    for i_date = 1:numel(dates_used)
+    for i_date = 1:numel(settings.dates_used)
         
-        % Current folder to be analysed (raw date, with session index)
-        date_current = dates_used(i_date);
-        ind0 = date_current==settings.index_dates;
-        folder_name = settings.index_directory{ind0};
+        % Which date is it
+        settings.date_current = settings.dates_used(i_date);
         
-        % Data folders
-        path1 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '.mat'];
-        path2 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_saccades.mat'];
-        
-        % Load all files
+        %============
+        % Load all settings
+        path1 = get_generate_path_v10(settings, 'data_combined', '.mat');
         S = get_struct_v11(path1);
-        sacc1 = get_struct_v11(path2);
+        
+        path1 = get_generate_path_v10(settings, 'data_combined', '_saccades.mat');
+        sacc1 = get_struct_v11(path1);
         
         %===============
         % Figure folder
         temp_switch = 0;
-        if numel(dates_used)>1 && i_date==1
-            a = sprintf('dates %s - %s', num2str(dates_used(1)), num2str(dates_used(end)));
-            path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, a);
+        if numel(settings.dates_used)>1 && i_date==1
+            a = sprintf('dates %s - %s', num2str(settings.dates_used(1)), num2str(settings.dates_used(end)));
+            [b, ~, ~] = get_generate_path_v10(settings, 'figures');
+            path_fig = sprintf('%s%s/', b, a);
             temp_switch = 1;
-        elseif numel(dates_used)>1 && i_date>1
+        elseif numel(settings.dates_used)>1 && i_date>1
             temp_switch = 0;
-        elseif numel(dates_used)==1
-            path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name);
+        elseif numel(settings.dates_used)==1
+            [~, path_fig, ~] = get_generate_path_v10(settings, 'figures');
             temp_switch = 1;
         end
         
         % Overwrite figure folders
         if  temp_switch == 1
-            if ~isdir(path_fig) || settings.overwrite==1
-                if ~isdir(path_fig)
-                    mkdir(path_fig)
-                elseif isdir(path_fig)
-                    try
-                        rmdir(path_fig, 's')
-                    end
-                    mkdir(path_fig)
+            if ~isdir(path_fig)
+                mkdir(path_fig)
+            elseif isdir(path_fig)
+                try
+                    rmdir(path_fig, 's')
                 end
+                mkdir(path_fig)
             end
         end
-        
-        % Initialize text file for statistics
+
+        % Initialize empty file
         if  temp_switch == 1
-            nameOut = sprintf('%s%s.txt', path_fig, settings.stats_file_name); % File to be outputed
+            f1 = sprintf('stats.txt');
+            f_name = sprintf('%s%s', path_fig, f1);
             fclose('all');
-            fout = fopen(nameOut,'w');
+            fout = fopen(f_name,'w');
         end
         
         %% Analysis
@@ -93,11 +90,11 @@ for i_subj=1:length(settings.subjects)
         S.expcond = NaN(size(S.session,1),1);
         
         index1 = strncmp(sacc1.trial_accepted, 'correct', 7) & S.esetup_target_number==1 & strcmp(S.esetup_block_cond, 'look') & ...
-            S.esetup_response_soa==0 & S.esetup_st2_color_level==0 & cell2mat(S.probe_extended_map)==0;
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0;
         S.expcond(index1)=1;
         
         index1 = strncmp(sacc1.trial_accepted, 'correct', 7)  & S.esetup_target_number==1 & strcmp(S.esetup_block_cond, 'avoid') & ...
-            S.esetup_response_soa==0 & S.esetup_st2_color_level==0 & cell2mat(S.probe_extended_map)==0;
+            S.esetup_response_soa==0 & S.esetup_st2_color_level==0;
         S.expcond(index1)=2;
         
         index1 = strncmp(sacc1.trial_accepted, 'correct', 7)  & S.esetup_target_number==2 & strcmp(S.esetup_block_cond, 'look') & ...
@@ -147,7 +144,7 @@ for i_subj=1:length(settings.subjects)
         
         % Determine unique stimulus positions
         if i_date==1
-            b=cell(numel(dates_used), 1);
+            b=cell(numel(settings.dates_used), 1);
         end
         ind = ~isnan(S.expcond);
         if sum(ind)>0
@@ -166,23 +163,23 @@ for i_subj=1:length(settings.subjects)
             coords1 = cell2mat(b);
             coords1 = unique(coords1,'rows');
         end
-        
+         
         % In the first instance, initialize all variables
         if ~isempty(coords1) && isempty(conds1)
             conds1 = coords1;
-            mat1_ini = NaN(numel(dates_used), size(conds1,1), 8);
-            mat2_ini = NaN(numel(dates_used), 8);
-            test1 = NaN(length(dates_used), size(conds1,1), 8);
+            mat1_ini = NaN(numel(settings.dates_used), size(conds1,1), 8);
+            mat2_ini = NaN(numel(settings.dates_used), 8);
+            test1 = NaN(length(settings.dates_used), size(conds1,1), 8);
             mat3_ini = [];
         end
         
         % In later instances, add extra conds1 values
         if ~isempty(coords1) && ~isempty(conds1)
             for i=1:size(coords1,1)
-                a = conds1 == coords1(i,:);
-                a = sum(a,2);
+                a = conds1(:,1) == coords1(i,1) & conds1(:,2) == coords1(i,2);
+                a = sum(a);
                 % If element is missing, add it to conds matrix
-                if sum(a==2)==0
+                if a==0
                     % Add element to conds1
                     [m,n] = size(conds1);
                     conds1(m+1,1:n) = coords1(i,1:n);
@@ -210,40 +207,11 @@ for i_subj=1:length(settings.subjects)
             end
         end
         
-        %         % Calculate correct performance rates
-        %         for f=1:length(dates1)
-        %             for j=1:max(S.expcond)
-        %
-        %                 index1 = S.expcond==j & S.day==dates1(f);
-        %                 mat2_ini(f,j) = sum(index1);
-        %
-        %             end
-        %         end
-        %         mat3_ini(:,1)=mat2_ini(:,3) ./ (mat2_ini(:,3)+mat2_ini(:,5));
-        %         mat3_ini(:,2)=mat2_ini(:,4) ./ (mat2_ini(:,4)+mat2_ini(:,6));
-        
-        
     end
     % End of analysis for each day
     
 end
 % End of loop for each subject
-
-
-
-% % Remove days with performance bellow threshild
-% for i=1:size(mat3_ini,1)
-%     for j=1:size(mat3_ini,2)
-%         if j==1
-%             cond1 = [1,3,5];
-%         elseif j==2
-%             cond1 = [2,4,5];
-%         end
-%         if mat3_ini(i,j)<0.55
-%             mat1_ini(i,:,cond1)=NaN;
-%         end
-%     end
-% end
 
 
 %% FIGURE 1

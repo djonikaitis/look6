@@ -25,6 +25,9 @@ overwrite_temp_index{6} = 20170817:20170819;
 % rename esetup_exp_version for early training stages
 overwrite_temp_index{7} = 20170817:20170831;
 
+% Convert look5 files into look6 format
+overwrite_temp_index{8} = 20160101:20171231;
+
 
 %% Recode block_cond from numbers into words
 
@@ -36,7 +39,7 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
         temp_old = var1.(v1);
         if ~iscell(temp_old) % Check whether to do analysis
             
-            fprintf('Correcting field: %s - replace numbers with condition names\n', v1)
+            fprintf('Correcting field "%s" - replace numbers with condition names\n', v1)
             
             temp_new = cell(numel(temp_old),1);
             
@@ -54,7 +57,7 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
             % The case of AQ on 10.28
         elseif date_current == overwrite_temp_index{1}(end) && ~isstr(temp_old{1}) && ~isstr(temp_old{2}) && isstr(temp_old{3})
             
-            fprintf('Correcting field: %s - replace numbers with condition names\n', v1)            
+            fprintf('Correcting field "%s" - replace numbers with condition names\n', v1)            
             temp_new = cell(numel(var1.START),1);
             
             for i=1:2
@@ -88,7 +91,7 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
             var1.(v1) = temp_new;
             
         else
-            fprintf('Field %s already corrected, no changes written\n', v1)
+            fprintf('Field "%s" already corrected, no changes written\n', v1)
         end
         
     end
@@ -105,7 +108,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{1
         
         if isfield(var1, v1) && isfield(var1, v2) % check whether to do analysis
             
-            fprintf('Correcting eyelink messages %s to replace with %s\n', v1, v2)
+            fprintf('Correcting eyelink messages "%s" to replace with "%s"\n', v1, v2)
             
             clear temp1_old; clear temp1_new;
             temp1_old = var1.(v1);
@@ -120,7 +123,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{1
             % Save corrected data
             var1.(v1) = temp1_old;
         else
-            fprintf('Eyelink messages %s already corrected, no changes written\n', v1)
+            fprintf('Eyelink messages "%s" already corrected, no changes written\n', v1)
         end
         
     end
@@ -148,7 +151,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{2
         
         if sum(index)>0
             
-            fprintf('Correcting field %s\n', v1)
+            fprintf('Correcting field "%s"\n', v1)
             fprintf('%s instances of "%s" variable will be corrected\n', num2str(sum(index)), v2)
             
             i1 = find(index==1);
@@ -170,7 +173,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{2
             temp_old = var1.(v1);
             temp_new = temp_old;
             
-            fprintf('Correcting field: %s\n', v1)
+            fprintf('Correcting field "%s"\n', v1)
             
             % Replace distractor luminance value
             temp_new(i1)=temp_old(i2);
@@ -178,7 +181,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{2
             % Save corrected data
             var1.(v1) = temp_new;
         else
-            fprintf('Training stage "%s" was not found, no changes to field %s\n', v2, v1)
+            fprintf('Training stage "%s" was not found, no changes to field "%s"\n', v2, v1)
         end
         
     end
@@ -191,12 +194,12 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{2
     v1 = 'probe_extended_map';
     
     if ~isfield(var1, v1) % check whether to do analysis
-        fprintf('Adding a field: %s \n', v1)
+        fprintf('Adding a field "%s" \n', v1)
         temp_new = cell(numel(var1.START), 1);
         temp_new(1:end) = {0};
         var1.(v1) = temp_new;
     else
-        fprintf('Field %s already exists, no changes written\n', v1)
+        fprintf('Field "%s" already exists, no changes written\n', v1)
     end
     
 end
@@ -213,13 +216,13 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
         
         if ~isfield(var1, v1) && isfield(var1, v2) % Check whether to do analysis
             
-            fprintf('Replacing field %s with %s\n', v2, v1)
+            fprintf('Replacing field "%s" with "%s"\n', v2, v1)
             
             % Save corrected data
             var1.(v1) = var1.(v2);
             var1 = rmfield(var1, v2);
         else
-            fprintf('Field %s already exists, no changes written\n', v1)
+            fprintf('Field "%s" already exists, no changes written\n', v1)
         end
         
     end
@@ -238,13 +241,13 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
         
         if ~isfield(var1, v1) && isfield(var1, v2) % Check whether to do analysis
             
-            fprintf('Replacing field %s with %s\n', v2, v1)
+            fprintf('Replacing field "%s" with "%s"\n', v2, v1)
             
             % Save corrected data
             var1.(v1) = var1.(v2);
             var1 = rmfield(var1, v2);
         else
-            fprintf('Field %s already exists, no changes written\n', v1)
+            fprintf('Field "%s" already exists, no changes written\n', v1)
         end
         
     end
@@ -261,13 +264,13 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{4
         
         if isfield(var1, v1) % check whether to do analysis
             
-            fprintf('Correcting variable %s to replace "%s" with "%s"\n', v1, v2, v3)
+            fprintf('Correcting variable "%s" to replace "%s" with "%s"\n', v1, v2, v3)
             
             clear temp1_old; clear temp1_new;
             temp1_old = var1.(v1);
             
             % Replace v2 with v3;
-            fprintf('%s instances of %s variable will be replaced\n', num2str(sum(ind)), v1)
+            fprintf('%s instances of "%s" will be replaced\n', num2str(sum(ind)), v1)
             ind = strcmp(temp1_old, v2);
             temp1_old(ind) = {v3};
             
@@ -275,7 +278,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{4
             var1.(v1) = temp1_old;
                      
         else
-            fprintf('Variable %s does not exist, no changes written\n', v1)
+            fprintf('Variable "%s" does not exist, no changes written\n', v1)
         end
         
     end
@@ -302,7 +305,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{4
         
         if sum(index)>0
             
-            fprintf('Correcting field: %s\n', v1)
+            fprintf('Correcting field "%s"\n', v1)
             fprintf('%s instances of "%s" variable will be corrected\n', num2str(sum(index)), v2)
             
             i1 = find(index==1);
@@ -324,7 +327,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{4
             temp_old = var1.(v1);
             temp_new = temp_old;
             
-            fprintf('Correcting field: %s\n', v1)
+            fprintf('Correcting field "%s" \n', v1)
             
             % Replace distractor luminance value
             temp_new(i1)=temp_old(i2);
@@ -332,7 +335,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{4
             % Save corrected data
             var1.(v1) = temp_new;
         else
-            fprintf('Training stage "%s" was not found, no changes to field %s\n', v2, v1)
+            fprintf('Training stage "%s" was not found, no changes to field "%s"\n', v2, v1)
         end
         
     end
@@ -346,7 +349,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{4
     v2 = 'esetup_distractor_soa';
 
     if ~isfield(var1, v1) && ~isfield(var1, v2) % check whether to do analysis
-        fprintf('Adding a field: "%s" \n', v1)
+        fprintf('Adding a field "%s" \n', v1)
         temp_new = zeros(numel(var1.START), 1);
         var1.(v1) = temp_new;
     elseif ~isfield(var1, v1) && isfield(var1, v2) % check whether to do analysis
@@ -366,7 +369,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{4
     
     v1 = 'esetup_st2_color_level';
 
-    if ~isfield(var1, v1) && ~isfield(var1, v2) % check whether to do analysis
+    if ~isfield(var1, v1) % check whether to do analysis
         fprintf('Adding a field: "%s" \n', v1)
         temp_new = zeros(numel(var1.START), 1);
         var1.(v1) = temp_new;
@@ -398,7 +401,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{5
         
         if sum(index)>0
             
-            fprintf('Correcting field: %s\n', v1)
+            fprintf('Correcting field "%s" \n', v1)
             fprintf('%s instances of "%s" variable will be corrected\n', num2str(sum(index)), v2)
             
             i1 = find(index==1);
@@ -420,7 +423,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{5
             temp_old = var1.(v1);
             temp_new = temp_old;
             
-            fprintf('Correcting field: %s\n', v1)
+            fprintf('Correcting field "%s"\n', v1)
             
             % Replace distractor luminance value
             temp_new(i1)=temp_old(i2);
@@ -428,7 +431,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{5
             % Save corrected data
             var1.(v1) = temp_new;
         else
-            fprintf('Training stage "%s" was not found, no changes to field %s\n', v2, v1)
+            fprintf('Training stage "%s" was not found, no changes to field "%s"\n', v2, v1)
         end
         
     end
@@ -455,7 +458,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{5
         
         if sum(index)>0
             
-            fprintf('Correcting field: %s\n', v1)
+            fprintf('Correcting field "%s"\n', v1)
             fprintf('%s instances of "%s" variable will be corrected\n', num2str(sum(index)), v2)
             
             i1 = find(index==1);
@@ -477,7 +480,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{5
             temp_old = var1.(v1);
             temp_new = temp_old;
             
-            fprintf('Correcting field: %s\n', v1)
+            fprintf('Correcting field "%s"\n', v1)
             
             % Replace distractor luminance value
             temp_new(i1)=temp_old(i2);
@@ -485,7 +488,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{5
             % Save corrected data
             var1.(v1) = temp_new;
         else
-            fprintf('Training stage "%s" was not found, no changes to field %s\n', v2, v1)
+            fprintf('Training stage "%s" was not found, no changes to field "%s"\n', v2, v1)
         end
         
     end
@@ -512,7 +515,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{5
         
         if sum(index)>0
             
-            fprintf('Correcting field: %s\n', v1)
+            fprintf('Correcting field "%s"\n', v1)
             fprintf('%s instances of "%s" variable will be corrected\n', num2str(sum(index)), v2)
             
             i1 = find(index==1);
@@ -534,7 +537,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{5
             temp_old = var1.(v1);
             temp_new = temp_old;
             
-            fprintf('Correcting field: %s\n', v1)
+            fprintf('Correcting field "%s"\n', v1)
             
             % Replace distractor luminance value
             temp_new(i1)=temp_old(i2);
@@ -542,7 +545,7 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{5
             % Save corrected data
             var1.(v1) = temp_new;
         else
-            fprintf('Training stage "%s" was not found, no changes to field %s\n', v2, v1)
+            fprintf('Training stage "%s" was not found, no changes to field "%s"\n', v2, v1)
         end
         
     end
@@ -559,7 +562,7 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
         temp_old = var1.(v1);
         if ~iscell(temp_old) % Check whether to do analysis
             
-            fprintf('Correcting field: %s - replace numbers with condition names\n', v1)
+            fprintf('Correcting field "%s" - replace numbers with condition names\n', v1)
             
             temp_new = cell(numel(temp_old),1);
             
@@ -570,7 +573,7 @@ if  settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{
             % Save corrected data
             var1.(v1) = temp_new;
         else
-            fprintf('Structure %s already corrected, no changes written\n', v1)
+            fprintf('Structure "%s" already corrected, no changes written\n', v1)
         end
         
     end
@@ -628,3 +631,142 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{7
         
     end
 end
+
+%% Convert look5 to look6
+
+if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{8}(1) && date_current <= overwrite_temp_index{8}(end)
+    if strcmp(var1.expname{1}, 'look5')
+        
+        % Initialize an empty variable
+        fprintf('"look5" experiment detected, will change some variable names to match "look6"\n');
+
+        %==============
+        v1 = 'last_display';
+        v2 = 'loop_over';
+        
+        if isfield(var1, v1) && ~isfield(var1, v2)
+            fprintf('Correcting field: from "%s" to "%s" \n', v1, v2)
+            % Save corrected data
+            a = (var1.edata_loop_over - var1.edata_first_display)*1000;
+            var1.(v2) = var1.first_display + a;
+            var1 = rmfield(var1, v1);
+        else
+            fprintf('Field "%s" already exists, no changes written\n', v2)
+        end
+        
+        %==============
+        v1 = 'targets_on';
+        v2 = 'target_on';
+        
+        if isfield(var1, v1) && ~isfield(var1, v2)
+            fprintf('Correcting field: from "%s" to "%s" \n', v1, v2)
+            % Save corrected data
+            var1.(v2) = var1.(v1);
+            var1 = rmfield(var1, v1);
+        else
+            fprintf('Field "%s" already exists, no changes written\n', v2)
+        end
+        
+        %==============
+        v1 = 'targets_off';
+        v2 = 'target_off';
+        
+        if isfield(var1, v1) && ~isfield(var1, v2)
+            fprintf('Correcting field: from "%s" to "%s" \n', v1, v2)
+            % Save corrected data
+            var1.(v2) = var1.(v1);
+            var1 = rmfield(var1, v1);
+        else
+            fprintf('Field "%s" already exists, no changes written\n', v2)
+        end
+        
+        %==============
+        v1 = 'distractor_on';
+        v2 = 'st2_on';
+        
+        if isfield(var1, v1) && ~isfield(var1, v2)
+            fprintf('Correcting field: from "%s" to "%s" \n', v1, v2)
+            % Save corrected data
+            var1.(v2) = var1.(v1);
+            var1 = rmfield(var1, v1);
+        else
+            fprintf('Field "%s" already exists, no changes written\n', v2)
+        end
+        
+        %==============
+        v1 = 'distractor_off';
+        v2 = 'st2_off';
+        
+        if isfield(var1, v1) && ~isfield(var1, v2) 
+            fprintf('Correcting field: from "%s" to "%s" \n', v1, v2)
+            % Save corrected data
+            var1.(v2) = var1.(v1);
+            var1 = rmfield(var1, v1);
+        else
+            fprintf('Field "%s" already exists, no changes written\n', v2)
+        end
+        
+        %==============
+        v1 = 'drift_maintained';
+        v2 = 'fixation_drift_maintained';
+        
+        if isfield(var1, v1) && ~isfield(var1, v2) 
+            fprintf('Correcting field: from "%s" to "%s" \n', v1, v2)
+            % Save corrected data
+            var1.(v2) = var1.(v1);
+            var1 = rmfield(var1, v1);
+        else
+            fprintf('Field "%s" already exists, no changes written\n', v2)
+        end
+        
+        %==============
+        v1 = 'texture_on';
+        v2 = 'texture_on_1';
+                
+        if isfield(var1, v1) && ~isfield(var1, v2) 
+            fprintf('Correcting field: from "%s" to "%s" \n', v1, v2)
+            % Save corrected data
+            var1.(v2) = var1.(v1);
+            var1 = rmfield(var1, v1);
+        else
+            fprintf('Field "%s" already exists, no changes written\n', v2)
+        end
+        
+        %=================
+        v1 = 'esetup_exp_version';
+        v2 = 'esetup_block_cond';
+        
+        index0 = strcmp(var1.(v1), 'undefined'); 
+        if sum(index0)>0
+            
+            fprintf('Correcting field "%s": overwrite with real task values\n', v1)
+
+            index1 = strcmp(var1.(v2), 'look');
+            index2 = strcmp(var1.(v2), 'avoid');
+            index3 = ~strcmp(var1.(v2), 'look') & ~strcmp(var1.(v2), 'avoid');
+            
+            if sum(index1)>0 && sum(index2)>0
+                a = 'task switch luminance equal';
+                var1.(v1)(index0) = {a};
+            elseif sum(index1)>0 && sum(index2)==0
+                a = 'look luminance equal';
+                b = 'task switch luminance equal';
+                var1.(v1)(index1) = {a};
+                var1.(v1)(index3) = {b};
+            elseif sum(index1)==0 && sum(index2)>0
+                a = 'avoid luminance equal';
+                b = 'task switch luminance equal';
+                var1.(v1)(index2) = {a};
+                var1.(v1)(index3) = {b};
+            elseif sum(index1)==0 && sum(index2)==0
+                a = 'task switch luminance equal';
+                var1.(v1)(index0) = {a};
+            end
+        else
+            fprintf('Field "%s" has no undefined values, no changes written\n', v2)
+        end
+
+        
+    end
+end
+ 

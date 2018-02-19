@@ -4,7 +4,7 @@
 p1 = mfilename;
 fprintf('\n=========\n')
 fprintf('Current file:  %s\n', p1)
-fprintf('=========\n')
+fprintf('=========\n\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')
@@ -24,25 +24,22 @@ for i_subj=1:length(settings.subjects)
     % Select curent subject
     settings.subject_current = settings.subjects{i_subj};
     
-    % Get subject folder paths and dates to analyze
-    settings = get_settings_path_and_dates_ini_v11(settings);
-    dates_used = settings.data_sessions_to_analyze;
+    % Which dates to run?
+    settings.dates_used = get_dates_used_v10 (settings, 'data_psychtoolbox');
     
     % Analysis for each day
-    for i_date = 1:numel(dates_used)
+    for i_date = 1:numel(settings.dates_used)
         
-        % Current folder to be analysed (raw date, with session index)
-        date_current = dates_used(i_date);
-        ind0 = date_current==settings.index_dates;
-        folder_name = settings.index_directory{ind0};
+        % Which date is it
+        settings.date_current = settings.dates_used(i_date);
         
-        % Data folders
-        path1 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '.mat'];
-        path2 = [settings.path_data_combined_subject, folder_name, '/', folder_name, '_saccades.mat'];
-        
-        % Load all files
+        %============
+        % Load all settings
+        path1 = get_generate_path_v10(settings, 'data_combined', '.mat');
         S = get_struct_v11(path1);
-        sacc1 = get_struct_v11(path2);
+        
+        path1 = get_generate_path_v10(settings, 'data_combined', '_saccades.mat');
+        sacc1 = get_struct_v11(path1);
         
         % Get current training conditions
         c1 = unique(S.esetup_exp_version);
@@ -50,7 +47,7 @@ for i_subj=1:length(settings.subjects)
         % Initialize matrices
         if i_date==1
             conds1 = c1;
-            test1 = NaN(1, numel(dates_used), numel(c1), 3);
+            test1 = NaN(1, numel(settings.dates_used), numel(c1), 3);
         end
         
         % Add extra conditions if needed
@@ -93,34 +90,35 @@ for i_subj=1:length(settings.subjects)
     
     %% Plot ini
     
-    if ~isempty(dates_used)
-        if numel(dates_used)==1
-            pbins = 1:numel(dates_used);
-            folder_name = num2str(dates_used);
-        else
-            pbins =  1:numel(dates_used);
-            folder_name = [num2str(dates_used(1)), ' - ', num2str(dates_used(end))];
-        end
+    if ~isempty(settings.dates_used)
         
+        %===============
         % Figure folder
-        path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name);
+        if numel(settings.dates_used)>1
+            a = sprintf('dates %s - %s', num2str(settings.dates_used(1)), num2str(settings.dates_used(end)));
+            [b, ~, ~] = get_generate_path_v10(settings, 'figures');
+            path_fig = sprintf('%s%s/', b, a);
+        elseif numel(settings.dates_used)==1
+            [~, path_fig, ~] = get_generate_path_v10(settings, 'figures');
+        end
         
         % Overwrite figure folders
         if ~isdir(path_fig) || settings.overwrite==1
-            if ~isdir(path_fig)
-                mkdir(path_fig)
-            elseif isdir(path_fig)
-                try
-                    rmdir(path_fig, 's')
-                end
-                mkdir(path_fig)
+            mkdir(path_fig)
+        elseif isdir(path_fig)
+            try
+                rmdir(path_fig, 's')
             end
+            mkdir(path_fig)
         end
         
-        % Initialize text file for statistics
-        nameOut = sprintf('%s%s.txt', path_fig, settings.stats_file_name); % File to be outputed
-        fclose('all');
-        fout = fopen(nameOut,'w');
+        % Initialize empty file
+        if isdir(path_fig)
+            f1 = sprintf('stats.txt');
+            f_name = sprintf('%s%s', path_fig, f1);
+            fclose('all');
+            fout = fopen(f_name,'w');
+        end
         
     end
     
@@ -129,7 +127,7 @@ for i_subj=1:length(settings.subjects)
     % Number of subplots
     num_figs = 2;
     
-    if ~isempty(dates_used)
+    if ~isempty(settings.dates_used)
         
         % Initialize data
         %=================
@@ -140,11 +138,12 @@ for i_subj=1:length(settings.subjects)
         total1 = nansum(test1(:,:,:,1:2),4); % Check all conditions combined
         mat1 = test1(:,:,:,1)./total1*100;
         mat1 = 100 - (100 - mat1)*2; % Convert into target selection
+        pbins = 1:size(mat1,2);
         
         % Initialize structure
         plot_set = struct;
-        plot_set.mat1 = mat1;
-        plot_set.pbins = pbins;
+        plot_set.mat_y = mat1;
+        plot_set.mat_x = pbins;
         
         plot_set.data_color_min = [0.5,0.5,0.5];
         plot_set.data_color_max = settings.color1(42,:);
@@ -175,11 +174,12 @@ for i_subj=1:length(settings.subjects)
         hfig = subplot(1, num_figs, fig1);
         hold on;
         plot_helper_basic_line_figure;
+        
     end
     
     %% Figure 2
     
-    if ~isempty(dates_used)
+    if ~isempty(settings.dates_used)
         
         
         % Initialize data
@@ -190,11 +190,12 @@ for i_subj=1:length(settings.subjects)
         % Data
         total1 = nansum(test1(:,:,:,1:3),4); % Check all conditions combined
         mat1 = test1(:,:,:,3)./total1*100;
+        pbins = 1:size(mat1,2);
         
         % Initialize structure
         plot_set = struct;
-        plot_set.mat1 = mat1;
-        plot_set.pbins = pbins;
+        plot_set.mat_y = mat1;
+        plot_set.mat_x = pbins;
         
         plot_set.data_color_min = [0.5,0.5,0.5];
         plot_set.data_color_max = settings.color1(42,:);

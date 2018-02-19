@@ -20,7 +20,7 @@ function  preprocessing_data_import_server_v23(settings)
 p1 = mfilename;
 fprintf('\n=========\n')
 fprintf('Current file:  %s\n', p1)
-fprintf('=========\n')
+fprintf('=========\n\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')
@@ -80,41 +80,46 @@ if settings.data_import_from_server ==1
         % For each data folder
         for folder_i = 1:length(dir_index)
             
-            dont_analyze_this_folder = 0; % If 1 - analyze this folder
+            synchronize_this_folder = 0; % If 1 - analyze this folder
             
             % Exclude '.' folders
-            dont_analyze_this_folder = strncmp(dir_index(folder_i).name, '.', 1) || strncmp(dir_index(folder_i).name, '..', 2);
+            a = strncmp(dir_index(folder_i).name, '.', 1) || strncmp(dir_index(folder_i).name, '..', 2);
+            if a>0
+                synchronize_this_folder = 0;
+            end
             
             % Are there some pre-specified excluded folders?
-            if dont_analyze_this_folder == 0
-                if isfield(settings, 'import_folders_exclude') && ~isempty(settings.import_folders_exclude)
-                    a = strcmp(settings.import_folders_exclude, dir_index(folder_i).name);
-                else
+            if synchronize_this_folder == 0
+                if isfield(settings, 'server_folders_exclude') && ~isempty(settings.server_folders_exclude)
+                    a = strcmp(settings.server_folders_exclude, dir_index(folder_i).name);
+                elseif isfield(settings, 'server_folders_exclude') && isempty(settings.server_folders_exclude)
+                    a = 0;
+                elseif ~isfield(settings, 'server_folders_include')
                     a = 0;
                 end
                 if sum(a)>0
-                    dont_analyze_this_folder = 1;
-                else
-                    dont_analyze_this_folder = 0;
+                    synchronize_this_folder = 0;
+                elseif sum(a)==0
+                    synchronize_this_folder = 1;
                 end
             end
             
             % Are there some pre-specified included folders?
-            if dont_analyze_this_folder == 0
-                if isfield(settings, 'import_folders_include') && ~isempty(settings.import_folders_exclude)
-                    a = strcmp(settings.import_folders_include, dir_index(folder_i).name);
-                else
-                    a = 0;
-                end
-                if sum(a)>0
-                    dont_analyze_this_folder = 1;
-                else
-                    dont_analyze_this_folder = 0;
-                end
+            if isfield(settings, 'server_folders_include') && ~isempty(settings.server_folders_include)
+                a = strcmp(settings.server_folders_include, dir_index(folder_i).name);
+            elseif isfield(settings, 'server_folders_include') && isempty(settings.server_folders_include)
+                a = 1;
+            elseif ~isfield(settings, 'server_folders_include')
+                a = 1;
+            end
+            if sum(a)>0
+                synchronize_this_folder = 1;
+            elseif sum(a)==0
+                synchronize_this_folder = 0;
             end
             
             
-            if dont_analyze_this_folder == 0
+            if synchronize_this_folder == 1
                 
                 settings.path_server_server_in_subject = sprintf('%s%s/%s/%s', settings.path_server_in, dir_index(folder_i).name, settings.subject_current);
                 settings.path_server_server_out_subject = sprintf('%s%s/%s/%s', settings.path_server_out, dir_index(folder_i).name, settings.subject_current);
@@ -224,7 +229,7 @@ if settings.data_import_from_server ==1
                 % End of analysis for each date
                 
             else
-                fprintf ('This folder is excluded from uploads: %s\n', dir_index(folder_i).name)
+                fprintf ('\nThis folder is excluded from uploads: %s\n', dir_index(folder_i).name)
             end
             % End of checking exp folder exists (exclude '..') or
             % pre-specified folders
