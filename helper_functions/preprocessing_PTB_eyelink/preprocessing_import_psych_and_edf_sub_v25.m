@@ -19,7 +19,7 @@
 % psychtoolbox data only.
 % V2.3 August 24, 2017. Updated file for re-written exp design.
 % V2.4 November 6, 2017. Eye movements recording is now optional
-% V2.5 February 1, 2018. Simplified path definitions
+% V2.5 February 19, 2018. Simplified path definitions
 %
 % Input format:
 % preprocessing_import_psych_and_edf_sub_v25 (settings, varargin)
@@ -88,10 +88,8 @@ overwrite_saccades_EK2003 = 0; % 1 - will over-write saccade detection for EK al
 %% Do analysis
 
 % How many sessions are used?
-p1 = get_generate_path_v10(settings, 'data_psychtoolbox');
-temp1 = get_path_dates_v20(p1, settings.subject_current);
-ind = settings.date_current==temp1.index_dates;
-sessions_used = temp1.index_sessions(ind);
+sessions_used = get_sessions_used_v10(settings, 'data_psychtoolbox');
+
 
 % Do analysis for each desired session
 % No changes needed for this section

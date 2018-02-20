@@ -4,8 +4,9 @@
 % No data changes in this code.
 %
 % V1.0 October 30, 2017
+% V1.1 February 19, 2018 Updated path definitions
 
-function  preprocessing_overwrite_raw_settings_v10(settings)
+function  preprocessing_overwrite_raw_settings_v11(settings)
 
 % Show file you are running
 p1 = mfilename;
@@ -19,6 +20,8 @@ if ~exist('settings', 'var')
 end
 settings = get_settings_ini_v10(settings);
 
+folder_name = 'data_psychtoolbox';
+
 % Run pre-processing for each subject
 for i_subj = 1:length(settings.subjects)
     
@@ -26,12 +29,7 @@ for i_subj = 1:length(settings.subjects)
     settings.subject_current = settings.subjects{i_subj};
     
     % Get subject folder paths and dates to analyze
-    try
-        settings = get_settings_path_and_dates_ini_v11(settings, 'path_data_psychtoolbox_subject');
-        dates_used = settings.data_sessions_to_analyze;
-    catch
-        dates_used = [];
-    end
+    settings.dates_used = get_dates_used_v10 (settings, folder_name);
     
     %===========
     % Find an index of dates to be modified
@@ -40,35 +38,44 @@ for i_subj = 1:length(settings.subjects)
     eval(a1)
     
     % Analysis for each separate day
-    for i_date = 1:length(dates_used)
+    for i_date = 1:length(settings.dates_used)
         
-        % Current folder to be analysed (raw date, with session index)
-        date_current = dates_used(i_date);
-        settings.date_current = date_current; % Variable needed for data import
-        ind_folders = find (date_current==settings.index_dates);
+        % Which date is it
+        settings.date_current = settings.dates_used(i_date);
         
         % By default, it will not over-write the data
         settings.overwrite_temp_switch = 0;
         if exist('overwrite_temp_index', 'var')
+            b = [];
             for i = 1:numel (overwrite_temp_index)
                 a = overwrite_temp_index{i};
-                b(i) = sum(date_current == a);
+                b(i) = sum(settings.date_current == a);
             end
             if sum(b)>0
                 settings.overwrite_temp_switch = 1;
+                fprintf('\nCurrent date %s will be modified as the raw data file\n', num2str(settings.date_current))
             else
-                fprintf('\nCurrent date is not in the list to be modified as the raw data file\n')
+                fprintf('\nCurrent date %s is not in the list to be modified as the raw data file\n',  num2str(settings.date_current))
             end
         else
             fprintf('\nScript for over-writing raw data has no dates specified, no files will be modified\n')
         end
         
-        if settings.overwrite_temp_switch == 1;
-            for i_folder = 1:numel(ind_folders)
+        if settings.overwrite_temp_switch == 1
+            
+            % Current plexon folder to be analysed (multiple sessions)
+            sessions_used = get_sessions_used_v10(settings, folder_name);
+            
+            % Do analysis for each desired session
+            % No changes needed for this section
+            for i_session = 1:numel(sessions_used)
                 
-                folder_name = settings.index_directory{ind_folders(i_folder)};
-                path1 = [settings.path_data_psychtoolbox_subject, folder_name, '/' folder_name, '_data_structure.mat'];
-                path1_copy = [settings.path_data_psychtoolbox_subject, folder_name, '/' folder_name, '_data_structure_original.mat'];
+                % Which recorded to use
+                session_ind = sessions_used(i_session);
+                
+                % Generate output path
+                [path1, ~, file_name] = get_generate_path_v10(settings, folder_name, '_data_structure.mat', session_ind);
+                [path1_copy, ~, file_name_copy] = get_generate_path_v10(settings, folder_name, '_data_structure_original.mat', session_ind);
                 
                 %================
                 % Analysis
@@ -76,16 +83,16 @@ for i_subj = 1:length(settings.subjects)
                 
                 if ((exist(path1, 'file') && ~exist(path1_copy, 'file')) || settings.overwrite==1) && exist(path1, 'file')
                     
-                    fprintf('\nChanges to experiment settings file with modifications and bug fixes %s\n', folder_name)
+                    fprintf('\nChanges to exp settings file "%s" with modifications and bug fixes\n', file_name)
                     
                     %==========
                     % Save original file before doing changes
                     % Original data is saved only once
                     if ~exist(path1_copy, 'file')
                         copyfile(path1, path1_copy)
-                        fprintf('\nWill save original settings file as a backup %s_data_structure_original\n', folder_name)
+                        fprintf('Will save original settings file to a copy "%s"\n', file_name_copy)
                     else
-                        fprintf('\nCopy of the settings file %s_data_structure_original exists, original file is kept intact\n', folder_name)
+                        fprintf('Copy of the settings file "%s" exists, original file is kept intact\n', file_name_copy)
                     end
                     
                     % Now open the original data file (always)
@@ -102,16 +109,16 @@ for i_subj = 1:length(settings.subjects)
                     save (path1, 'expsetup')
                     
                 elseif ~exist(path1, 'file')
-                    fprintf('\nData file %s_data_structure does not exist, skipping analysis\n', folder_name)
+                    fprintf('\nData file "%s" does not exist, skipping analysis\n', file_name)
                 elseif exist(path1, 'file') && settings.overwrite==0
-                    fprintf('\nCopy of the settings file %s_data_structure_original already exists, skipping analysis\n', folder_name)
+                    fprintf('\nCopy of the settings file "%s" already exists, skipping analysis\n', file_name_copy)
                 else
                     fprintf('\nUnknown file localisation error \n')
                 end
                 % End of analysis
                 
             end
-            % End of each folder
+            % End of each session
         end
         % End of settings.overwrite_temp_switch
     end

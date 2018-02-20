@@ -772,19 +772,19 @@ if settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_tem
     end
 end
 
-%%  rename probe_extended_map into text from numbers LOOK 5
+%%  rename probe_extended_map into text from numbers
 
-if  settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_temp_index{9}(1) && settings.date_current <= overwrite_temp_index{9}(end)
-    if strcmp(var1.expname{1}, 'look5')
+% if  settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_temp_index{9}(1) && settings.date_current <= overwrite_temp_index{9}(end)
+%     if strcmp(var1.expname{1}, 'look5')
         
         v1 = 'probe_extended_map';
         
         clear temp1_old; clear temp1_new
         temp_old = var1.(v1);
         
-        temp_old = cell2mat(temp_old);
+        mat1 = cell2mat(temp_old);
         
-        if ~iscell(temp_old) % Check whether to do analysis
+        if ~iscell(mat1) % Check whether to do analysis
             
             fprintf('Correcting field "%s" - replace numbers with condition names\n', v1)
             
@@ -812,11 +812,10 @@ if  settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_te
                         elseif size(b,1)>4
                             temp_new(index) = {'behaviour, extended map'};
                         else
-                            temp_new(index) = {'behaviour, extended map'};
                         end
                         
                     end
-                    
+                 
                     
                 else
                     error('Fields "response_target_coord" & "response_t3_coord" not defined, can not prepare probe_extended_map')
@@ -827,40 +826,19 @@ if  settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_te
             var1.(v1) = temp_new;
             
         end
-    end
-end
-
-%%  rename probe_extended_map into text from numbers LOOK 6
-
-if  settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_temp_index{9}(1) && settings.date_current <= overwrite_temp_index{9}(end)
-    if strcmp(var1.expname{1}, 'look6')
-        
-        v1 = 'probe_extended_map';
-        
-        clear temp1_old; clear temp1_new
-        temp_old = var1.(v1);
-        
-        temp_old = cell2mat(temp_old);
-        
-        if ~iscell(temp_old) % Check whether to do analysis
-            
-            fprintf('Correcting field "%s" - replace numbers with condition names\n', v1)
-            
-            temp_new = cell(numel(temp_old),1);
-            
-            % Neurophysiology
-            index1 = temp_old==0;
-            temp_new(index1) = {'plexon recording'};
-            % Psychopysics
-            index1 = temp_old==1;
-            temp_new(index1) = {'behaviour, target loc 4'};
-            index1 = temp_old==2;
-            temp_new(index1) = {'behaviour, target loc many'};
-            
-            % Save corrected data
-            var1.(v1) = temp_new;
-            
-        end
-    end
-end
-
+%         
+%         %             %===============
+%         %             % Other blocks
+%         %             t1 = numel(temp_old{1}) + numel(temp_old{2})+1;
+%         %             index = t1 : numel(temp_new);
+%         %             temp_new(index) = temp_old(3:end);
+%         
+%         % Save corrected data
+%         var1.(v1) = temp_new;
+%         
+%     else
+%         fprintf('Field "%s" already corrected, no changes written\n', v1)
+%     end
+%     
+% end
+% end

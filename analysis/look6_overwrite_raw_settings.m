@@ -11,7 +11,7 @@ overwrite_temp_index{3} = 20160101:20171231;
 
 %% Fixation offset time bug
 
-if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{1}(1) && date_current <= overwrite_temp_index{1}(end)
+if settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_temp_index{1}(1) && settings.date_current <= overwrite_temp_index{1}(end)
     if strcmp(var1.general.expname, 'look6')
 
         v1 = 'eframes_fixation_offset';
@@ -71,7 +71,7 @@ end
 
 %% Fix exp matrix size mismatch for HB on 12.21.2017 (remove trial no 601, as this trial does not exist)
 
-if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{2}(1) && date_current <= overwrite_temp_index{2}(end)
+if settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_temp_index{2}(1) && settings.date_current <= overwrite_temp_index{2}(end)
     if strcmp(var1.general.expname, 'look6') && strcmp(var1.general.subject_id, 'hb')
 
         f1 = fieldnames(var1.stim);
@@ -97,7 +97,7 @@ end
 %% Over-write settings file from look5
 
 
-if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3}(1) && date_current <= overwrite_temp_index{3}(end)
+if settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_temp_index{3}(1) && settings.date_current <= overwrite_temp_index{3}(end)
     if strcmp(var1.general.expname, 'look5')
         
         
@@ -138,12 +138,10 @@ if settings.overwrite_temp_switch == 1 && date_current >= overwrite_temp_index{3
         
         % probe_extended_map
         if isfield (var0, 'exp_version')
-            if var0.exp_version == 1
+            if var1.general.record_plexon==1
                 var0.probe_extended_map = 0; % Recording
-            elseif var0.exp_version == 2
-                var0.probe_extended_map = 3;
             else
-                var0.probe_extended_map = -1;
+                var0.probe_extended_map = -1; % Psychophysics
             end
             var0 = rmfield(var0, 'exp_version');
         else

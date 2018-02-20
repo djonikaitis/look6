@@ -12,11 +12,11 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % use subject initials for one subject or 'all' to run all subjects
-settings.subjects = 'aq';
+settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'selected';
+settings.data_sessions = 'after';
 
 % which setup?
 % 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
@@ -51,7 +51,7 @@ if run_this_section_of_analysis == 1
     settings.this_analysis = 1;
     if settings.this_analysis == 1
         settings.overwrite = 1;
-        preprocessing_overwrite_raw_settings_v10(settings);
+        preprocessing_overwrite_raw_settings_v11(settings);
     end
     
     % Import .mat and .edf files into one folder
@@ -82,7 +82,7 @@ if run_this_section_of_analysis == 1
     settings.this_analysis = 1;
     if settings.this_analysis == 1
         settings.overwrite = 1;
-        preprocessing_overwrite_all_settings_v10(settings);
+        preprocessing_overwrite_all_settings_v11(settings);
     end
     
 end
