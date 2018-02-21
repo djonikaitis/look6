@@ -23,7 +23,7 @@ elseif strcmp (settings.data_sessions, 'after')
 elseif strcmp (settings.data_sessions, 'interval')
     settings.data_sessions_temp = [20170330, 20170401]; 
 elseif strcmp(settings.data_sessions, 'selected')
-    settings.data_sessions_temp = 20170321; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
+    settings.data_sessions_temp = 20171222; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
 
 
@@ -123,7 +123,7 @@ settings.figsize_4col=[0, 0, 7.2, 2.2];
 % Settings for doing sliding window analysis
 settings.timestep=50;
 settings.intervalbins_tex=[-200:settings.timestep:450]; % Bins locked to cue
-settings.intervalbins_tex_timecourse1 = [-200:settings.timestep:1000]; % Bins locked to cue
+settings.intervalbins_tex_radial = [-200:200:600]; % Bins locked to cue
 settings.intervalbins_mem=[-200:settings.timestep:1800]; % Bins locked to memory
 settings.intervalbins_sacc=[-700:settings.timestep:100]; % Bins locked to saccade cue
 settings.bin_length=80; % Milisecconds used for each time bin (for sliding window size)

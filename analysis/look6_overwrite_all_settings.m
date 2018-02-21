@@ -855,7 +855,7 @@ if  settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_te
             index1 = temp_old==1;
             temp_new(index1) = {'behaviour, target loc 4'};
             index1 = temp_old==2;
-            temp_new(index1) = {'behaviour, target loc many'};
+            temp_new(index1) = {'behaviour, target loc 6'};
             
             % Save corrected data
             var1.(v1) = temp_new;
