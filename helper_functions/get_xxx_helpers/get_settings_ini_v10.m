@@ -17,6 +17,11 @@ if ~isfield(settings, 'overwrite')
     settings.overwrite = 1;
 end
 
+% Find out about exp setup
+if ~isfield (settings, 'exp_setup')
+    settings.exp_setup = 'undefined';
+end
+
 % Run settings file:
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 

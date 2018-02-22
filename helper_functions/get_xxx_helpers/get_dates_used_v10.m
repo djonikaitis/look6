@@ -79,7 +79,7 @@ else
     ind = length(session_init.index_unique_dates);
 end
 
-if numel(ind)>0
+if sum(ind)>0
     dates_used = temp1.index_unique_dates(ind);
 else
     dates_used = [];

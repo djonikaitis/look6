@@ -42,7 +42,7 @@ end
 
 %% DJ laptop
 
-if (~isempty (macaddress) && sum(macaddress==[0; 0; 0; 0; 0; 0])==6) || ...
+if (~isempty (macaddress) && sum(macaddress==[120; 79; 67; 164; 4; 139])==6) || ...
         (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'dj laptop'))
     
     % save setup name
@@ -58,7 +58,7 @@ if (~isempty (macaddress) && sum(macaddress==[0; 0; 0; 0; 0; 0])==6) || ...
     
     % "Experiments_data" folder, with plexon data:
     % (might differ from other psychtoolbox data folder due to large plexon file sizes)
-    settings.path_baseline_plexon = sprintf('~/proj/experiments_data/');
+    settings.path_baseline_plexon = sprintf('~/Dropbox/Experiments_Data/');
 
     % Path to plexon toolbox
     settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';
