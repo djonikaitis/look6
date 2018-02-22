@@ -1,8 +1,9 @@
 % Plots lines and sets up figure settings
 % Options:
+%
+% plot_set.plot_remove_nan - removes NaN values from line plotting
 % plot_set.mat_y - data for y axis (else wont plot any data)
 % plot_set.mat_x - data for x axis. (else it will plot as 1:x elements)
-% plot_set.plot_remove_nan - removes NaN values from line plotting
 % plot_set.ebars_lower_y - is lower bound of error bars (else wont plot error bars)
 % plot_set.ebars_upper_y - is upper bound of error bars (else wont plot error bars)
 % plot_set.ebars_lower_x - optional
@@ -375,12 +376,13 @@ else % If y-ticks do not exist, calculate your own
     ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
     
     % Select number of tick values
-    a = (ps_h_max-ps_h_min)/4;
-    b = [1:1:5, 10, 15, 20, 25, 30:10:100, 150:50:250, 300:100:1000];
-    c = b(a>=b);
     try
-        step1  = c(end);
+        a = (ps_h_max-ps_h_min)/4;
+        b = [0.1, 0.2, 0.5, 1:1:5, 10:5:25, 30:10:100, 150:50:250, 300:100:1000];
+        c = b(a>=b);
+        step1 = c(end);
     catch
+        step1 = 1;
     end
     
     % Set ticks
@@ -433,10 +435,14 @@ elseif isfield (plot_set, 'mat_x')
     ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
     
     % Select number of tick values
-    a = (ps_h_max-ps_h_min)/4;
-    b = [1:1:5, 10, 15, 20, 25, 30:10:100, 150:50:250, 300:100:1000];
-    c = b(a>=b);
-    step1  = c(end);
+    try
+        a = (ps_h_max-ps_h_min)/4;
+        b = [0.1, 0.2, 0.5, 1:1:5, 10:5:25, 30:10:100, 150:50:250, 300:100:1000];
+        c = b(a>=b);
+        step1 = c(end);
+    catch
+        step1 = 1;
+    end
     
     % Set ticks
     ps_tick = [-step1*1000:step1:step1*1000];

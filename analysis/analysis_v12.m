@@ -130,44 +130,47 @@ end
 
 %% Behavioural data analysis
 
-run_this_section_of_analysis = 0;
+    
+run_this_section_of_analysis = 1;
 
 if run_this_section_of_analysis == 1
     
     % Plot day to day trials accepted/rejected
     settings.this_analysis = 1;
+    settings.overwrite = 1;
     if settings.this_analysis==1
-        settings.overwrite = 1;
-        look6_analysis_plot_training_performance;
+        settings.function_name = 'look6_behaviour_daily_performance';
+        look6_analysis_template_behaviour;
     end
     
-    % Plot day to day trials accepted/rejected
-    settings.this_analysis = 1;
-    if settings.this_analysis==1
-        settings.overwrite = 1;
-        look6_analysis_plot_last_day_performance;
-    end
-    
-    % Plot day to day trials accepted/rejected
-    settings.this_analysis = 1;
-    if settings.this_analysis==1
-        settings.overwrite = 1;
-        look6_analysis_plot_look_avoid_training;
-    end
-    
-    % Bar graph of look/avoid task performance
-    settings.this_analysis = 1;
-    if settings.this_analysis==1
-        settings.overwrite = 1;
-        look6_analysis_SRT_bar;
-    end
-    
-    % Line graph of look/avoid task performance
-    settings.this_analysis = 0;
-    if settings.this_analysis==1
-        settings.overwrite = 1;
-        look6_analysis_SRT_position;
-    end
+%     % Plot day to day trials accepted/rejected
+%     settings.this_analysis = 1;
+%     if settings.this_analysis==1
+%         settings.overwrite = 1;
+%         look6_analysis_plot_training_performance;
+%     end
+%   
+% 
+%     % Plot day to day trials accepted/rejected
+%     settings.this_analysis = 1;
+%     if settings.this_analysis==1
+%         settings.overwrite = 1;
+%         look6_analysis_plot_look_avoid_training;
+%     end
+%     
+%     % Bar graph of look/avoid task performance
+%     settings.this_analysis = 1;
+%     if settings.this_analysis==1
+%         settings.overwrite = 1;
+%         look6_analysis_SRT_bar;
+%     end
+%     
+%     % Line graph of look/avoid task performance
+%     settings.this_analysis = 0;
+%     if settings.this_analysis==1
+%         settings.overwrite = 1;
+%         look6_analysis_SRT_position;
+%     end
     
 end
 
@@ -210,7 +213,7 @@ end
 
 %% Neurophysiology data analysis
 
-run_this_section_of_analysis = 1;
+run_this_section_of_analysis = 0;
 
 if run_this_section_of_analysis == 1
     

@@ -30,6 +30,11 @@ if ~isfield (plot_set, 'mat_x') && isfield (plot_set, 'mat_y')
     plot_set.mat_x = 1:numel(plot_set.mat_y);
 end
 
+if ~isfield (plot_set, 'plot_remove_nan')
+    plot_set.plot_remove_nan = 1;
+end
+
+
 
 %% Calculate colors to be used
 
@@ -360,102 +365,31 @@ else % If y-ticks do not exist, calculate your own
     end
     
     % Calculate axis limits
-    val1 = 0.2; 
-    val2 = 0.2;
+    if isfield (plot_set, 'legend')
+        val1 = 0.50; val2 = 0.20;
+    else
+        val1 = 0.20; val2 = 0.20;
+    end
     ps_h0_max = max(ps_h0_max); ps_h0_min = min(ps_h0_min);
     ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
     ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
     
-    if ps_h_max-ps_h_min < 1
-        
-        step1 = 0.2;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min < 2.5
-        
-        step1 = 0.5;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min < 5
-        
+    % Select number of tick values
+    try
+        a = (ps_h_max-ps_h_min)/4;
+        b = [0.1, 0.2, 0.5, 1:1:5, 10:5:25, 30:10:100, 150:50:250, 300:100:1000];
+        c = b(a>=b);
+        step1 = c(end);
+    catch
         step1 = 1;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <10
-        
-        step1 = 2;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <15
-        
-        step1 = 3;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif  ps_h_max-ps_h_min <25
-        
-        step1 = 5;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <50
-        
-        step1 = 10;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <100
-        
-        step1 = 20;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <125
-        
-        step1 = 25;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <150
-        
-        step1 = 30;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <200
-        
-        step1 = 40;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <250
-        
-        step1 = 50;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <500
-        
-        step1 = 100;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <1000
-        
-        step1 = 200;
-        ps_tick = [-10000:step1:10000];
-        hfig.YTick = ps_tick;
- 
-        
-    else
-        % Do nothing
     end
     
-    
+    % Set ticks
+    ps_tick = [-step1*1000:step1:step1*1000];
+    try
+        hfig.YTick = ps_tick;
+    end
+        
     % Clean up
     clear ps_tick; clear ps_h0_max; clear ps_h0_min; clear ps_h_max; clear ps_h_min; clear t0; clear t1;
     
@@ -499,57 +433,20 @@ elseif isfield (plot_set, 'mat_x')
     ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
     ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
     
-    
-    if ps_h_max-ps_h_min <= 5
-        
+    % Select number of tick values
+    try
+        a = (ps_h_max-ps_h_min)/4;
+        b = [0.1, 0.2, 0.5, 1:1:5, 10:5:25, 30:10:100, 150:50:250, 300:100:1000];
+        c = b(a>=b);
+        step1 = c(end);
+    catch
         step1 = 1;
-        ps_tick = [-10000:step1:10000];
+    end
+    
+    % Set ticks
+    try
+        ps_tick = [-step1*1000:step1:step1*1000];
         hfig.XTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <=10
-        
-        step1 = 2;
-        ps_tick = [-10000:step1:10000];
-        hfig.XTick = ps_tick;
-        
-    elseif  ps_h_max-ps_h_min <=25
-        
-        step1 = 5;
-        ps_tick = [-10000:step1:10000];
-        hfig.XTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <=50
-        
-        step1 = 10;
-        ps_tick = [-10000:step1:10000];
-        hfig.XTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <=100
-        
-        step1 = 20;
-        ps_tick = [-10000:step1:10000];
-        hfig.XTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <=150
-        
-        step1 = 25;
-        ps_tick = [-10000:step1:10000];
-        hfig.XTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <=200
-        
-        step1 = 50;
-        ps_tick = [-10000:step1:10000];
-        hfig.XTick = ps_tick;
-        
-    elseif ps_h_max-ps_h_min <=500
-        
-        step1 = 100;
-        ps_tick = [-10000:step1:10000];
-        hfig.XTick = ps_tick;
-        
-    else
-        % Do nothing
     end
     
     clear ps_tick; clear ps_h0_max; clear ps_h0_min; clear ps_h_max; clear ps_h_min; clear t0; clear t1;
