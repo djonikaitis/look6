@@ -82,7 +82,7 @@ plot_set.ylabel = 'Correct response, % of trials';
 
 % Save data
 plot_set.figure_size = settings.figsize_2col;
-plot_set.figure_save_name = 'figure';
+plot_set.figure_save_name = 'fig';
 plot_set.path_figure = path_fig;
 
 % Plot
@@ -150,7 +150,7 @@ for i=1:size(mat1,3)
     plot_set.legend_x_coord(i) = [pbins(1)];
 end
 
-% % Labels for plotting
+% Labels for plotting
 plot_set.YTick = [0:25:100];
 plot_set.YLim = [min(plot_set.legend_y_coord)-10, 110];
 plot_set.figure_title = 'Aborted trials';

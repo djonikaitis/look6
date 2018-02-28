@@ -1,6 +1,6 @@
 % Plots lines and sets up figure settings
 % Options:
-%
+
 % plot_set.plot_remove_nan - removes NaN values from line plotting
 % plot_set.mat_y - data for y axis (else wont plot any data)
 % plot_set.mat_x - data for x axis. (else it will plot as 1:x elements)
@@ -185,7 +185,9 @@ if (  (isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y'
         color1 = plot_set.face_color1(k,:);
         
         h=fill([xc1,xc2,xc3,xc4, xc5, xc6],[yc1, yc2, yc3, yc4, yc5, yc6], [1 0.7 0.2], 'linestyle', 'none');
-        set (h(end), 'FaceColor', color1,'linestyle', 'none', 'FaceAlpha', 1)
+        if ~isempty(h)
+            set (h(end), 'FaceColor', color1,'linestyle', 'none', 'FaceAlpha', 1)
+        end
         
     end
     
@@ -235,6 +237,8 @@ if isfield (plot_set, 'mat_y')
             
         end
         
+        mat_y
+        
         % Draw line
         if numel(mat_x) == numel(mat_y)
             h=plot(mat_x, mat_y);
@@ -246,11 +250,13 @@ if isfield (plot_set, 'mat_y')
         color1 = plot_set.color1(k,:);
         
         % Set color and line width
-        if isfield (settings, 'wlinegraph')
-            set (h(end), 'LineWidth', settings.wlinegraph, 'Color', color1)
-        else
-            sprintf('Line width not specified in settings.wlinegraph, using default line width')
-            set (h(end), 'LineWidth', 1, 'Color', color1)
+        if ~isempty(h)
+            if isfield (settings, 'wlinegraph')
+                set (h(end), 'LineWidth', settings.wlinegraph, 'Color', color1)
+            else
+                sprintf('Line width not specified in settings.wlinegraph, using default line width')
+                set (h(end), 'LineWidth', 1, 'Color', color1)
+            end
         end
         
     end
@@ -263,8 +269,9 @@ end
 if isfield (plot_set, 'legend')
     
     if isfield (plot_set, 'legend_x_coord') && isfield (plot_set, 'legend_y_coord')
-        x1_temp = plot_set.legend_x_coord(k);
-        y1_temp = plot_set.legend_y_coord(k);
+        x1_temp = plot_set.legend_x_coord;
+        y1_temp = plot_set.legend_y_coord;
+        
     else
         
         % Legend coordinates not specified, using defaults
@@ -293,7 +300,7 @@ if isfield (plot_set, 'legend')
         end
         
         % Calculate axis limits
-        val1 = 0.5; 
+        val1 = 0.5;
         val2 = 0.2;
         
         ps_h0_max = max(ps_h0_max); ps_h0_min = min(ps_h0_min);
@@ -390,7 +397,7 @@ else % If y-ticks do not exist, calculate your own
     try
         hfig.YTick = ps_tick;
     end
-        
+    
     % Clean up
     clear ps_tick; clear ps_h0_max; clear ps_h0_min; clear ps_h_max; clear ps_h_min; clear t0; clear t1;
     
@@ -427,9 +434,9 @@ elseif isfield (plot_set, 'mat_x')
     end
     
     % Calculate axis limits
-    val1 = 0.05; 
+    val1 = 0.05;
     val2 = 0.05;
-    ps_h0_max = max(ps_h0_max); 
+    ps_h0_max = max(ps_h0_max);
     ps_h0_min = min(ps_h0_min);
     ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
     ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
@@ -496,12 +503,12 @@ else
     ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
     
     % Set axis limits
-    if ~isnan(ps_h_min) && ~isnan(ps_h_max)
+    if ~isnan(ps_h_min) && ~isnan(ps_h_max) && ps_h_min ~= ps_h_max
         hfig.YLim = [ps_h_min, ps_h_max];
         fprintf('No values for YLim provided, using defaults\n')
     else
-        hfig.YLim = [-5, 5];
-        fprintf('No Y data detected, setting axis to minimal\n')
+        hfig.YLim = [-2, 2];
+        fprintf('Y axis setup from data impossible, setting axis to minimal\n')
     end
     
     clear ps_h0_min; clear ps_h0_max; clear ps_h_min; clear ps_h_max;
@@ -517,37 +524,38 @@ if isfield (plot_set, 'XLim')
 else
     if isfield (plot_set, 'mat_x')
         
-        % Initialize values
-        temp1 = plot_set.mat_x;
-        o = size(temp1, 3);
-        ps_h0_min = NaN(1, o); ps_h_min = NaN;
-        ps_h0_max = NaN(1, o); ps_h_max = NaN;
+        % Extract data regardless whether error bars exist or not
+        if isfield (plot_set, 'ebars_upper_x') && isfield (plot_set, 'ebars_upper_x')
+            t0 = plot_set.ebars_lower_x;
+            t1 = plot_set.ebars_upper_x;
+        elseif isfield (plot_set, 'mat_x')
+            t0 = plot_set.mat_x;
+            t1 = plot_set.mat_x;
+        else
+            t0 = -5;
+            t1 = 5;
+        end
         
-        % Extract min and max values
-        for i1 = 1:size(temp1, 3)
-            if size(temp1,1)>1
-                b = nanmean(temp1(:,:,i1));
-            else
-                b = temp1(:,:,i1);
-            end
-            ps_h0_min(i1) = min(b);
-            ps_h0_max(i1) = max(b);
+        % Calculate min and max
+        ps_h0_min = []; ps_h0_max = [];
+        for i1 = 1:size(t0, 3)
+            ps_h0_min(i1) = min(t0(:,:,i1));
+            ps_h0_max(i1) = max(t1(:,:,i1));
         end
         
         % Setup axis limits
-        val1 = 0.06;
-        val2 = 0.06;
+        val1 = 0.06; val2 = 0.06;
         ps_h0_max = max(ps_h0_max); ps_h0_min = min(ps_h0_min);
         ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
         ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
         
         % Set axis limits
-        if ~isnan(ps_h_min) && ~isnan(ps_h_max)
+        if ~isnan(ps_h_min) && ~isnan(ps_h_max) && ps_h_min ~= ps_h_max
             hfig.XLim = [ps_h_min, ps_h_max];
             fprintf('No values for XLim provided, using defaults\n')
         else
-            hfig.XLim = [-5, 5];
-            fprintf('No X data detected, setting axis to minimal\n')
+            hfig.XLim = [-2, 2];
+            fprintf('X axis setup from data impossible, setting axis to minimal\n')
         end
         
         clear ps_h0_min; clear ps_h0_max; clear ps_h_min; clear ps_h_max; clear temp1

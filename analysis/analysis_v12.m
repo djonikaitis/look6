@@ -16,11 +16,11 @@ settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'selected';
+settings.data_sessions = 'after';
 
 % which setup?
 % 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
-settings.exp_setup = 'undefined';
+settings.exp_setup = 'dj laptop';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -130,47 +130,45 @@ end
 
 %% Behavioural data analysis
 
-    
 run_this_section_of_analysis = 1;
 
 if run_this_section_of_analysis == 1
     
-    % Plot day to day trials accepted/rejected
     settings.this_analysis = 1;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.function_name = 'look6_behaviour_daily_performance';
         look6_analysis_template_behaviour;
     end
+
+    settings.this_analysis = 1;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.function_name = 'look6_behaviour_training_over_time';
+        look6_analysis_template_behaviour;
+    end
     
-%     % Plot day to day trials accepted/rejected
+    settings.this_analysis = 1;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.function_name = 'look6_behaviour_look_avoid_training';
+        look6_analysis_template_behaviour;
+    end
+   
 %     settings.this_analysis = 1;
+%     settings.overwrite = 1;
 %     if settings.this_analysis==1
-%         settings.overwrite = 1;
-%         look6_analysis_plot_training_performance;
-%     end
-%   
-% 
-%     % Plot day to day trials accepted/rejected
-%     settings.this_analysis = 1;
-%     if settings.this_analysis==1
-%         settings.overwrite = 1;
-%         look6_analysis_plot_look_avoid_training;
+%         settings.function_name = 'look6_behaviour_SRT_bar';
+%         look6_analysis_template_behaviour;
 %     end
 %     
-%     % Bar graph of look/avoid task performance
 %     settings.this_analysis = 1;
+%     settings.overwrite = 1;
 %     if settings.this_analysis==1
-%         settings.overwrite = 1;
-%         look6_analysis_SRT_bar;
+%         settings.function_name = 'look6_behaviour_SRT_position';
+%         look6_analysis_template_behaviour;
 %     end
-%     
-%     % Line graph of look/avoid task performance
-%     settings.this_analysis = 0;
-%     if settings.this_analysis==1
-%         settings.overwrite = 1;
-%         look6_analysis_SRT_position;
-%     end
+
     
 end
 
