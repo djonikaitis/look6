@@ -1,9 +1,5 @@
 % Psychophysics performance
 
-% Remove figure folder that was created by default
-try
-    rmdir(path_fig, 's')
-end
 
 % Reset data
 if isfield(S, 'target_on')
@@ -159,6 +155,7 @@ if ~isempty(settings.dates_used) && i_date == numel(settings.dates_used)
     
     
     %% Figure 1
+    
     plot_set = struct;
     mat1=[];
     

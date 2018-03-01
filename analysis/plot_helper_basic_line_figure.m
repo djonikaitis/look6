@@ -18,10 +18,10 @@
 % specification. It can be either a direct color (3 values) or refer to
 % settings.color1 prespecified colors.
 %
-% plot_set.YTick - else will use values based on the data
-% plot_set.XTick - else will use values based on the data
-% plot_set.YTLim - else will use values based on the data
-% plot_set.XLim - else will use values based on the data
+% plot_set.YTick (or ytick) - else will use values based on the data
+% plot_set.XTick (or xtick) - else will use values based on the data
+% plot_set.YTLim (or ylim) - else will use values based on the data
+% plot_set.XLim (or xlim) - else will use values based on the data
 % plot_set.figure_title
 
 
@@ -35,6 +35,9 @@ if ~isfield (plot_set, 'plot_remove_nan')
     plot_set.plot_remove_nan = 1;
 end
 
+if ~isfield (plot_set, 'mat_y')
+    fprintf('Y data not present, will set figure options without plotting data\n')
+end
 
 
 %% Calculate colors to be used
@@ -237,8 +240,6 @@ if isfield (plot_set, 'mat_y')
             
         end
         
-        mat_y
-        
         % Draw line
         if numel(mat_x) == numel(mat_y)
             h=plot(mat_x, mat_y);
@@ -288,8 +289,8 @@ if isfield (plot_set, 'legend')
             t0 = plot_set.mat_y;
             t1 = plot_set.mat_y;
         else
-            t0 = -5;
-            t1 = 5;
+            t0 = -2;
+            t1 = 2;
         end
         
         % Calculate min and max
@@ -346,9 +347,13 @@ if isfield (plot_set, 'YTick') && ~isempty(plot_set.YTick) && ~isstr(plot_set.YT
     
     hfig.YTick = plot_set.YTick;
     
+elseif isfield (plot_set, 'ytick') && ~isempty(plot_set.ytick) && ~isstr(plot_set.ytick)
+    
+    hfig.YTick = plot_set.ytick;
+    
 else % If y-ticks do not exist, calculate your own
     
-    fprintf('No values for YTick provided, calculating defaults\n')
+    fprintf('No values for ytick provided, calculating defaults\n')
     
     % Extract data regardless whether error bars exist or not
     if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')
@@ -360,6 +365,12 @@ else % If y-ticks do not exist, calculate your own
     elseif isfield (plot_set, 'mat_y')
         t0 = plot_set.mat_y;
         t1 = plot_set.mat_y;
+    elseif isfield(plot_set, 'YLim')
+        t0 = plot_set.YLim(1);
+        t1 = plot_set.YLim(2);
+    elseif isfield(plot_set, 'ylim')
+        t0 = plot_set.ylim(1);
+        t1 = plot_set.ylim(2);
     else
         t0 = -5;
         t1 = 5;
@@ -376,7 +387,7 @@ else % If y-ticks do not exist, calculate your own
     if isfield (plot_set, 'legend')
         val1 = 0.50; val2 = 0.20;
     else
-        val1 = 0.20; val2 = 0.20;
+        val1 = 0.05; val2 = 0.05;
     end
     ps_h0_max = max(ps_h0_max); ps_h0_min = min(ps_h0_min);
     ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
@@ -385,7 +396,7 @@ else % If y-ticks do not exist, calculate your own
     % Select number of tick values
     try
         a = (ps_h_max-ps_h_min)/4;
-        b = [0.1, 0.2, 0.5, 1:1:5, 10:5:25, 30:10:100, 150:50:250, 300:100:1000];
+        b = [0.1, 0.5, 1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
         c = b(a>=b);
         step1 = c(end);
     catch
@@ -410,9 +421,13 @@ if isfield (plot_set, 'XTick') && ~isempty(plot_set.XTick) && ~isstr(plot_set.XT
     
     hfig.XTick = plot_set.XTick;
     
-elseif isfield (plot_set, 'mat_x')
+elseif isfield (plot_set, 'xtick') && ~isempty(plot_set.xtick) && ~isstr(plot_set.xtick)
     
-    fprintf('No values for XTick provided, calculating defaults\n')
+    hfig.XTick = plot_set.xtick;
+    
+else
+    
+    fprintf('No values for xtick provided, calculating defaults\n')
     
     % Extract data regardless whether error bars exist or not
     if isfield (plot_set, 'ebars_lower_x') && isfield (plot_set, 'ebars_upper_x')
@@ -421,6 +436,12 @@ elseif isfield (plot_set, 'mat_x')
     elseif isfield (plot_set, 'mat_x')
         t0 = plot_set.mat_x;
         t1 = plot_set.mat_x;
+    elseif isfield(plot_set, 'XLim')
+        t0 = plot_set.XLim(1);
+        t1 = plot_set.XLim(2);
+    elseif isfield(plot_set, 'xlim')
+        t0 = plot_set.xlim(1);
+        t1 = plot_set.xlim(2);
     else
         t0 = -5;
         t1 = 5;
@@ -444,7 +465,7 @@ elseif isfield (plot_set, 'mat_x')
     % Select number of tick values
     try
         a = (ps_h_max-ps_h_min)/4;
-        b = [0.1, 0.2, 0.5, 1:1:5, 10:5:25, 30:10:100, 150:50:250, 300:100:1000];
+        b = [0.1, 0.5, 1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
         c = b(a>=b);
         step1 = c(end);
     catch
@@ -468,6 +489,10 @@ if isfield (plot_set, 'YLim')
     
     hfig.YLim = plot_set.YLim;
     
+elseif isfield (plot_set, 'ylim')
+    
+    hfig.YLim = plot_set.ylim;
+    
 else
     
     % Extract data regardless whether error bars exist or not
@@ -481,8 +506,8 @@ else
         t0 = plot_set.mat_y;
         t1 = plot_set.mat_y;
     else
-        t0 = -5;
-        t1 = 5;
+        t0 = -2;
+        t1 = 2;
     end
     
     % Calculate min and max
@@ -496,7 +521,7 @@ else
     if isfield (plot_set, 'legend')
         val1 = 0.51; val2 = 0.21;
     else
-        val1 = 0.21; val2 = 0.21;
+        val1 = 0.06; val2 = 0.06;
     end
     ps_h0_max = max(ps_h0_max); ps_h0_min = min(ps_h0_min);
     ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
@@ -521,49 +546,48 @@ if isfield (plot_set, 'XLim')
     
     hfig.XLim = plot_set.XLim;
     
+elseif isfield (plot_set, 'xlim')
+    
+    hfig.XLim = plot_set.xlim;
+    
 else
-    if isfield (plot_set, 'mat_x')
-        
-        % Extract data regardless whether error bars exist or not
-        if isfield (plot_set, 'ebars_upper_x') && isfield (plot_set, 'ebars_upper_x')
-            t0 = plot_set.ebars_lower_x;
-            t1 = plot_set.ebars_upper_x;
-        elseif isfield (plot_set, 'mat_x')
-            t0 = plot_set.mat_x;
-            t1 = plot_set.mat_x;
-        else
-            t0 = -5;
-            t1 = 5;
-        end
-        
-        % Calculate min and max
-        ps_h0_min = []; ps_h0_max = [];
-        for i1 = 1:size(t0, 3)
-            ps_h0_min(i1) = min(t0(:,:,i1));
-            ps_h0_max(i1) = max(t1(:,:,i1));
-        end
-        
-        % Setup axis limits
-        val1 = 0.06; val2 = 0.06;
-        ps_h0_max = max(ps_h0_max); ps_h0_min = min(ps_h0_min);
-        ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
-        ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
-        
-        % Set axis limits
-        if ~isnan(ps_h_min) && ~isnan(ps_h_max) && ps_h_min ~= ps_h_max
-            hfig.XLim = [ps_h_min, ps_h_max];
-            fprintf('No values for XLim provided, using defaults\n')
-        else
-            hfig.XLim = [-2, 2];
-            fprintf('X axis setup from data impossible, setting axis to minimal\n')
-        end
-        
-        clear ps_h0_min; clear ps_h0_max; clear ps_h_min; clear ps_h_max; clear temp1
-        
+    
+    % Extract data regardless whether error bars exist or not
+    if isfield (plot_set, 'ebars_upper_x') && isfield (plot_set, 'ebars_upper_x')
+        t0 = plot_set.ebars_lower_x;
+        t1 = plot_set.ebars_upper_x;
+    elseif isfield (plot_set, 'mat_x')
+        t0 = plot_set.mat_x;
+        t1 = plot_set.mat_x;
     else
-        fprintf('No values for XLim provided, using defaults\n')
-        hfig.XLim = [-5, 5];
+        t0 = -2;
+        t1 = 2;
     end
+    
+    % Calculate min and max
+    ps_h0_min = []; ps_h0_max = [];
+    for i1 = 1:size(t0, 3)
+        ps_h0_min(i1) = min(t0(:,:,i1));
+        ps_h0_max(i1) = max(t1(:,:,i1));
+    end
+    
+    % Setup axis limits
+    val1 = 0.06; val2 = 0.06;
+    ps_h0_max = max(ps_h0_max); ps_h0_min = min(ps_h0_min);
+    ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
+    ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
+    
+    % Set axis limits
+    if ~isnan(ps_h_min) && ~isnan(ps_h_max) && ps_h_min ~= ps_h_max
+        hfig.XLim = [ps_h_min, ps_h_max];
+        fprintf('No values for XLim provided, using defaults\n')
+    else
+        hfig.XLim = [-2, 2];
+        fprintf('X axis setup from data impossible, setting axis to minimal\n')
+    end
+    
+    clear ps_h0_min; clear ps_h0_max; clear ps_h_min; clear ps_h_max; clear temp1
+    
     
 end
 
@@ -581,5 +605,8 @@ end
 
 % Figure title
 if isfield (plot_set, 'figure_title')
-    title (plot_set.figure_title, 'FontSize', settings.fontszlabel)
+    if isfield (plot_set, 'figure_title_color')
+    else
+        title (plot_set.figure_title, 'FontSize', settings.fontszlabel)
+    end
 end

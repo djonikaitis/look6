@@ -127,6 +127,7 @@ settings.intervalbins_tex_radial = [-200:settings.timestep:500]; % Large bins fo
 settings.intervalbins_mem=[-200:settings.timestep:700]; % Bins locked to memory
 settings.intervalbins_sacc=[-600:settings.timestep:100]; % Bins locked to saccade cue
 settings.bin_length = 80; % Milisecconds used for each time bin (for sliding window size)
+settings.bin_length_long = 160; % Longer time bins
 settings.baseline_bin_count = 3; % How many time bins to use for moving average analysis
 
 settings.colormap = 'magma';

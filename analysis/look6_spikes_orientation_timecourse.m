@@ -4,14 +4,15 @@
 for fig1 = 1:2 % Plot figures
     
     fprintf('Preparing figure %s\n', num2str(fig1))
-    
-    S.expcond = NaN(size(S.START));
-    
+        
     %==============
     % Texture vs no texture condition, works as basic
     % selection criterion for visual responsiveness of
     % neurons
+    
     if fig1==1 || fig1==2
+        
+        S.expcond = NaN(size(S.START));
         
         % Texture
         m1 = unique(S.esetup_background_texture_line_angle(:,1));
@@ -33,7 +34,7 @@ for fig1 = 1:2 % Plot figures
         int_bins = settings.intervalbins_tex_radial;
         
         % Over-write bin lenght
-        settings.bin_length = 100;
+        settings.bin_length = settings.bin_length_long;
         
         if fig1==1
             new_mat = 1;

@@ -1,4 +1,4 @@
-% Plots spike rasters for different neurons/days
+% Plots spike rasters for different stimulus background colors
 
 % p1 = mfilename;
 p1 = settings.function_name;
@@ -50,10 +50,6 @@ for i_subj=1:length(settings.subjects)
     % Which dates to run?
     settings.dates_used = get_dates_used_v10 (settings, settings.temp1_data_folder);
     
-    if isempty( settings.dates_used)
-        fprintf('No dates for the specified range detected, skipping analysis\n')
-    end
-    
     % Analysis for each day
     for i_date = 1:length(settings.dates_used)
         
@@ -84,14 +80,7 @@ for i_subj=1:length(settings.subjects)
             else
                 fprintf('Create new figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
             end
-            
-            % %=================
-            % % Initialize text file for statistics
-            % f_ext = sprintf ('_%s_%s', neuron_name, settings.stats_file_name);
-            % path1 = get_generate_path_v10(settings, 'figures', f_ext);
-            % fclose('all');
-            % fout = fopen(path1,'w');
-            
+
             %============
             % Psychtoolbox path & file
             path1 = get_generate_path_v10(settings, 'data_combined', '.mat');
@@ -115,11 +104,11 @@ for i_subj=1:length(settings.subjects)
             % Determine which units to use
             units_used = find(~isnan(spikes_init.index_unit));
             if isempty(units_used)
-                fprintf('No neuro units for the date %s detected, skipping analysis for this day\n', num2str(settings.date_current))
+                fprintf('No u folder "%s" for the date %s already exists, skipping analysis\n', settings.figure_folder_name, num2str(settings.date_current))=
             end
             
             % Run analysis for each unit
-            for i_unit = 1 %:numel(units_used)
+            for i_unit = 1:numel(units_used)
                 
                 current_unit = units_used(i_unit);
                 

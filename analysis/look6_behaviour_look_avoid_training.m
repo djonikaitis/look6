@@ -1,9 +1,5 @@
 % Psychophysics performance
 
-% Remove figure folder that was created by default
-try
-    rmdir(path_fig, 's')
-end
 
 % Initialize matrices on recorded first date
 if i_date==1

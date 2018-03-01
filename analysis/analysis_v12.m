@@ -16,7 +16,7 @@ settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'after';
+settings.data_sessions = 'selected';
 
 % which setup?
 % 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
@@ -155,13 +155,13 @@ if run_this_section_of_analysis == 1
         look6_analysis_template_behaviour;
     end
    
-%     settings.this_analysis = 1;
-%     settings.overwrite = 1;
-%     if settings.this_analysis==1
-%         settings.function_name = 'look6_behaviour_SRT_bar';
-%         look6_analysis_template_behaviour;
-%     end
-%     
+    settings.this_analysis = 1;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.function_name = 'look6_behaviour_SRT_bar';
+        look6_analysis_template_behaviour;
+    end
+    
 %     settings.this_analysis = 1;
 %     settings.overwrite = 1;
 %     if settings.this_analysis==1
@@ -179,15 +179,15 @@ run_this_section_of_analysis = 0;
 
 if run_this_section_of_analysis == 1
     
-%     % Creates folder "plexon_temp_2" which contains all spikes, events etc
-%     settings.preprocessing_plexon_import = 1;
-%     settings.overwrite = 0; % If 1, runs analysis again even if it was done
-%     if settings.preprocessing_plexon_import == 1
-%         preprocessing_plexon_import_events_and_analog;
-%         preprocessing_plexon_import_spikes_manually_sorted;
-%         settings.this_analysis = 0;
-%     end
-%     
+    % Creates folder "plexon_temp_2" which contains all spikes, events etc
+    settings.preprocessing_plexon_import = 1;
+    settings.overwrite = 0; % If 1, runs analysis again even if it was done
+    if settings.preprocessing_plexon_import == 1
+        preprocessing_plexon_import_events_and_analog;
+        preprocessing_plexon_import_spikes_manually_sorted;
+        settings.this_analysis = 0;
+    end
+    
 %     % Creates folder "plexon_data_combined" which contains all spikes, events etc
 %     settings.preprocessing_plexon_spikes_prep = 1;
 %     settings.overwrite = 0; % If 1, runs analysis again even if it was done
@@ -211,13 +211,14 @@ end
 
 %% Neurophysiology data analysis
 
-run_this_section_of_analysis = 0;
+run_this_section_of_analysis = 1;
 
 if run_this_section_of_analysis == 1
-    
+        
     settings.this_analysis = 1;
     settings.overwrite = 1;
     if settings.this_analysis==1
+        settings.temp1_data_folder = 'data_combined_plexon';
         settings.function_name = 'look6_spikes_task_timecourse';
         look6_analysis_template_individual_units;
     end
@@ -225,11 +226,33 @@ if run_this_section_of_analysis == 1
     settings.this_analysis = 1;
     settings.overwrite = 1;
     if settings.this_analysis==1
+        settings.temp1_data_folder = 'data_combined_plexon';
         settings.function_name = 'look6_spikes_orientation_timecourse';
         look6_analysis_template_individual_units;
     end
     
-    %         look6_analysis_orientation_profile;
-    %         look6_analysis_dual_orientation_timecourse;
+    settings.this_analysis = 1;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.temp1_data_folder = 'data_combined_plexon';
+        settings.function_name = 'look6_spikes_dual_orientation_timecourse';
+        look6_analysis_template_individual_units;
+    end
+    
+    settings.this_analysis = 1;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.temp1_data_folder = 'data_combined_plexon';
+        settings.function_name = 'look6_spikes_orientation_profile';
+        look6_analysis_template_individual_units;
+    end
+    
+    settings.this_analysis = 1;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.temp1_data_folder = 'data_combined_plexon';
+        settings.function_name = 'look6_spikes_summary_scatter';
+        look6_analysis_template_individual_units;
+    end
     
 end

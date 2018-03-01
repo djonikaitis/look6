@@ -1,10 +1,5 @@
 % Psychophysics performance
 
-% Remove figure folder that was created by default
-try
-    rmdir(path_fig, 's')
-end
-
 
 % Get current training conditions
 c1 = unique(S.esetup_exp_version);

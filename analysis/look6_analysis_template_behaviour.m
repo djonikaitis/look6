@@ -1,10 +1,13 @@
 % Plots spike rasters for different stimulus background colors
 
 % Show file you are running
-p1 = mfilename;
+
+% p1 = mfilename;
+p1 = settings.function_name;
 fprintf('\n=========\n')
-fprintf('Current file:  %s\n', p1)
+fprintf('Current data analysis file:  %s\n', p1)
 fprintf('=========\n')
+
 
 % Loading the files needed
 if ~exist('settings', 'var')
@@ -49,6 +52,9 @@ for i_subj=1:length(settings.subjects)
     
     % Which dates to run?
     settings.dates_used = get_dates_used_v10 (settings, settings.temp1_data_folder);
+    if isempty( settings.dates_used)
+        fprintf('No dates for the specified range detected, skipping analysis\n')
+    end
     
     % Analysis for each day
     for i_date = 1:length(settings.dates_used)
