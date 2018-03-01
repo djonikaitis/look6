@@ -20,7 +20,7 @@ settings.data_sessions = 'selected';
 
 % which setup?
 % 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
-settings.exp_setup = 'dj laptop';
+settings.exp_setup = 'dj office';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -36,7 +36,7 @@ run_this_section_of_analysis = 0;
 if run_this_section_of_analysis == 1
     
     % Connect to server and import data from it
-    settings.this_analysis = 0;
+    settings.this_analysis = 1;
     if settings.this_analysis == 1
         settings.server_overwrite = 0;
         settings.data_direction = 'download';
@@ -130,7 +130,8 @@ end
 
 %% Behavioural data analysis
 
-run_this_section_of_analysis = 1;
+
+run_this_section_of_analysis = 0;
 
 if run_this_section_of_analysis == 1
     
@@ -175,35 +176,32 @@ end
 
 %% Import plexon files
 
-run_this_section_of_analysis = 0;
+run_this_section_of_analysis = 1;
 
 if run_this_section_of_analysis == 1
     
     % Creates folder "plexon_temp_2" which contains all spikes, events etc
-    settings.preprocessing_plexon_import = 1;
-    settings.overwrite = 0; % If 1, runs analysis again even if it was done
-    if settings.preprocessing_plexon_import == 1
+    settings.this_analysis = 1;
+    settings.overwrite = 1; % If 1, runs analysis again even if it was done
+    if settings.this_analysis == 1
         preprocessing_plexon_import_events_and_analog;
         preprocessing_plexon_import_spikes_manually_sorted;
-        settings.this_analysis = 0;
     end
     
 %     % Creates folder "plexon_data_combined" which contains all spikes, events etc
-%     settings.preprocessing_plexon_spikes_prep = 1;
+%     settings.this_analysis = 1;
 %     settings.overwrite = 0; % If 1, runs analysis again even if it was done
-%     if settings.preprocessing_plexon_spikes_prep == 1
+%     if settings.this_analysis == 1
 %         look6_preprocessing_plexon_spikes_prep;
-%         settings.this_analysis = 0;
 %     end
 %     
 %     % Match plexon events with psychtoolbox events. Creates matrix
 %     % events_matched
-%     settings.preprocessing_plexon_match_events = 1;
+%     settings.this_analysis = 1;
 %     settings.overwrite = 0; % If 1, runs analysis again even if it was done
-%     if settings.preprocessing_plexon_match_events == 1
+%     if settings.this_analysis == 1
 %         look6_preprocessing_plexon_match_events;
 %         look6_preprocessing_plexon_match_events_plot;
-%         settings.this_analysis = 0;
 %     end
     
 end
@@ -211,7 +209,7 @@ end
 
 %% Neurophysiology data analysis
 
-run_this_section_of_analysis = 1;
+run_this_section_of_analysis = 0;
 
 if run_this_section_of_analysis == 1
         

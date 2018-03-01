@@ -1,6 +1,6 @@
 % Extract plexon events and plexon analog signal.
 % Requires to modify this file according to data storage properties
-% Latest revision - January 10, 2018
+% Latest revision - March 1, 2018
 % Donatas Jonikaitis
 
 % Show file you are running
@@ -23,18 +23,21 @@ for i_subj=1:length(settings.subjects)
     % Select curent subject
     settings.subject_current = settings.subjects{i_subj};
     
-    % Get subject folder paths and dates to analyze
-    f1 = 'path_data_plexon_temp_1_subject';
-    settings = get_settings_path_and_dates_ini_v11(settings, f1);
-    dates_used = settings.data_sessions_to_analyze;
-    p1 = settings.(f1);
+    % Which dates to run?
+    data_folder_name = 'data_plexon_raw';
+    if strcmp(data_folder_name, 'data_plexon_raw')
+        fprintf('Will import unsorted spikes only, sorting option not seleccted\n')
+    end
+    settings.dates_used = get_dates_used_v10 (settings, data_folder_name);
     
     % Analysis for each day
-    for i_date = 1:numel(dates_used)
+    for i_date = 1:numel(settings.dates_used)
         
-        % Current folder to be analysed (raw date, with session index)
-        date_current = dates_used(i_date);
-        sessions_used = find(date_current==settings.index_dates);
+        % Which date is it
+        settings.date_current = settings.dates_used(i_date);
+        
+        % How many sessions are used?
+        sessions_used = get_sessions_used_v10(settings, data_folder_name);
         
         % Do analysis for each desired session
         % No changes needed for this section
@@ -43,48 +46,51 @@ for i_subj=1:length(settings.subjects)
             % Which recorded to use
             session_ind = sessions_used(i_session);
             
-            % Folder name to be used
-            folder_name = settings.index_directory{session_ind};
-            
-            clear var1; clear var2; clear var3;
-            
             %================
             % Input file
-            path_in = [p1, folder_name, '/' folder_name, '.pl2'];
+            if ~isnan(session_ind)
+                [path_in, ~, file_name_in] = get_generate_path_v10(settings, data_folder_name, '.pl2', session_ind);
+            else
+                [path_in, ~, file_name_in] = get_generate_path_v10(settings, data_folder_name, '.pl2');
+            end
+            
+            clear var1; clear var2; clear var3;
             
             %===========
             % Extract all events from pl2 file
             %===========
             
-            % Output
-            f1 = 'path_data_plexon_temp_2_subject';
-            path_out =  [settings.(f1), folder_name, '/'];
-            path1 = [settings.(f1), folder_name, '/' folder_name, '_spikes.mat'];
+            % Output file
+            if ~isnan(session_ind)
+                [path1, path1_short, file_name_out] = get_generate_path_v10(settings, 'data_plexon_temp_2', '_spikes.mat', session_ind);
+            else
+                [path1, path1_short, file_name_out] = get_generate_path_v10(settings, 'data_plexon_temp_2', '_spikes.mat');
+            end
             
             if exist(path_in, 'file') && (~exist(path1, 'file') || settings.overwrite==1)
                 
-                if ~isdir(path_out)
-                    mkdir(path_out);
+                if ~isdir(path1_short)
+                    mkdir(path1_short);
                 end
-                fprintf('Extracting spikes from %s.pl2\n', folder_name);
+                fprintf('Extracting spikes from file "%s"\n', file_name_in);
                 plexon_spikes_v11(path_in, path1); % Script doing import of pl2 file
                 
                 % Load file in in order to combine it later
                 if exist(path1, 'file')
                     var1 = get_struct_v11(path1);
                     if isempty (var1)
-                        fprintf('Failed to extract spikes, file is empty %s\n', folder_name);
+                        fprintf('Failed to extract spikes, file is empty "%s"\n', file_name_out);
                     else
-                        fprintf('Successfully extracted spikes %s\n', folder_name);
+                        fprintf('Successfully extracted spikes "%s"\n', file_name_out);
                     end
                 end
                 
             elseif ~exist(path_in, 'file')
-                fprintf('File "%s.pl2" does not exist for a date %s\n', folder_name, num2str(date_current));
+                fprintf('File "%s" does not exist for a date %s\n', file_name_in);
             elseif exist(path1, 'file') && settings.overwrite==0
-                fprintf('File "%s_spikes.mat" already exists, skipping spike extraction for date %s\n', folder_name, num2str(date_current))
+                fprintf('File "%s" already exists, skipping event extraction for date %s\n', file_name_out)
             else
-                fprintf('Unknown error for pl2 spikes extraction, date %s\n', num2str(date_current))
+                fprintf('Unknown error for pl2 event extraction, date %s\n', num2str(settings.date_current))
             end
             
         end
