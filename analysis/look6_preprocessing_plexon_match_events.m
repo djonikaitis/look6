@@ -2,6 +2,7 @@
 % V1.0 November 1, 2016
 % V1.1 January. Updated to match new coding conventions. Plexon files now
 % are imported session-by-session basis (multiple a day allowed).
+% V1.2 March 1, 2018. Updated path definitions.
 % Donatas Jonikaitis
 
 % Show file you are running
@@ -30,46 +31,30 @@ for i_subj=1:length(settings.subjects)
     
     % Select curent subject
     settings.subject_current = settings.subjects{i_subj};
+    
+    % Which dates to run?
+    data_folder_name = 'data_plexon_temp_2';
+    settings.dates_used = get_dates_used_v10 (settings, data_folder_name);
         
-    % Get info about existing plexon files
-    f1 = 'path_data_plexon_temp_2_subject';
-    settings = get_settings_path_and_dates_ini_v11(settings, f1);
-    p1_plex = settings.(f1);
-    
-    % Get info about psychtoolbox files
-    f1 = 'path_data_combined_subject';
-    settings_psy = get_settings_path_and_dates_ini_v11(settings);
-    p1_psy = settings.(f1);
-    
     clear var1; clear var2; clear var3;
-    
-    % Which dates are used?
-    dates_used = settings.data_sessions_to_analyze;
 
     % Analysis for each day
-    for i_date = 1:numel(dates_used)
+    for i_date = 1:numel(settings.dates_used)
         
         % Which date is it
-        date_current = dates_used(i_date);
+        settings.date_current = settings.dates_used(i_date);
+        
+        % How many sessions are used?
+        sessions_used = get_sessions_used_v10(settings, data_folder_name);
           
         %============
         % Psychtoolbox path
-        ind = date_current==settings_psy.index_dates;
-        folder_name_psy = settings_psy.index_directory{ind};
-        path1_psy = [p1_psy, folder_name_psy, '/', folder_name_psy, '.mat'];
-        
-        % Load psychtoolbox file
+        [path1_psy, ~, file_name_psy] = get_generate_path_v10(settings, 'data_combined', '.mat');
         var1 = get_struct_v11(path1_psy);
         
         %==============
         % Plexon path output
-        f1 = 'path_data_combined_plexon_subject';
-        folder_name_plex = folder_name_psy;
-        path_out_folder =  [settings.(f1), folder_name_plex, '/'];
-        path1_out = [settings.(f1), folder_name_plex, '/' folder_name_plex, '_events_matched.mat'];
-
-        % Current plexon folder to be analysed (multiple sessions)
-        sessions_used = find(date_current==settings.index_dates);
+        [path1_out, path1_out_short, file_name_out] = get_generate_path_v10(settings, 'data_combined_plexon', '_events_matched.mat');
         
         % Initialize output fields with matched events
         dset1_fields.msg1_recorded_stamps = NaN(numel(var1.(dset1_fields.session)), 1);
@@ -79,22 +64,27 @@ for i_subj=1:length(settings.subjects)
         % Do analysis for each session
         for i_session = 1:numel(sessions_used)
             
-            %==============
-            % Plexon path input
-            ind = sessions_used(i_session);
-            folder_name = settings.index_directory{ind};
-            path1_in = [p1_plex, folder_name, '/' folder_name, '_events.mat'];
-            
+            % Which recorded session to use
+            if numel(sessions_used)>1
+                session_ind = sessions_used(i_session);
+            else
+                session_ind = [];
+            end
+                               
+            %================
+            % Input file
+            [path1_in, ~, file_name_in] = get_generate_path_v10(settings, data_folder_name, '_events.mat', session_ind);
+                
             %================
             % Match events
             %================
             
             if ~isempty(var1) && exist(path1_in, 'file') && (~exist(path1_out, 'file') || settings.overwrite==1)
                 
-                if ~isdir(path_out_folder)
-                    mkdir(path_out_folder);
+                if ~isdir(path1_out_short)
+                    mkdir(path1_out_short);
                 end
-                fprintf('\nImporting plexon events file "%s_events.mat" and matching with psychtoolbox recording\n', folder_name)
+                fprintf('\nImporting plexon events file "%s" and matching with psychtoolbox recording\n', file_name_in)
                 clear plex;
                 
                 % Load plexon events file
@@ -126,11 +116,11 @@ for i_subj=1:length(settings.subjects)
                 
                   
             elseif isempty(var1)
-                fprintf('Psychtoolbox data file "%s.mat" does not exist for a date %s\n', folder_name_psy, num2str(date_current));
+                fprintf('Psychtoolbox data file "%s" does not exist, no event matching performed\n', file_name_psy);
             elseif ~exist(path1_in, 'file')
-                fprintf('File "%s.mat" does not exist for a date %s\n', folder_name, num2str(date_current));
+                fprintf('Plexon events file "%s" does not exist, no event matching performed\n', file_name_in);
             elseif exist(path1_out, 'file') && settings.overwrite==0
-                fprintf('File "%s_events_matched.mat" already exists, skipping event matching for date %s\n', folder_name_plex, num2str(date_current))
+                fprintf('File "%s" already exists, skipping event matching for given date\n', file_name_out)
             else
                 fprintf('Unknown error for event matching, date %s\n', num2str(date_current))
             end
@@ -149,7 +139,7 @@ for i_subj=1:length(settings.subjects)
         % Check that matching events did not fail:
         a = ~isnan(plex.msg_1); b=~isnan(plex.msg_2);
         if sum(a)>0 && sum(b)>0
-            save (eval('path1_out'), 'plex')
+            save (path1_out, 'plex')
             fprintf('Plexon events matched and saved successfully\n')
         else
             fprintf('Failed to find any plexon events, no data saved\n\n')
@@ -163,55 +153,3 @@ for i_subj=1:length(settings.subjects)
 end
 % Pre-processng for each subject is over
 
-
-%% Analog data
-
-%             
-% %         else  % Read out of analog signal (if used)
-% %             
-% %             file_name_plex = [folder_name,'_analog_AI01'];
-% %             path_in_plex = sprintf('%s%s/%s.mat', settings.path_data_combined_plexon_subject, folder_name, file_name_plex);
-% %             
-% %             % If processed analog signal does not exist
-% %             if ~exist(path_in_plex, 'file')
-% %                 
-% %                 % Load original analog file 
-% %                 f1 = [folder_name,'_analog'];
-% %                 path1 = sprintf('%s%s/%s.mat', settings.path_data_combined_plexon_subject, folder_name, f1);
-% %                 if exist(path1, 'file')
-% %                     
-% %                     % Load file
-% %                     var1 = struct; varx = struct;
-% %                     varx = load(path1);
-% %                     f1 = fieldnames(varx);
-% %                     if length(f1)==1
-% %                         var1 = varx.(f1{1});
-% %                     end
-% %                     
-% %                     % Extract refresh info out of raw analog signal
-% %                     ch_n = 1; % Which saved channel is used
-% %                     ai01 =  preprocessing_plexon_get_events_AI01_v10 (var1, ch_n);
-% %                     
-% %                     % Save the output of the conversion
-% %                     if ~isempty(fieldnames(ai01))
-% %                         save (eval('path_in_plex'), 'ai01')
-% %                     end
-% %                     
-% %                 else
-% %                     % File wont be loadad
-% %                 end
-% %             end
-
-%                 
-%                 %================
-%                 % Reading out analog signal
-%                 %================
-%                 
-%                 if isfield(plexon_ev, 'refresh_rates')
-%                     
-% %                     % Initialize variables of interest
-% %                     psy1 = var1.eyelink_events.first_display;
-% %                     sp1 = plexon_ev.time2';
-% %                     ses1 = var1.session;
-% %                     y = preprocessing_match_plexon_events_v10(psy1, sp1, ses1); % Y is new field which contains matched time stamps
-% %                     plex.msg_1 = y;

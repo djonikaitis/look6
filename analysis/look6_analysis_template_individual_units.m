@@ -119,7 +119,7 @@ for i_subj=1:length(settings.subjects)
             end
             
             % Run analysis for each unit
-            for i_unit = 1 %:numel(units_used)
+            for i_unit = 1:numel(units_used)
                 
                 current_unit = units_used(i_unit);
                 

@@ -31,7 +31,7 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 % This step should be default for most experiments
 % Data is not analysed, only combined
 
-run_this_section_of_analysis = 0;
+run_this_section_of_analysis = 1;
 
 if run_this_section_of_analysis == 1
     
@@ -41,8 +41,8 @@ if run_this_section_of_analysis == 1
         settings.server_overwrite = 0;
         settings.data_direction = 'download';
         settings.server_folders_include = {};
-        settings.server_folders_include{1} = 'data_eyelink_edf';
-        settings.server_folders_include{2} = 'data_psychtoolbox';
+        settings.server_folders_include{1} = 'data_plexon_temp_2';
+%         settings.server_folders_include{2} = 'data_psychtoolbox';
         % Run code
         preprocessing_data_import_server_v23(settings);
     end
@@ -66,7 +66,7 @@ end
 
 %% Preprocessing: prepare combined folder, convert eylink data into degrees, do drift correction
 
-run_this_section_of_analysis = 0;
+run_this_section_of_analysis = 1;
 
 if run_this_section_of_analysis == 1
     
@@ -108,7 +108,7 @@ end
 
 %% Preprocessing: detect and plot saccades
 
-run_this_section_of_analysis = 0;
+run_this_section_of_analysis = 1;
 
 if run_this_section_of_analysis == 1
     
@@ -120,9 +120,9 @@ if run_this_section_of_analysis == 1
     end
     
     % Plot eye traces for manual inspection
-    settings.this_analysis = 1;
+    settings.this_analysis = 0;
     if settings.this_analysis == 1
-        settings.overwrite = 1;
+        settings.overwrite = 0;
         look6_preprocessing_plot_saccades_raw;
     end
     
@@ -181,35 +181,35 @@ run_this_section_of_analysis = 1;
 if run_this_section_of_analysis == 1
     
     % Creates folder "plexon_temp_2" which contains all spikes, events etc
-    settings.this_analysis = 1;
+    settings.this_analysis = 0;
     settings.overwrite = 1; % If 1, runs analysis again even if it was done
     if settings.this_analysis == 1
         preprocessing_plexon_import_events_and_analog;
         preprocessing_plexon_import_spikes_manually_sorted;
     end
     
-%     % Creates folder "plexon_data_combined" which contains all spikes, events etc
-%     settings.this_analysis = 1;
-%     settings.overwrite = 0; % If 1, runs analysis again even if it was done
-%     if settings.this_analysis == 1
-%         look6_preprocessing_plexon_spikes_prep;
-%     end
-%     
-%     % Match plexon events with psychtoolbox events. Creates matrix
-%     % events_matched
-%     settings.this_analysis = 1;
-%     settings.overwrite = 0; % If 1, runs analysis again even if it was done
-%     if settings.this_analysis == 1
-%         look6_preprocessing_plexon_match_events;
+    % Creates folder "plexon_data_combined" which contains all spikes, events etc
+    settings.this_analysis = 1;
+    settings.overwrite = 1; % If 1, runs analysis again even if it was done
+    if settings.this_analysis == 1
+        look6_preprocessing_plexon_spikes_prep;
+    end
+    
+    % Match plexon events with psychtoolbox events. Creates matrix
+    % events_matched
+    settings.this_analysis = 1;
+    settings.overwrite = 1; % If 1, runs analysis again even if it was done
+    if settings.this_analysis == 1
+        look6_preprocessing_plexon_match_events;
 %         look6_preprocessing_plexon_match_events_plot;
-%     end
+    end
     
 end
 
 
 %% Neurophysiology data analysis
 
-run_this_section_of_analysis = 0;
+run_this_section_of_analysis = 1;
 
 if run_this_section_of_analysis == 1
         

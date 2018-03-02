@@ -1,7 +1,7 @@
 % Prepare each figure
 
 
-for fig1 = 2:8
+for fig1 = 1:8
     
     fprintf('Preparing figure %s\n', num2str(fig1))
     

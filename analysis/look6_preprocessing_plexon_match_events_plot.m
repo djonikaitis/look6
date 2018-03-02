@@ -62,7 +62,7 @@ for i_subj=1:length(settings.subjects)
         clear var1; clear var2; clear var3;
         
         % Which date is it
-        date_current = dates_used(i_date);
+        settings.date_current = dates_used(i_date);
         
         %============
         % Psychtoolbox file path & file
