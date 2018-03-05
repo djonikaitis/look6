@@ -29,7 +29,7 @@ overwrite_temp_index{7} = 20170817:20170831;
 overwrite_temp_index{8} = 20160101:20171231;
 
 % rename probe_extended_map into text from numbers
-overwrite_temp_index{9} = 20160101:20180215;
+overwrite_temp_index{9} = 20160101:20180220;
 
 %% Recode block_cond from numbers into words
 

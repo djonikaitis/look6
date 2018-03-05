@@ -1,0 +1,28 @@
+
+a = cell(1);
+a{1} = 'esetup_exp_version';
+
+for i = 1:numel(a)
+    if isfield (S, a{i})
+        b = unique(S.(a{i}));
+        if iscell(b)
+            for j = 1:numel(b)
+                targettext='Field "%s", variable detected: %s';
+                fprintf(targettext, a{i}, b{j});
+                fprintf(fout, targettext, a{i}, b{j});
+            end
+        elseif isdouble(b)
+            targettext='Field "%s", variable detected: %s';
+            fprintf(targettext, a{i}, num2str(b(j)) );
+            fprintf(fout, targettext, a{i}, num2str(b(j)) );
+        else
+        end
+    else
+        % No field exists
+        targettext='Field "%s" does not exist!';
+        fprintf(targettext, a{i});
+        fprintf(fout, targettext, a{i}, num2str(b(j)) );
+    end
+end
+
+

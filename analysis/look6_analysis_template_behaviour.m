@@ -1,45 +1,49 @@
 % Plots spike rasters for different stimulus background colors
 
-% Show file you are running
+%% INI
 
+% Is function name defined?
+if isfield (settings, 'function_name')
+    % OK
+else
+    error('No function_name provided, can not run the code');
+end
+
+% Show the file you are running
 % p1 = mfilename;
 p1 = settings.function_name;
 fprintf('\n=========\n')
 fprintf('Current data analysis file:  %s\n', p1)
 fprintf('=========\n')
 
-
-% Loading the files needed
+% Initialize settings
 if ~exist('settings', 'var')
     settings = struct;
 end
 settings = get_settings_ini_v10(settings);
 
-
-%% Figure folder name
-
-if isfield (settings, 'function_name') && ~isfield (settings, 'figure_folder_name')
-    
-    % Extract figure folder name
-    a = settings.function_name;
-    m = numel(settings.exp_name);
-    if strncmp(a, settings.function_name, m)
-        b = settings.function_name(m+2:end);
-    end
-    
-    % Create figure folder name
-    if numel(b)>0
-        settings.figure_folder_name = b;
-    else
-        a = 'undefined_figure';
-        fprintf('\nNo figure folder name defined, initializing default "%s"\n', a);
-        settings.figure_folder_name = a;
-    end
-    
-end
-
+% Data folder
 if ~isfield (settings, 'temp1_data_folder')
     settings.temp1_data_folder = 'data_combined';
+end
+
+%% Figure/stats folder name
+
+% Figure folder name
+a = settings.function_name;
+m = numel(settings.exp_name);
+if strncmp(a, settings.function_name, m)
+    b = settings.function_name(m+2:end);
+else
+    b = settings.function_name(1:end);
+end
+
+if numel(b)>0
+    settings.figure_folder_name = b;
+else
+    a = 'undefined_figure';
+    fprintf('\nNo figure folder name defined, initializing default "%s"\n', a);
+    settings.figure_folder_name = a;
 end
 
 
@@ -87,6 +91,13 @@ for i_subj=1:length(settings.subjects)
                 fprintf('Create new figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
             end
             
+            %=================
+            % Initialize text file for statistics
+            f_ext = sprintf ('_stats.txt');
+            path1 = get_generate_path_v10(settings, 'figures', f_ext);
+            fclose('all');
+            fout = fopen(path1,'w');
+            
             %============
             % Psychtoolbox path & file
             path1 = get_generate_path_v10(settings, 'data_combined', '.mat');
@@ -100,7 +111,9 @@ for i_subj=1:length(settings.subjects)
             
             %% DO YOUR ANALYSIS HERE
             
-            eval(settings.function_name)
+            if ~isempty(S)
+                eval(settings.function_name)
+            end
             
             
         else

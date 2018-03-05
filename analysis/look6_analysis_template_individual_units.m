@@ -1,42 +1,51 @@
 % Plots spike rasters for different neurons/days
 
+%% INI
+
+% Is function name defined?
+if isfield (settings, 'function_name')
+    % OK
+else
+    error('No function_name provided, can not run the code');
+end
+
+% Show the file you are running
 % p1 = mfilename;
 p1 = settings.function_name;
 fprintf('\n=========\n')
 fprintf('Current data analysis file:  %s\n', p1)
 fprintf('=========\n')
 
-% Loading the files needed
+% Initialize settings
 if ~exist('settings', 'var')
     settings = struct;
 end
 settings = get_settings_ini_v10(settings);
 
 
-%% Extra settings
-
-if isfield (settings, 'function_name') && ~isfield (settings, 'figure_folder_name')
-    
-    % Extract figure folder name
-    a = settings.function_name;
-    m = numel(settings.exp_name);
-    if strncmp(a, settings.function_name, m)
-        b = settings.function_name(m+2:end);
-    end
-    
-    % Create figure folder name
-    if numel(b)>0
-        settings.figure_folder_name = b;
-    else
-        a = 'undefined_figure';
-        fprintf('\nNo figure folder name defined, initializing default "%s"\n', a);
-        settings.figure_folder_name = a;
-    end  
-    
-end
-
+% Data folder
 if ~isfield (settings, 'temp1_data_folder')
     settings.temp1_data_folder = 'data_combined_plexon';
+end
+
+
+%% Figure/stats folder name
+
+% Figure folder name
+a = settings.function_name;
+m = numel(settings.exp_name);
+if strncmp(a, settings.function_name, m)
+    b = settings.function_name(m+2:end);
+else
+    b = settings.function_name(1:end);
+end
+
+if numel(b)>0
+    settings.figure_folder_name = b;
+else
+    a = 'undefined_figure';
+    fprintf('\nNo figure folder name defined, initializing default "%s"\n', a);
+    settings.figure_folder_name = a;
 end
 
 
@@ -85,13 +94,6 @@ for i_subj=1:length(settings.subjects)
                 fprintf('Create new figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
             end
             
-            % %=================
-            % % Initialize text file for statistics
-            % f_ext = sprintf ('_%s_%s', neuron_name, settings.stats_file_name);
-            % path1 = get_generate_path_v10(settings, 'figures', f_ext);
-            % fclose('all');
-            % fout = fopen(path1,'w');
-            
             %============
             % Psychtoolbox path & file
             path1 = get_generate_path_v10(settings, 'data_combined', '.mat');
@@ -125,8 +127,8 @@ for i_subj=1:length(settings.subjects)
                 
                 % Prepare unit name
                 neuron_name = ['ch', num2str(spikes_init.index_channel(i_unit)), '_u',  num2str(spikes_init.index_unit(i_unit))];
-                fprintf('Working on analysis for the unit %s\n', neuron_name)
-
+                fprintf('\nWorking on analysis for the unit %s\n', neuron_name)
+                
                 %=================
                 % Load spikes data
                 path1 = spikes_init.index_path{current_unit};

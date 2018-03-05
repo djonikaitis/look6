@@ -12,11 +12,11 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % use subject initials for one subject or 'all' to run all subjects
-settings.subjects = 'hb';
+settings.subjects = 'aq';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'selected';
+settings.data_sessions = 'all';
 
 % which setup?
 % 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
@@ -31,7 +31,7 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 % This step should be default for most experiments
 % Data is not analysed, only combined
 
-run_this_section_of_analysis = 1;
+run_this_section_of_analysis = 0;
 
 if run_this_section_of_analysis == 1
     
@@ -72,7 +72,7 @@ if run_this_section_of_analysis == 1
     
     % Combine settings and saccades files into one file;
     % reset saccades to degrees of visual angle; do drift correction
-    settings.this_analysis = 1;
+    settings.this_analysis = 0;
     if settings.this_analysis == 1
         settings.overwrite = 1; % If 1, runs analysis again even if it was done
         preprocessing_eyelink_conversion_v15(settings);
@@ -105,10 +105,18 @@ end
 %     end
 % end
 
+%% Check that experimental files are all compatible
+
+settings.this_analysis = 1;
+if settings.this_analysis == 1
+    settings.overwrite = 1;
+    settings.function_name = 'look6_preprocessing_checking_data_variables';
+    look6_analysis_template_behaviour;
+end
 
 %% Preprocessing: detect and plot saccades
 
-run_this_section_of_analysis = 1;
+run_this_section_of_analysis = 0;
 
 if run_this_section_of_analysis == 1
     
@@ -176,7 +184,7 @@ end
 
 %% Import plexon files
 
-run_this_section_of_analysis = 1;
+run_this_section_of_analysis = 0;
 
 if run_this_section_of_analysis == 1
     
