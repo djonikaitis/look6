@@ -9,6 +9,10 @@ overwrite_temp_index{2} = 20171221;
 % Convert look5 files into look6 format
 overwrite_temp_index{3} = 20160101:20171231;
 
+% Add field 'probe_extended_map' which depends on whether plexon recording
+% happened or not
+overwrite_temp_index{4} = 20170817:20171112;
+
 %% Fixation offset time bug
 
 if settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_temp_index{1}(1) && settings.date_current <= overwrite_temp_index{1}(end)
@@ -137,15 +141,13 @@ if settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_tem
         end
         
         % probe_extended_map
-        if isfield (var0, 'exp_version')
-            if var1.general.record_plexon==1
-                var0.probe_extended_map = 0; % Recording
-            else
-                var0.probe_extended_map = -1; % Psychophysics
-            end
-            var0 = rmfield(var0, 'exp_version');
+        if var1.general.record_plexon==1
+            var0.probe_extended_map = 0; % Recording
         else
-            var0.probe_extended_map = -1; % Unknown
+            var0.probe_extended_map = -1; % Psychophysics
+        end
+        if isfield (var0, 'exp_version')
+            var0 = rmfield(var0, 'exp_version');
         end
         
         % probe_spacing_arc
@@ -1115,6 +1117,29 @@ if settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_tem
         %% Save output
         
         var1.stim = var0;
+        
+    end
+end
+
+
+%% Added field probe_extended_map
+
+if settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_temp_index{4}(1) && settings.date_current <= overwrite_temp_index{4}(end)
+    if strcmp(var1.general.expname, 'look6')
+        
+        v1 = 'probe_extended_map';
+        
+        % probe_extended_map
+        if ~isfield (var1.stim, v1)
+            fprintf('Adding a field "%s" \n', v1)
+            if var1.general.record_plexon==1
+                var1.stim.(v1) = 0; % Recording
+            else
+                var1.stim.(v1) = 1; % Psychophysics
+            end
+        else
+            fprintf('Field "%s" already exists, no changes written\n', v1)
+        end
         
     end
 end

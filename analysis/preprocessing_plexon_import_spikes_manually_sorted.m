@@ -86,11 +86,11 @@ for i_subj=1:length(settings.subjects)
                 end
                 
             elseif ~exist(path_in, 'file')
-                fprintf('File "%s" does not exist for a date %s\n', file_name_in);
+                fprintf('File "%s" does not exist\n', file_name_in);
             elseif exist(path1, 'file') && settings.overwrite==0
-                fprintf('File "%s" already exists, skipping event extraction for date %s\n', file_name_out)
+                fprintf('File "%s" already exists, skipping spike extraction\n', file_name_out)
             else
-                fprintf('Unknown error for pl2 event extraction, date %s\n', num2str(settings.date_current))
+                fprintf('Unknown error for pl2 spike extraction, date %s\n', num2str(settings.date_current))
             end
             
         end

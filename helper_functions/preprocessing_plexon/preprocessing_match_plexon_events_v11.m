@@ -46,7 +46,7 @@ for s1 = 1:max(ses1)
         
         % Check whether threshold of accuracy is achieved
         ind_plex = find(c2<ms_dur);
-        
+                
         if length(ind_plex)==0 % If failed to find match
             ind_psych=ind_psych+1; % Update index to check further set of trials
         elseif length(ind_plex)>1 % If found too many matching trials
@@ -56,8 +56,6 @@ for s1 = 1:max(ses1)
         end
     end
     % End of trying to find psych trials to match plex events
-    
-    
     
     %% Check for match between psych and plex for each trial within session
     
@@ -72,31 +70,35 @@ for s1 = 1:max(ses1)
                 
             %==============
             % If match was found
-            if abs(diff_psy1(tid)-diff_sp1(ind_plex)) <= ms_dur % If inter-trial difference is withing error limits, save both trials constituting that difference
-                evt0(tid:tid+1) = sp1(ind_plex:ind_plex+1); % Save data from plexon events
-                ind_plex = ind_plex+1; % Remove first plex evt timing
-                                
-                
-                %===============
-                % Deal with option 1 by advancing to next psychtoolbox
-                % trial, without updating ind_plex
-            elseif diff_psy1(tid)-diff_sp1(ind_plex) < -ms_dur
-                % It will upate psych trial index automatically
-                
-                
-                %================
-                % Deal with option 2 - skip current plexon event until
-                % difference is lower than threshold
-            elseif diff_psy1(tid)-diff_sp1(ind_plex) > ms_dur
-                
-                while (diff_psy1(tid)-diff_sp1(ind_plex) > ms_dur) && (ind_plex <= length(diff_sp1))
-                    ind_plex = ind_plex+1;
-                end
-                if abs(diff_psy1(tid)-diff_sp1(ind_plex)) <= ms_dur % If inter-trial difference is withing error limits, save both trials constituting that difference
+            
+            if ind_plex <= length(diff_sp1)
+                if  abs(diff_psy1(tid)-diff_sp1(ind_plex)) <= ms_dur % If inter-trial difference is withing error limits, save both trials constituting that difference
                     evt0(tid:tid+1) = sp1(ind_plex:ind_plex+1); % Save data from plexon events
                     ind_plex = ind_plex+1; % Remove first plex evt timing
+                    
+                    
+                    %===============
+                    % Deal with option 1 by advancing to next psychtoolbox
+                    % trial, without updating ind_plex
+                elseif diff_psy1(tid)-diff_sp1(ind_plex) < -ms_dur
+                    % It will upate psych trial index automatically
+                    
+                    
+                    %================
+                    % Deal with option 2 - skip current plexon event until
+                    % difference is lower than threshold
+                elseif diff_psy1(tid)-diff_sp1(ind_plex) > ms_dur
+                    
+                    while ind_plex < length(diff_sp1) && diff_psy1(tid)-diff_sp1(ind_plex) > ms_dur
+                        ind_plex = ind_plex+1;
+                    end
+                    if ind_plex <= length(diff_sp1) && abs(diff_psy1(tid)-diff_sp1(ind_plex)) <= ms_dur % If inter-trial difference is withing error limits, save both trials constituting that difference
+                        evt0(tid:tid+1) = sp1(ind_plex:ind_plex+1); % Save data from plexon events
+                        ind_plex = ind_plex+1; % Remove first plex evt timing
+                    end
                 end
             end
+            
         end
         % End of analysis for each recorded trial
         

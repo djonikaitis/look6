@@ -12,17 +12,25 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % use subject initials for one subject or 'all' to run all subjects
-settings.subjects = 'aq';
+settings.subjects = 'all';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
 settings.data_sessions = 'all';
 
 % which setup?
-% 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
+% 'unknown', 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
 settings.exp_setup = 'dj office';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
+
+% Select analysis to run:
+analysis_edf_and_psych_data_import = 0;
+analysis_eyelink_drift_and_conversion = 0;
+analysis_detect_saccades = 0;
+analysis_behaviour_srt_plots = 0;
+analysis_import_plexon_files = 0;
+analysis_spikes_timecourse = 0;
 
 
 %% Preprocessing: import data into usable format
@@ -31,18 +39,17 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 % This step should be default for most experiments
 % Data is not analysed, only combined
 
-run_this_section_of_analysis = 0;
-
-if run_this_section_of_analysis == 1
+if analysis_edf_and_psych_data_import == 1
     
     % Connect to server and import data from it
-    settings.this_analysis = 1;
+    settings.this_analysis = 0;
     if settings.this_analysis == 1
         settings.server_overwrite = 0;
         settings.data_direction = 'download';
         settings.server_folders_include = {};
-        settings.server_folders_include{1} = 'data_plexon_temp_2';
-%         settings.server_folders_include{2} = 'data_psychtoolbox';
+        settings.server_folders_include{1} = 'data_eyelink_edf';
+        settings.server_folders_include{2} = 'data_psychtoolbox';
+        settings.server_folders_include{3} = 'data_plexon_temp_2';
         % Run code
         preprocessing_data_import_server_v23(settings);
     end
@@ -50,13 +57,13 @@ if run_this_section_of_analysis == 1
     % Modify raw settings file for bugs (only bugs are fixed)
     settings.this_analysis = 1;
     if settings.this_analysis == 1
-        settings.overwrite = 1;
+        settings.overwrite = 0;
         preprocessing_overwrite_raw_settings_v11(settings);
     end
     
     % Import .mat and .edf files into one folder
     settings.this_analysis = 1;
-    settings.overwrite = 1;
+    settings.overwrite = 0;
     if settings.this_analysis == 1
         preprocessing_import_psych_and_edf_v14(settings);
     end
@@ -66,13 +73,11 @@ end
 
 %% Preprocessing: prepare combined folder, convert eylink data into degrees, do drift correction
 
-run_this_section_of_analysis = 1;
-
-if run_this_section_of_analysis == 1
+if analysis_eyelink_drift_and_conversion == 1
     
     % Combine settings and saccades files into one file;
     % reset saccades to degrees of visual angle; do drift correction
-    settings.this_analysis = 0;
+    settings.this_analysis = 1;
     if settings.this_analysis == 1
         settings.overwrite = 1; % If 1, runs analysis again even if it was done
         preprocessing_eyelink_conversion_v15(settings);
@@ -109,16 +114,16 @@ end
 
 settings.this_analysis = 1;
 if settings.this_analysis == 1
-    settings.overwrite = 1;
+    settings.overwrite = 0;
     settings.function_name = 'look6_preprocessing_checking_data_variables';
     look6_analysis_template_behaviour;
 end
 
+
 %% Preprocessing: detect and plot saccades
 
-run_this_section_of_analysis = 0;
 
-if run_this_section_of_analysis == 1
+if analysis_detect_saccades == 1
     
     % Detect saccades
     settings.this_analysis = 1;
@@ -139,9 +144,7 @@ end
 %% Behavioural data analysis
 
 
-run_this_section_of_analysis = 0;
-
-if run_this_section_of_analysis == 1
+if analysis_behaviour_srt_plots == 1
     
     settings.this_analysis = 1;
     settings.overwrite = 1;
@@ -184,13 +187,12 @@ end
 
 %% Import plexon files
 
-run_this_section_of_analysis = 0;
 
-if run_this_section_of_analysis == 1
+if analysis_import_plexon_files == 1
     
     % Creates folder "plexon_temp_2" which contains all spikes, events etc
-    settings.this_analysis = 0;
-    settings.overwrite = 1; % If 1, runs analysis again even if it was done
+    settings.this_analysis = 1;
+    settings.overwrite = 0; % If 1, runs analysis again even if it was done
     if settings.this_analysis == 1
         preprocessing_plexon_import_events_and_analog;
         preprocessing_plexon_import_spikes_manually_sorted;
@@ -209,7 +211,7 @@ if run_this_section_of_analysis == 1
     settings.overwrite = 1; % If 1, runs analysis again even if it was done
     if settings.this_analysis == 1
         look6_preprocessing_plexon_match_events;
-%         look6_preprocessing_plexon_match_events_plot;
+        look6_preprocessing_plexon_match_events_plot;
     end
     
 end
@@ -217,9 +219,8 @@ end
 
 %% Neurophysiology data analysis
 
-run_this_section_of_analysis = 1;
 
-if run_this_section_of_analysis == 1
+if analysis_spikes_timecourse == 1
         
     settings.this_analysis = 1;
     settings.overwrite = 1;
@@ -229,7 +230,7 @@ if run_this_section_of_analysis == 1
         look6_analysis_template_individual_units;
     end
     
-    settings.this_analysis = 1;
+    settings.this_analysis = 0;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';
@@ -237,7 +238,7 @@ if run_this_section_of_analysis == 1
         look6_analysis_template_individual_units;
     end
     
-    settings.this_analysis = 1;
+    settings.this_analysis = 0;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';
@@ -245,7 +246,7 @@ if run_this_section_of_analysis == 1
         look6_analysis_template_individual_units;
     end
     
-    settings.this_analysis = 1;
+    settings.this_analysis = 0;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';
@@ -253,7 +254,7 @@ if run_this_section_of_analysis == 1
         look6_analysis_template_individual_units;
     end
     
-    settings.this_analysis = 1;
+    settings.this_analysis = 0;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';

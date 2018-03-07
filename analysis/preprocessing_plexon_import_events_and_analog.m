@@ -46,8 +46,12 @@ for i_subj=1:length(settings.subjects)
         % No changes needed for this section
         for i_session = 1:numel(sessions_used)
             
-            % Which recorded to use
-            session_ind = sessions_used(i_session);
+            % Which recorded session to use
+            if numel(sessions_used)>1 && ~isnan(sessions_used(i_session))
+                session_ind = sessions_used(i_session);
+            else
+                session_ind = [];
+            end
             
             %================
             % Input file
@@ -90,9 +94,9 @@ for i_subj=1:length(settings.subjects)
                 end
                 
             elseif ~exist(path_in, 'file')
-                fprintf('File "%s" does not exist for a date %s\n', file_name_in);
+                fprintf('File "%s" does not exist\n', file_name_in);
             elseif exist(path1, 'file') && settings.overwrite==0
-                fprintf('File "%s" already exists, skipping event extraction for date %s\n', file_name_out)
+                fprintf('File "%s" already exists, skipping event extraction\n', file_name_out)
             else
                 fprintf('Unknown error for pl2 event extraction, date %s\n', num2str(settings.date_current))
             end
@@ -128,9 +132,9 @@ for i_subj=1:length(settings.subjects)
                 end
                 
             elseif ~exist(path_in, 'file')
-                fprintf('File "%s" does not exist for a date %s\n', file_name_in);
+                fprintf('File "%s" does not exist\n', file_name_in);
             elseif exist(path1, 'file') && settings.overwrite==0
-                fprintf('File "%s" already exists, skipping event extraction for date %s\n', file_name_out)
+                fprintf('File "%s" already exists, skipping event extraction\n', file_name_out)
             else
                 fprintf('Unknown error for pl2 event extraction, date %s\n', num2str(settings.date_current))
             end

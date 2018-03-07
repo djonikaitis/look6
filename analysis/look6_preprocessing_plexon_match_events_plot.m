@@ -6,9 +6,9 @@
 close all;
 
 % Show file you are running
-p1 = mfilename;
+settings.function_name = mfilename;
 fprintf('\n=========\n')
-fprintf('Current file:  %s\n', p1)
+fprintf('Current file:  %s\n', settings.function_name)
 fprintf('=========\n')
 
 % Loading the files needed
@@ -21,9 +21,7 @@ settings = get_settings_ini_v10(settings);
 %% Some settings
 
 % Path to figures and statistics
-settings.figure_folder_name = 'plex_psy_events_match';
-settings.stats_file_name = sprintf('statistics_%s_', settings.figure_folder_name);
-settings.figsize1 = [0, 0, 5, 5]; % Change figure into bigger than usual
+settings.fig_size = [0, 0, 5, 5]; % Change figure into bigger than usual
 
 % Some settings for extracting data
 dset1_fields.msg1 = 'first_display';
@@ -32,6 +30,24 @@ dset1_fields.msg2 = 'loop_over';
 dset1_fields.msg2_code = 2;
 dset1_fields.session = 'session';
 
+
+% Figure folder name
+a = settings.function_name;
+m = numel(settings.exp_name);
+if strncmp(a, settings.function_name, m)
+    b = settings.function_name(m+2:end);
+else
+    b = settings.function_name(1:end);
+end
+
+if numel(b)>0
+    settings.figure_folder_name = b;
+else
+    a = 'undefined_figure';
+    fprintf('\nNo figure folder name defined, initializing default "%s"\n', a);
+    settings.figure_folder_name = a;
+end
+
 %% Run preprocessing
 
 for i_subj=1:length(settings.subjects)
@@ -39,77 +55,63 @@ for i_subj=1:length(settings.subjects)
     % Select curent subject
     settings.subject_current = settings.subjects{i_subj};
     
-    % Get path info about plexon events files
-    f1 = 'path_data_combined_plexon_subject';
-    settings = get_settings_path_and_dates_ini_v11(settings, f1);
-    p1_plex = settings.(f1);
+    % Which dates to run?
+    data_folder_name = 'data_combined_plexon';
+    settings.dates_used = get_dates_used_v10 (settings, data_folder_name);
     
-    % Get path info about psychtoolbox files
-    f1 = 'path_data_combined_subject';
-    settings_psy = get_settings_path_and_dates_ini_v11(settings);
-    p1_psy = settings.(f1);
-    
-    % Get path info about existing plexon raw plexon events file
-    f1 = 'path_data_plexon_temp_2_subject';
-    settings_plex_temp_2 = get_settings_path_and_dates_ini_v11(settings, f1);
-    p1_plex_temp_2 = settings.(f1);
-    
-    % Which dates are used?
-    dates_used = settings.data_sessions_to_analyze;
-    
-    for i_date = 1:length(dates_used)
+    for i_date = 1:length(settings.dates_used)
         
         clear var1; clear var2; clear var3;
         
         % Which date is it
-        settings.date_current = dates_used(i_date);
+        settings.date_current = settings.dates_used(i_date);
         
-        %============
-        % Psychtoolbox file path & file
-        ind = date_current==settings_psy.index_dates;
-        folder_name_psy = settings_psy.index_directory{ind};
-        path1_psy = [p1_psy, folder_name_psy, '/', folder_name_psy, '.mat'];
-        
-        %==========
-        % Figures folder
-        path_fig = sprintf('%s%s/%s/%s/', settings.path_figures, settings.figure_folder_name, settings.subject_current, folder_name_psy);
+        %================
+        % Input file
+        [~, path_fig, ~] = get_generate_path_v10(settings, 'figures');
         
         % Check whetther to over-write data or not
         if ~isdir(path_fig) || settings.overwrite==1
             
-            % Psychtoolbox data
-            % Load file
-            var1 = get_struct_v11(path1_psy);
+            %============
+            % Psychtoolbox path & file
+            [path1, ~, file_name_psych] = get_generate_path_v10(settings, 'data_combined', '.mat');
+            var1 = get_struct_v11(path1);
             
             %=============
             % Plexon events file path & file
-            ind = date_current==settings.index_dates;
-            folder_name_plex = settings.index_directory{ind};
-            path1_plex = [p1_plex, folder_name_plex, '/', folder_name_plex, '_events_matched.mat'];
+            [path1, ~, file_name_events] = get_generate_path_v10(settings, data_folder_name, '_events_matched.mat');
+            var2 = get_struct_v11(path1);
             
-            % Load file
-            var2 = get_struct_v11(path1_plex);
+            % How many sessions are used?
+            sessions_used = get_sessions_used_v10(settings, data_folder_name);
             
-            %==============
-            % Non-matched, raw plexon events
-            
-            % Current plexon folder to be analysed (multiple sessions)
-            sessions_used = find(date_current == settings_plex_temp_2.index_dates);
-            sp1 = []; sp2 = []; % Initialize var
-            
-            % Do analysis for each session
+            fprintf('\nPlotting matching events for the date %s\n', num2str(settings.date_current));
+
+            % Do analysis for each desired session
+            sp1 = []; sp2 = []; sp1_temp = []; sp2_temp = [];  % Initialize var
             for i_session = 1:numel(sessions_used)
                 
-                % Raw plexon events file path & file
-                ind = sessions_used(i_session);
-                folder_name_plex_temp_2 = settings_plex_temp_2.index_directory{ind};
-                path1_plex_temp_2 = [p1_plex_temp_2, folder_name_plex_temp_2, '/' folder_name_plex_temp_2, '_events.mat'];
+                % Which recorded session to use
+                if numel(sessions_used)>1 && ~isnan(sessions_used(i_session))
+                    session_ind = sessions_used(i_session);
+                else
+                    session_ind = [];
+                end
+                
+                %================
+                % Input file
+                [path1, ~, file_name_raw] = get_generate_path_v10(settings, 'data_plexon_temp_2', '_events.mat', session_ind);
                 
                 % Load file
-                temp1 = get_struct_v11(path1_plex_temp_2);
-                sp1_temp = temp1.event_ts{dset1_fields.msg1_code}*1000; % Message timing is reset to milliseconds
-                sp2_temp = temp1.event_ts{dset1_fields.msg2_code}*1000; % Message timing is reset to milliseconds
+                temp1 = get_struct_v11(path1);
                 
+                % Extract events of interest
+                if isfield (temp1, 'event_ts')
+                    sp1_temp = temp1.event_ts{dset1_fields.msg1_code}*1000; % Message timing is reset to milliseconds
+                    sp2_temp = temp1.event_ts{dset1_fields.msg2_code}*1000; % Message timing is reset to milliseconds
+                end
+            
                 % Concatenate multiple recording sessions
                 if ~isempty(sp1_temp)
                     if isempty(sp1)
@@ -129,35 +131,43 @@ for i_subj=1:length(settings.subjects)
                     end
                     var3.sp2 = sp2;
                 end
-                
+                                
             end
+            
+            % Initialize backup file just in case
+            if isempty(sp1) && isempty(sp2)
+                var3 = struct;
+            end
+            clear sp1; clear sp2;
+           
             % End of analysis for each session
             
             %% Do the plotting
             
-            if ~isempty(var1) && ~isempty(var2) && ~isempty(var3)
+            if ~isempty(fieldnames(var1)) && ~isempty(fieldnames(var2)) && ~isempty(fieldnames(var3))
                 
-                % Overwrite figure folders
-                if ~isdir(path_fig) || settings.overwrite==1
-                    if ~isdir(path_fig)
-                        mkdir(path_fig)
-                    elseif isdir(path_fig)
-                        try
-                            rmdir(path_fig, 's')
-                        end
-                        mkdir(path_fig)
+                %==============
+                % Create figure folders
+                if ~isdir(path_fig)
+                    mkdir(path_fig)
+                elseif isdir(path_fig)
+                    try
+                        rmdir(path_fig, 's')
                     end
+                    mkdir(path_fig)
                 end
                 
-                % Initialize empty file
-                f_name = sprintf('%s%s.txt', path_fig, folder_name_psy);
+                %=================
+                % Initialize text file for statistics
+                f_ext = sprintf ('_stats.txt');
+                path1 = get_generate_path_v10(settings, 'figures', f_ext);
                 fclose('all');
-                fout = fopen(f_name,'w');
+                fout = fopen(path1,'w');
                 
                 %===================
                 % Prepare figure
                 %===================
-                
+            
                 % Initialize variables of interest
                 ses1 = var1.session;
                 psy1 = var1.(dset1_fields.msg1);
@@ -166,7 +176,7 @@ for i_subj=1:length(settings.subjects)
                 psy2 = var1.(dset1_fields.msg2);
                 msg2 = var2.msg_2; % Matched data
                 sp2 = var3.sp2; % Raw data
-                
+            
                 %==========
                 % Part 1 - plot matching blocks
                 
@@ -290,12 +300,11 @@ for i_subj=1:length(settings.subjects)
                 title('Plex-psy trial dur diff', 'FontSize', settings.fontszlabel)
                 
                 % Export the figure & save it
-                
-                f_name = sprintf('%splex_events_match', path1_fig);
+                f_name = sprintf('%sfigure_1', path_fig);
                 set(gcf, 'PaperPositionMode', 'manual');
                 set(gcf, 'PaperUnits', 'inches');
-                set(gcf, 'PaperPosition', settings.figsize1)
-                set(gcf, 'PaperSize', [settings.figsize1(3),settings.figsize1(4)]);
+                set(gcf, 'PaperPosition', settings.fig_size)
+                set(gcf, 'PaperSize', [settings.fig_size(3),settings.fig_size(4)]);
                 print (f_name, '-dpdf')
                 close all;
                 %===============
@@ -317,22 +326,22 @@ for i_subj=1:length(settings.subjects)
                     fprintf(fout, targettext, a(i), sum(index1)-r1, r1, sum(index1));
                 end
                 
-                
-                
-                %===================
-                %===================
-                
-            elseif isempty(var1)
-                fprintf('Psychtoolbox data file "%s.mat" does not exist for a date %s, no plots prepared\n', folder_name_psy, num2str(date_current));
-            elseif isempty(var2)
-                fprintf('Matched events file "%s.mat" does not exist for a date %s, no plots prepared\n', folder_name_plex, num2str(date_current));
-            elseif isempty(var3)
-                fprintf('Raw events files for the date %s do not exist (multiple files possible), no plots prepared\n', num2str(date_current));
+            
+            
+            %===================
+            %===================
+            
+            elseif isempty(fieldnames(var1))
+                fprintf('Psychtoolbox data file "%s" does not exist for a date %s, no plots prepared\n', file_name_psych, num2str(settings.date_current));
+            elseif isempty(fieldnames(var2))
+                fprintf('Matched events file "%s" does not exist for a date %s, no plots prepared\n', file_name_events, num2str(settings.date_current));
+            elseif isempty(fieldnames(var3))
+                fprintf('Raw events file "%s" does not exist (multiple files possible), no plots prepared\n', file_name_raw, num2str(settings.date_current));
             end
             % End of analysis
-        
+            
         else
-            fprintf('Figures folder already exists, skipping plotting for a given day %s\n', num2str(date_current));
+            fprintf('Figures folder already exists, skipping plotting for a given day %s\n', num2str(settings.date_current));
         end
         % End of check whether to over-write figures or not
         

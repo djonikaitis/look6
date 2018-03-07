@@ -298,6 +298,7 @@ for fig1 = 1:7
             % Labels for plotting
             plot_set.xlabel = 'Time after memory on, ms';
             plot_set.ylabel = 'Firing rate, Hz';
+            plot_set.xtick = [-250, 0, 500:500:2000];
             
             % Save data
             plot_set.figure_size = settings.figsize_1col;

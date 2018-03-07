@@ -9,7 +9,7 @@
 p1 = mfilename;
 fprintf('\n=========\n')
 fprintf('Current file:  %s\n', p1)
-fprintf('=========\n')
+fprintf('=========\n\n')
 
 % Loading the files needed
 if ~exist('settings', 'var')
@@ -52,20 +52,18 @@ for i_subj=1:length(settings.subjects)
         [path1_psy, ~, file_name_psy] = get_generate_path_v10(settings, 'data_combined', '.mat');
         var1 = get_struct_v11(path1_psy);
         
-        %==============
-        % Plexon path output
-        [path1_out, path1_out_short, file_name_out] = get_generate_path_v10(settings, 'data_combined_plexon', '_events_matched.mat');
-        
         % Initialize output fields with matched events
         dset1_fields.msg1_recorded_stamps = NaN(numel(var1.(dset1_fields.session)), 1);
         dset1_fields.msg2_recorded_stamps = NaN(numel(var1.(dset1_fields.session)), 1);
+        
+        fprintf('\n');
 
         %===============
         % Do analysis for each session
         for i_session = 1:numel(sessions_used)
             
             % Which recorded session to use
-            if numel(sessions_used)>1
+            if numel(sessions_used)>1 && ~isnan(sessions_used(i_session))
                 session_ind = sessions_used(i_session);
             else
                 session_ind = [];
@@ -74,6 +72,10 @@ for i_subj=1:length(settings.subjects)
             %================
             % Input file
             [path1_in, ~, file_name_in] = get_generate_path_v10(settings, data_folder_name, '_events.mat', session_ind);
+            
+            %==============
+            % Plexon path output
+            [path1_out, path1_out_short, file_name_out] = get_generate_path_v10(settings, 'data_combined_plexon', '_events_matched.mat', session_ind);
                 
             %================
             % Match events
@@ -84,7 +86,7 @@ for i_subj=1:length(settings.subjects)
                 if ~isdir(path1_out_short)
                     mkdir(path1_out_short);
                 end
-                fprintf('\nImporting plexon events file "%s" and matching with psychtoolbox recording\n', file_name_in)
+                fprintf('Importing plexon events file "%s" and matching with psychtoolbox recording\n', file_name_in)
                 clear plex;
                 
                 % Load plexon events file
@@ -115,7 +117,7 @@ for i_subj=1:length(settings.subjects)
                 dset1_fields.msg2_recorded_stamps(ind) = y(ind);
                 
                   
-            elseif isempty(var1)
+            elseif isempty(fieldnames(var1))
                 fprintf('Psychtoolbox data file "%s" does not exist, no event matching performed\n', file_name_psy);
             elseif ~exist(path1_in, 'file')
                 fprintf('Plexon events file "%s" does not exist, no event matching performed\n', file_name_in);
@@ -136,14 +138,32 @@ for i_subj=1:length(settings.subjects)
         plex.msg_1 = dset1_fields.msg1_recorded_stamps;
         plex.msg_2 = dset1_fields.msg2_recorded_stamps;
         
-        % Check that matching events did not fail:
-        a = ~isnan(plex.msg_1); b=~isnan(plex.msg_2);
-        if sum(a)>0 && sum(b)>0
-            save (path1_out, 'plex')
-            fprintf('Plexon events matched and saved successfully\n')
-        else
-            fprintf('Failed to find any plexon events, no data saved\n\n')
+        
+        %===============
+        % Save matched events file for each session - for simplicity reason
+        for i_session = 1:numel(sessions_used)
+            
+            % Which recorded session to use
+            if numel(sessions_used)>1 && ~isnan(sessions_used(i_session))
+                session_ind = sessions_used(i_session);
+            else
+                session_ind = [];
+            end
+            
+            % Output path for each session
+            [path1_out, path1_out_short, file_name_out] = get_generate_path_v10(settings, 'data_combined_plexon', '_events_matched.mat', session_ind);
+            
+            % Check that matching events did not fail:
+            a = ~isnan(plex.msg_1); b=~isnan(plex.msg_2);
+            if sum(a)>0 && sum(b)>0
+                save (path1_out, 'plex')
+                fprintf('Matched plexon events file "%s" saved successfully\n', file_name_out)
+            else
+                fprintf('Failed to find any plexon events, no data saved\n')
+            end
+            
         end
+        
         
         %=================
         

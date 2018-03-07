@@ -39,7 +39,7 @@ for i_subj=1:length(settings.subjects)
         for i_session = 1:numel(sessions_used)
             
             % Which recorded session to use
-            if numel(sessions_used)>1
+            if numel(sessions_used)>1 && ~isnan(sessions_used(i_session))
                 session_ind = sessions_used(i_session);
             else
                 session_ind = [];
@@ -51,50 +51,68 @@ for i_subj=1:length(settings.subjects)
             % Input file
             [path_in, ~, file_name] = get_generate_path_v10(settings, 'data_plexon_temp_2', '_spikes.mat', session_ind);
             
-            % Load file in in order to combine it later
-            if exist(path_in, 'file')
-                plexon_mat = get_struct_v11(path_in);
-                if isempty (plexon_mat)
-                    fprintf('Failed to find any spikes, file is empty "%s"\n', file_name);
-                else
-                    fprintf('\nExtracting spikes from file "%s"\n', file_name);
+            % Output folder
+            [~, path_out_short, file_name_out] = get_generate_path_v10(settings, 'data_combined_plexon', [], session_ind);
+            
+            
+            if exist(path_in, 'file') && (~exist(path_out_short, 'dir') || settings.overwrite==1)
+                
+                if ~isdir(path_out_short)
+                    mkdir(path_out_short);
                 end
-            elseif ~exist(path_in, 'file')
-                fprintf('Failed to find any spikes, file does not exist "%s"\n', file_name);
-            end
-            
-            %==============
-            % Change this part for each project
-            
-            if ~isempty(fieldnames(plexon_mat))
-                for i=1:size(plexon_mat.spike_ts,1) % For each unit (UNIT 1 is unsorted)
-                    for j=1:size(plexon_mat.spike_ts,2) % For each channel
-                        
-                        temp1 = plexon_mat.spike_ts(i,j); temp1=temp1{1}; % Select data
-                        
-                        if ~isempty(temp1) % If spikes exists
+                
+                % Load file in in order to combine it later
+                if exist(path_in, 'file')
+                    plexon_mat = get_struct_v11(path_in);
+                    if isempty (plexon_mat)
+                        fprintf('Failed to find any spikes, file is empty "%s"\n', file_name);
+                    else
+                        fprintf('\nExtracting spikes from file "%s"\n', file_name);
+                    end
+                elseif ~exist(path_in, 'file')
+                    fprintf('Failed to find any spikes, file does not exist "%s"\n', file_name);
+                end
+                
+                %==============
+                % Change this part for each project
+                
+                if ~isempty(fieldnames(plexon_mat))
+                    for i=1:size(plexon_mat.spike_ts,1) % For each unit (UNIT 1 is unsorted)
+                        for j=1:size(plexon_mat.spike_ts,2) % For each channel
                             
-                            % Save spikes data
-                            spikes = struct;
-                            spikes.ts = temp1;
-                            % Reset data to psychtoolbox timing (into milliseconds)
-                            spikes.ts = spikes.ts*1000;
+                            temp1 = plexon_mat.spike_ts(i,j); temp1=temp1{1}; % Select data
                             
-                            % Save plexon channel name
-                            spikes.channel_name = plexon_mat.channel_names(j,:);
-                            
-                            % File name for the plexon spikes
-                            file_name_append = ['_ch', num2str(j), '_u', num2str(i), '_u.mat'];
-                            [path_out, ~, file_name] = get_generate_path_v10(settings, 'data_combined_plexon', file_name_append, session_ind);
-                            save(path_out, 'spikes')
-                            fprintf('Plexon spikes successfuly saved to a file "%s"\n', file_name)
-                            
+                            if ~isempty(temp1) % If spikes exists
+                                
+                                % Save spikes data
+                                spikes = struct;
+                                spikes.ts = temp1;
+                                % Reset data to psychtoolbox timing (into milliseconds)
+                                spikes.ts = spikes.ts*1000;
+                                
+                                % Save plexon channel name
+                                spikes.channel_name = plexon_mat.channel_names(j,:);
+                                
+                                % File name for the plexon spikes
+                                file_name_append = ['_ch', num2str(j), '_u', num2str(i), '_u.mat'];
+                                [path_out, ~, file_name] = get_generate_path_v10(settings, 'data_combined_plexon', file_name_append, session_ind);
+                                save(path_out, 'spikes')
+                                fprintf('Plexon spikes successfuly saved to a file "%s"\n', file_name)
+                                
+                            end
                         end
                     end
                 end
+             
+            elseif ~exist(path_in, 'file')
+                fprintf('File "%s" does not exist\n', file_name_in);
+            elseif exist(path_out_short, 'dir') && settings.overwrite==0
+                fprintf('Folder for the date %s already exists, skipping spike extraction\n', num2str(settings.date_current))
+            else
+                fprintf('Unknown error for pl2 spike extraction, date %s\n', num2str(settings.date_current))
             end
+            % End of checking whether to plot data
             
- 
         end
         % Preprocessing for each session is over
         

@@ -74,7 +74,7 @@ for i_subj = 1:length(settings.subjects)
             
             if ((exist(path1, 'file') && ~exist(path1_copy, 'file')) || settings.overwrite==1) && exist(path1, 'file')
                 
-                fprintf('\nChanges to exp settings file "%s" with modifications and bug fixes %s\n', file_name)
+                fprintf('\nChanges to exp settings file "%s" with modifications and bug fixes\n', file_name)
                 
                 %==========
                 % Save original file before doing changes

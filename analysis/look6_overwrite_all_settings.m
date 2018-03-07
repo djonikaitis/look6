@@ -29,7 +29,7 @@ overwrite_temp_index{7} = 20170817:20170831;
 overwrite_temp_index{8} = 20160101:20171231;
 
 % rename probe_extended_map into text from numbers
-overwrite_temp_index{9} = 20160101:20180220;
+overwrite_temp_index{9} = 20160101:20180306;
 
 %% Recode block_cond from numbers into words
 
@@ -189,22 +189,6 @@ if settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_tem
     end
 end
 
-%% Added field probe_extended_map
-
-if settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_temp_index{2}(1) && settings.date_current <= overwrite_temp_index{2}(end)
-    
-    v1 = 'probe_extended_map';
-    
-    if ~isfield(var1, v1) % check whether to do analysis
-        fprintf('Adding a field "%s" \n', v1)
-        temp_new = cell(numel(var1.START), 1);
-        temp_new(1:end) = {0};
-        var1.(v1) = temp_new;
-    else
-        fprintf('Field "%s" already exists, no changes written\n', v1)
-    end
-    
-end
 
 %% Added multiple textures (rename variables)
 
@@ -840,27 +824,55 @@ if  settings.overwrite_temp_switch == 1 && settings.date_current >= overwrite_te
         clear temp1_old; clear temp1_new
         temp_old = var1.(v1);
         
-        temp_old = cell2mat(temp_old);
-        
-        if ~iscell(temp_old) % Check whether to do analysis
+        % Convert data if it is one cell per trial
+        if numel(temp_old) == numel(var1.session)
             
-            fprintf('Correcting field "%s" - replace numbers with condition names\n', v1)
+            if ischar(temp_old{1})
+                fprintf('No correction for the field "%s" necessary, all seems ok\n', v1)
+            else
+                
+                temp_old = cell2mat(temp_old);
+                
+                if ~iscell(temp_old) % Check whether to do analysis
+                    
+                    fprintf('Correcting field "%s" - replace numbers with condition names\n', v1)
+                    temp_new = cell(numel(temp_old),1);
+                    
+                    % Neurophysiology
+                    index1 = temp_old==0;
+                    temp_new(index1) = {'plexon recording'};
+                    % Psychopysics
+                    index1 = temp_old==1;
+                    temp_new(index1) = {'behaviour, target loc 4'};
+                    index1 = temp_old==2;
+                    temp_new(index1) = {'behaviour, target loc 6'};
+                    
+                    % Save corrected data
+                    var1.(v1) = temp_new;
+                    
+                end
+            end
             
-            temp_new = cell(numel(temp_old),1);
+            % Convert data if it is saved per session
+        elseif numel(temp_old) == max(var1.session)
             
-            % Neurophysiology
-            index1 = temp_old==0;
-            temp_new(index1) = {'plexon recording'};
-            % Psychopysics
-            index1 = temp_old==1;
-            temp_new(index1) = {'behaviour, target loc 4'};
-            index1 = temp_old==2;
-            temp_new(index1) = {'behaviour, target loc 6'};
+            fprintf('Correcting field "%s" - convert session-based data into trial-based data\n', v1)
+            temp_new = cell(numel(var1.session),1);
+            
+            for i = 1 : max(var1.session)
+                index1 = var1.session==i;
+                a = temp_old{i};
+                a = a{1};
+                temp_new(index1) = {a};
+            end
             
             % Save corrected data
             var1.(v1) = temp_new;
-            
+
+        else
+            error('Field "probe_extended_map" values do not match trials/sessions, check the code')
         end
+        
     end
 end
 
