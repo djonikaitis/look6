@@ -78,20 +78,28 @@ for i_subj=1:length(settings.subjects)
         if ~isdir(path_fig) || settings.overwrite==1
             
             %==============
-            % Create figure folders. Delete old figures.
+            % Create figure folders
             if ~isdir(path_fig)
                 mkdir(path_fig)
-                fprintf('Created new figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
             elseif isdir(path_fig)
-                fprintf('Overwriting existing figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
                 % Delete figure files, leave other files un-touched
                  a = dir(path_fig);
-                 for i = 1:numel(a)
+                 f1 = a.name;
+                 for i = 1:numel(a);
                      if strncmp(a(i).name, 'fig', 3)
-                         path1 = sprintf('%s%s', path_fig, a(i).name);
-                         delete (path1)
+                         path1 = sprintf(%path_fig, a(i).name)
                      end
                  end
+                
+%                 try
+%                     rmdir(path_fig, 's')
+%                 end
+            end
+            
+            if settings.overwrite==1
+                fprintf('Overwriting existing figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
+            else
+                fprintf('Create new figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
             end
             
             %=================
@@ -121,7 +129,6 @@ for i_subj=1:length(settings.subjects)
             [path1] = get_generate_path_v10(settings, settings.temp1_data_folder, '_unit_descriptives.mat');
             unit_descriptives = get_struct_v11(path1);
             
-            %=============
             %=============
             % Determine neurons that exist on a given day
             [~, path1] = get_generate_path_v10(settings, settings.temp1_data_folder);

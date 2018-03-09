@@ -255,6 +255,15 @@ for fig1 = num_fig
                 end
             end
             
+            % Overwrite figure folders
+            if ~isdir(path_fig) || settings.overwrite==1
+                mkdir(path_fig)
+            elseif isdir(path_fig)
+                try
+                    rmdir(path_fig, 's')
+                end
+                mkdir(path_fig)
+            end
         end
         % End of decision whether to create figures folder
         

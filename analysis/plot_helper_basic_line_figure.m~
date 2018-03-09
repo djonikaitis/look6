@@ -110,11 +110,15 @@ if ~isfield (plot_set, 'mat_y')
     % Data_color exists
     if isfield(plot_set, 'data_color') && ~isempty(plot_set.data_color)
         if sum(sum(plot_set.data_color<=1)) == numel(plot_set.data_color)
-            plot_set.color1 = plot_set.data_color;
+            if size(plot_set.mat_y,3) == size(plot_set.data_color,1) % Only if appropriate number of colors is specified
+                plot_set.color1 = plot_set.data_color;
+            end
         elseif sum(plot_set.data_color>=1) == numel(plot_set.data_color) % Very likely to refer to indexes
-            ind = plot_set.data_color;
-            plot_set.color1 = settings.color1(ind,:);
-            plot_set.face_color1 = settings.face_color1(ind,:);
+            if size(plot_set.mat_y,3) == numel(plot_set.data_color) % Only if appropriate number of colors is specified
+                ind = plot_set.data_color;
+                plot_set.color1 = settings.color1(ind,:);
+                plot_set.face_color1 = settings.face_color1(ind,:);
+            end
         end
     end
     

@@ -1,8 +1,10 @@
 % Prepare each figure
 
-for fig1 = 1:4 % Plot figures
+num_fig = 1:4;
+
+for fig1 = num_fig % Plot figures
     
-    fprintf('Preparing figure %s\n', num2str(fig1))
+    fprintf('Preparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig)))
     
     S.expcond = NaN(size(S.START));
     

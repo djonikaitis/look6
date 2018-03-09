@@ -2,9 +2,12 @@
 
 if size (S.esetup_background_texture_on, 2) == 2 % Only if two textures were presented
     
-    for fig1 = 1:3 % Plot figures
-        
-        fprintf('Preparing figure %s\n', num2str(fig1))
+num_fig = 1:3;
+
+for fig1 = num_fig % Plot figures
+    
+    fprintf('Preparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig)))
+      
         
         S.expcond = NaN(numel(S.START), 2);
         
