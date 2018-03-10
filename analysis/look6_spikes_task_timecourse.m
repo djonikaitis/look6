@@ -4,7 +4,7 @@ num_fig = 1:7;
 
 for fig1 = num_fig % Plot figures
     
-    fprintf('Preparing figure %s out of %s total for this analysis\n', num2str(fig1), numel(num2str(num_fig)))
+    fprintf('Preparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig))  )
     
     S.expcond = NaN(size(S.START));
     
@@ -392,6 +392,9 @@ for fig1 = num_fig % Plot figures
             
             % Cue location
             m = find((legend1_values)<-90);
+            if numel(m)>1
+                m=m(1);
+            end
             text(0, -2, 'Cue in RF', 'Color', plot_set.color1(m,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'center')
             
             plot_helper_save_figure;

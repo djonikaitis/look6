@@ -16,11 +16,11 @@ settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'selected';
+settings.data_sessions = 'all';
 
 % which setup?
 % 'unknown', 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
-settings.exp_setup = 'dj laptop';
+settings.exp_setup = 'dj office';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -30,7 +30,7 @@ analysis_eyelink_drift_and_conversion = 0;
 analysis_detect_saccades = 0;
 analysis_behaviour_srt_plots = 0;
 analysis_import_plexon_files = 0;
-analysis_spikes_timecourse = 1;
+analysis_spikes_timecourse = 0;
 
 
 %% Preprocessing: import data into usable format
@@ -222,7 +222,7 @@ end
 
 if analysis_spikes_timecourse == 1
     
-    settings.this_analysis = 1;
+    settings.this_analysis = 0;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';

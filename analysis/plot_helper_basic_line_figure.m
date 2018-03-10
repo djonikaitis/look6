@@ -147,66 +147,71 @@ if (  (isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y'
             ebars_upper_y = plot_set.ebars_upper(:,:,k);
         end
         
-        % Select x axis values
-        % Use either values same as plotting
-        % Or use pre-specified values
-        if ~isfield(plot_set, 'ebars_upper_x')
-            if size(plot_set.mat_y, 3)>1 && size(plot_set.mat_x, 3)==1
-                temp_x_lower = plot_set.mat_x;
-                temp_x_upper = plot_set.mat_x;
-            elseif size(plot_set.mat_y, 3)==size(plot_set.mat_x, 3)
-                temp_x_lower = plot_set.mat_x(:,:,k);
-                temp_x_upper = plot_set.mat_x(:,:,k);
-            else
-                error ('X and Y matrix size mismatch')
+        % Plot only if y values are not NaNs
+        if sum(isnan(ebars_lower_y)) ~= numel(ebars_lower_y) || sum(isnan(ebars_upper_y)) ~= numel(ebars_upper_y)
+            
+            % Select x axis values
+            % Use either values same as plotting
+            % Or use pre-specified values
+            if ~isfield(plot_set, 'ebars_upper_x')
+                if size(plot_set.mat_y, 3)>1 && size(plot_set.mat_x, 3)==1
+                    temp_x_lower = plot_set.mat_x;
+                    temp_x_upper = plot_set.mat_x;
+                elseif size(plot_set.mat_y, 3)==size(plot_set.mat_x, 3)
+                    temp_x_lower = plot_set.mat_x(:,:,k);
+                    temp_x_upper = plot_set.mat_x(:,:,k);
+                else
+                    error ('X and Y matrix size mismatch')
+                end
+            elseif isfield(plot_set, 'ebars_lower_x') && isfield(plot_set, 'ebars_upper_x')
+                if size(plot_set.mat_y, 3)>1 && size(plot_set.ebars_lower_x, 3)==1
+                    temp_x_lower = plot_set.ebars_lower_x;
+                    temp_x_upper = plot_set.ebars_upper_x;
+                elseif size(plot_set.mat_y, 3)==size(plot_set.ebars_lower_x, 3)
+                    temp_x_lower = plot_set.ebars_lower_x(:,:,k);
+                    temp_x_upper = plot_set.ebars_upper_x(:,:,k);
+                else
+                    error ('X and Y matrix size mismatch')
+                end
             end
-        elseif isfield(plot_set, 'ebars_lower_x') && isfield(plot_set, 'ebars_upper_x')
-            if size(plot_set.mat_y, 3)>1 && size(plot_set.ebars_lower_x, 3)==1
-                temp_x_lower = plot_set.ebars_lower_x;
-                temp_x_upper = plot_set.ebars_upper_x;
-            elseif size(plot_set.mat_y, 3)==size(plot_set.ebars_lower_x, 3)
-                temp_x_lower = plot_set.ebars_lower_x(:,:,k);
-                temp_x_upper = plot_set.ebars_upper_x(:,:,k);
+            
+            % Remove missing data for easier plotting
+            % Check one limit to check missing values
+            if isfield(plot_set, 'plot_remove_nan') && plot_set.plot_remove_nan==1
+                b = ebars_lower_y;
+                ind = isnan(b);
+                ebars_lower_y = b(:, ~ind);
+                ebars_upper_x = temp_x_upper(:, ~ind);
+                ebars_lower_x = temp_x_lower(:, ~ind);
             else
-                error ('X and Y matrix size mismatch')
+                ebars_upper_x = temp_x_upper;
+                ebars_lower_x = temp_x_lower;
             end
-        end
-        
-        % Remove missing data for easier plotting
-        % Check one limit to check missing values
-        if isfield(plot_set, 'plot_remove_nan') && plot_set.plot_remove_nan==1
-            b = ebars_lower_y;
-            ind = isnan(b);
-            ebars_lower_y = b(:, ~ind);
-            ebars_upper_x = temp_x_upper(:, ~ind);
-            ebars_lower_x = temp_x_lower(:, ~ind);
-        else
-            ebars_upper_x = temp_x_upper;
-            ebars_lower_x = temp_x_lower;
-        end
-        
-        xc1 = ebars_lower_x(1); % Min x, min y
-        xc2 = ebars_upper_x(1); % Min x, max y
-        xc3 = ebars_upper_x; % Upper bound of errors
-        xc4 = ebars_upper_x(end); % Max x, max y
-        xc5 = ebars_lower_x(end); % Max x, min y
-        xc6 = ebars_lower_x;
-        xc6 = fliplr(xc6);
-        
-        yc1 = ebars_lower_y(:,1,1); % Lower bound of errors
-        yc2 = ebars_upper_y(:,1,1); % upper bound of errors
-        yc3 = ebars_upper_y(:,:,1); % Upper bound of errors
-        yc4 = ebars_upper_y(:,end,1); % Upper bound of errors
-        yc5 = ebars_lower_y(:,end,1); % Lower bound of errors
-        yc6 = ebars_lower_y(:,:,1); % Lower bound of errors
-        yc6 = fliplr(yc6);
-        
-        % Select color
-        color1 = plot_set.face_color1(k,:);
-        
-        h=fill([xc1,xc2,xc3,xc4, xc5, xc6],[yc1, yc2, yc3, yc4, yc5, yc6], [1 0.7 0.2], 'linestyle', 'none');
-        if ~isempty(h)
-            set (h(end), 'FaceColor', color1,'linestyle', 'none', 'FaceAlpha', 1)
+            
+            xc1 = ebars_lower_x(1); % Min x, min y
+            xc2 = ebars_upper_x(1); % Min x, max y
+            xc3 = ebars_upper_x; % Upper bound of errors
+            xc4 = ebars_upper_x(end); % Max x, max y
+            xc5 = ebars_lower_x(end); % Max x, min y
+            xc6 = ebars_lower_x;
+            xc6 = fliplr(xc6);
+            
+            yc1 = ebars_lower_y(:,1,1); % Lower bound of errors
+            yc2 = ebars_upper_y(:,1,1); % upper bound of errors
+            yc3 = ebars_upper_y(:,:,1); % Upper bound of errors
+            yc4 = ebars_upper_y(:,end,1); % Upper bound of errors
+            yc5 = ebars_lower_y(:,end,1); % Lower bound of errors
+            yc6 = ebars_lower_y(:,:,1); % Lower bound of errors
+            yc6 = fliplr(yc6);
+            
+            % Select color
+            color1 = plot_set.face_color1(k,:);
+            
+            h=fill([xc1,xc2,xc3,xc4, xc5, xc6],[yc1, yc2, yc3, yc4, yc5, yc6], [1 0.7 0.2], 'linestyle', 'none');
+            if ~isempty(h)
+                set (h(end), 'FaceColor', color1,'linestyle', 'none', 'FaceAlpha', 1)
+            end
+            
         end
         
     end
