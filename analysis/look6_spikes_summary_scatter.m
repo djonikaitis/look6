@@ -3,7 +3,7 @@
 
 %% Analysis
 
-num_fig = [9];
+num_fig = [1:9];
 
 for fig1 = num_fig
     
@@ -92,10 +92,12 @@ for fig1 = num_fig
         
         % Select appropriate interval for plottings
         int_bins = settings.intervalbins_mem;
-        
-        % Over-write bin length
         settings.bin_length = settings.bin_length_long;
         
+        % Remove bins after memory delay
+        a = min(S.esetup_memory_delay)*1000;
+        int_bins(int_bins + settings.bin_length>a)=[];
+                
         % Over-write spike rates?
         if fig1==num_fig(1)
             new_mat = 1;
@@ -104,8 +106,8 @@ for fig1 = num_fig
         end
         
         % Try to load the data for given analysis
-        temp1 = sprintf('_%s_fig1.mat', neuron_name);
-        [path1, path1_short, file_name] = get_generate_path_v10(settings, 'figures', temp1);
+        temp1 = sprintf('_%s_fig1.mat', settings.neuron_name);
+        [path1, path1_short, file_name] = get_generate_path_v10(settings, 'figures', temp1, settings.session_current);
         if isfile (path1)
             fprintf ('Skippind data binning and loading "%s"\n', file_name)
             data_mat = get_struct_v11(path1);
@@ -191,7 +193,7 @@ for fig1 = num_fig
     
     % Initialize data matrix to concatenate all data
     if i_date == 1
-        if i_unit == settings.index_of_units_used(1)
+        if i_unit == 1
             [~,n,o] = size(mat1_ini);
             mat2_ini = NaN(1, n, o);
             mat2_ini_date = NaN(1,1);
@@ -225,7 +227,7 @@ for fig1 = num_fig
     %% Figure folder
     
     if ~isempty(settings.dates_used) && i_date == numel(settings.dates_used) && ...
-            ~isempty(settings.index_of_units_used) && i_unit == settings.index_of_units_used(end)
+            ~isempty(settings.channels_used) && i_unit == numel(settings.channels_used)
         
         if fig1 == num_fig(1)
             
@@ -235,7 +237,7 @@ for fig1 = num_fig
                 [b, ~, ~] = get_generate_path_v10(settings, 'figures');
                 path_fig = sprintf('%s%s/', b, a);
             elseif numel(settings.dates_used)==1
-                [~, path_fig, ~] = get_generate_path_v10(settings, 'figures');
+                [~, path_fig, ~] = get_generate_path_v10(settings, 'figures', [], settings.session_current);
             end
             
             %==============
@@ -264,7 +266,7 @@ for fig1 = num_fig
     %% PLOT FIGURES
     
     if ~isempty(settings.dates_used) && i_date == numel(settings.dates_used) && ...
-            ~isempty(settings.index_of_units_used) && i_unit == settings.index_of_units_used(end)
+            ~isempty(settings.channels_used) && i_unit == numel(settings.channels_used)
 
         
         if fig1<=8
@@ -467,7 +469,7 @@ for fig1 = num_fig
     %% Plot data
     
     if ~isempty(settings.dates_used) && i_date == numel(settings.dates_used) && ...
-            ~isempty(settings.index_of_units_used) && i_unit == settings.index_of_units_used(end)
+            ~isempty(settings.channels_used) && i_unit == numel(settings.channels_used)
         
         if fig1==9
             

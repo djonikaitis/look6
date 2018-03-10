@@ -5,7 +5,6 @@ num_fig = 1:7;
 for fig1 = num_fig % Plot figures
     
     fprintf('Preparing figure %s out of %s total for this analysis\n', num2str(fig1), numel(num2str(num_fig)))
-      
     
     S.expcond = NaN(size(S.START));
     
@@ -29,8 +28,20 @@ for fig1 = num_fig % Plot figures
         
         % Select appropriate interval for plottings
         int_bins = settings.intervalbins_tex;
+        settings.bin_length = settings.bin_length_short;
         
         new_mat = 1;
+        
+        % Try to load the data for given analysis
+        temp1 = sprintf('_%s_fig1.mat', settings.neuron_name);
+        [path1, path1_short, file_name] = get_generate_path_v10(settings, 'figures', temp1, settings.session_current);
+        if isfile (path1)
+            fprintf ('Skippind data binning and loading "%s"\n', file_name)
+            data_mat = get_struct_v11(path1);
+            mat1_ini = data_mat.mat1_ini;
+            pbins = data_mat.pbins;
+            new_mat = 0;
+        end
         
     end
     
@@ -91,6 +102,11 @@ for fig1 = num_fig % Plot figures
         
         % Select appropriate interval for plottings
         int_bins = settings.intervalbins_mem;
+        settings.bin_length = settings.bin_length_short;
+        
+        % Remove bins after memory delay
+        a = min(S.esetup_memory_delay)*1000;
+        int_bins(int_bins + settings.bin_length>a)=[];
         
         
         % Over-write spike rates?
@@ -100,22 +116,33 @@ for fig1 = num_fig % Plot figures
             new_mat = 0;
         end
         
+        % Try to load the data for given analysis
+        temp1 = sprintf('_%s_fig2.mat', settings.neuron_name);
+        [path1, path1_short, file_name] = get_generate_path_v10(settings, 'figures', temp1, settings.session_current);
+        if isfile (path1)
+            fprintf ('Skippind data binning and loading "%s"\n', file_name)
+            data_mat = get_struct_v11(path1);
+            mat1_ini = data_mat.mat1_ini;
+            pbins = data_mat.pbins;
+            new_mat = 0;
+        end
+        
     end
-    
-    
-    %===========
-    % Initialize spike timing
-    t1_spike = spikes1.ts;
-    
-    % Get timing of the events
-    t1 = events_mat.msg_1;
-    t1 = t1 + S.tconst; % Reset to time relative to tconst
     
     
     %============
     % Find spikes
     
     if new_mat==1 % This decides whether to over_write the calculated data matrix
+        
+        
+        %===========
+        % Initialize spike timing
+        t1_spike = spikes1.ts;
+        
+        % Get timing of the events
+        t1 = events_mat.msg_1;
+        t1 = t1 + S.tconst; % Reset to time relative to tconst
         
         %============
         % Initialize empty matrix
@@ -163,6 +190,12 @@ for fig1 = num_fig % Plot figures
         
         % Initialize plot bins
         pbins=int_bins+settings.bin_length/2;
+        
+        % Save data
+        d1 = struct;
+        d1.mat1_ini = mat1_ini;
+        d1.pbins = pbins;
+        save (path1, 'd1')
         
     end
     % End of checking whether new_mat==1
@@ -225,7 +258,7 @@ for fig1 = num_fig % Plot figures
         
         % Save data
         plot_set.figure_size = settings.figsize_1col;
-        plot_set.figure_save_name = sprintf ('%s_fig_%s', neuron_name, num2str(fig1));
+        plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(fig1));
         plot_set.path_figure = path_fig;
         
         % Plot
@@ -304,7 +337,7 @@ for fig1 = num_fig % Plot figures
             
             % Save data
             plot_set.figure_size = settings.figsize_1col;
-            plot_set.figure_save_name = sprintf ('%s_fig_%s', neuron_name, num2str(fig1));
+            plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(fig1));
             plot_set.path_figure = path_fig;
             
             % Plot

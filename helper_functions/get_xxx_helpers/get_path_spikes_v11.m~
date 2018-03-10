@@ -302,6 +302,7 @@ index_cur_dir; % This is necessary input. Contains all file names and file order
 % Create output matrix
 file_name1 = cell(1);
 file_name1_short = cell(1);
+
 session1 = [];
 dates1 = [];
 subject1 = cell(1);
@@ -344,8 +345,8 @@ for j=1:length(t1)
     end
     
     % Neural unit name short
-    file_name1_short{ind,1} = sprintf('ch%s_u%s_%s', ...
-        num2str(channels1(ind)), num2str(unit1(ind)), unit_class1{ind});
+    a = sprintf('ch%s_u%s_%s', num2str(spikes_init.index_channel(ind1)), ...
+                            num2str(spikes_init.index_unit(ind1)), spikes_init.index_unit_type);
     
 end
     
@@ -360,6 +361,5 @@ y.index_unit = unit1;
 y.index_channel = channels1;
 y.index_unit_type = unit_class1;
 y.index_file_name = file_name1;
-y.index_file_name_short = file_name1_short;
 y.index_path = path_temp1;
 

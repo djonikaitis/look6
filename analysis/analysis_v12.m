@@ -12,11 +12,11 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % use subject initials for one subject or 'all' to run all subjects
-settings.subjects = 'aq';
+settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'all';
+settings.data_sessions = 'selected';
 
 % which setup?
 % 'unknown', 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'

@@ -37,14 +37,17 @@ for i_subj=1:length(settings.subjects)
         settings.date_current = settings.dates_used(i_date);
         
         % How many sessions are used?
-        sessions_used = get_sessions_used_v10(settings, data_folder_name);
+        settings.sessions_used = get_sessions_used_v10(settings, data_folder_name);
         
         % Do analysis for each desired session
         % No changes needed for this section
-        for i_session = 1:numel(sessions_used)
+        for i_session = 1:numel(settings.sessions_used)
             
             % Which recorded to use
-            session_ind = sessions_used(i_session);
+            if isempty(settings.sessions_used)
+            else
+            end
+            session_ind = settings.sessions_used(i_session);
             
             %================
             % Input file
