@@ -192,7 +192,7 @@ for fig1 = num_fig % Plot figures
         
         % Save data
         plot_set.figure_size = settings.figsize_1col;
-        plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(fig1));
+        plot_set.figure_save_name = sprintf ('%s_fig_%s', neuron_name, num2str(fig1));
         plot_set.path_figure = path_fig;
         
         % Plot
@@ -336,7 +336,7 @@ for fig1 = num_fig % Plot figures
         
         % Save data
         plot_set.figure_size = settings.figsize_1col;
-        plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(fig1));
+        plot_set.figure_save_name = sprintf ('%s_fig_%s', neuron_name, num2str(fig1));
         plot_set.path_figure = path_fig;
         
         % Initialize the data

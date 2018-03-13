@@ -12,11 +12,11 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % use subject initials for one subject or 'all' to run all subjects
-settings.subjects = 'all';
+settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'all';
+settings.data_sessions = 'selected';
 
 % which setup?
 % 'unknown', 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
@@ -149,6 +149,13 @@ if analysis_behaviour_srt_plots == 1
     settings.this_analysis = 1;
     settings.overwrite = 1;
     if settings.this_analysis==1
+        settings.function_name = 'look6_behaviour_variables_check';
+        look6_analysis_template_behaviour;
+    end
+    
+    settings.this_analysis = 1;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
         settings.function_name = 'look6_behaviour_daily_performance';
         look6_analysis_template_behaviour;
     end
@@ -230,7 +237,7 @@ if analysis_spikes_timecourse == 1
         look6_analysis_template_individual_units;
     end
         
-    settings.this_analysis = 0;
+    settings.this_analysis = 1;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';
