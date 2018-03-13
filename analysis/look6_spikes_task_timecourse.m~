@@ -71,26 +71,26 @@ for fig1 = num_fig % Plot figures
         % Control task
         i1=size(temp1,1)*2;
         for i=1:size(temp1,1)
-            index = S.esetup_memory_coord(:,1)==temp1(i,1) & S.esetup_memory_coord(:,2)==temp1(i,2) & strcmp(S.esetup_block_cond, 'control fixate') & S.esetup_background_texture_on(:,1)==1  & strncmp(S.edata_error_code, 'correct', 7);
+            index = S.esetup_memory_coord(:,1)==temp1(i,1) & S.esetup_memory_coord(:,2)==temp1(i,2) & strcmp(S.esetup_block_cond, 'control fixate') & S.esetup_background_texture_on(:,1)==1  & strncmp(S.edata_error_code, 'correct', );
             S.expcond(index)=i+i1;
         end
         
         % Look task, no texture
         i1=size(temp1,1)*3;
         for i=1:size(temp1,1)
-            index = S.esetup_memory_coord(:,1)==temp1(i,1) & S.esetup_memory_coord(:,2)==temp1(i,2) & strcmp(S.esetup_block_cond, 'look') & S.esetup_background_texture_on(:,1)==0  & strncmp(S.edata_error_code, 'correct', 7);
+            index = S.esetup_memory_coord(:,1)==temp1(i,1) & S.esetup_memory_coord(:,2)==temp1(i,2) & strcmp(S.esetup_block_cond, 'look') & S.esetup_background_texture_on(:,1)==0  & strncmp(S.edata_error_code, 'correct');
             S.expcond(index)=i+i1;
         end
         % Avoid task, no texture
         i1=size(temp1,1)*4;
         for i=1:size(temp1,1)
-            index = S.esetup_memory_coord(:,1)==temp1(i,1) & S.esetup_memory_coord(:,2)==temp1(i,2) & strcmp(S.esetup_block_cond, 'avoid') & S.esetup_background_texture_on(:,1)==0  & strncmp(S.edata_error_code, 'correct', 7);
+            index = S.esetup_memory_coord(:,1)==temp1(i,1) & S.esetup_memory_coord(:,2)==temp1(i,2) & strcmp(S.esetup_block_cond, 'avoid') & S.esetup_background_texture_on(:,1)==0  & strncmp(S.edata_error_code, 'correct');
             S.expcond(index)=i+i1;
         end
         % Control task, no texture
         i1=size(temp1,1)*5;
         for i=1:size(temp1,1)
-            index = S.esetup_memory_coord(:,1)==temp1(i,1) & S.esetup_memory_coord(:,2)==temp1(i,2) & strcmp(S.esetup_block_cond, 'control fixate') & S.esetup_background_texture_on(:,1)==0  & strncmp(S.edata_error_code, 'correct', 7);
+            index = S.esetup_memory_coord(:,1)==temp1(i,1) & S.esetup_memory_coord(:,2)==temp1(i,2) & strcmp(S.esetup_block_cond, 'control fixate') & S.esetup_background_texture_on(:,1)==0  & strncmp(S.edata_error_code, 'correct');
             S.expcond(index)=i+i1;
         end
         

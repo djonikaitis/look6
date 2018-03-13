@@ -16,7 +16,7 @@ settings.subjects = 'all';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'all';
+settings.data_sessions = 'selected';
 
 % which setup?
 % 'unknown', 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
@@ -230,7 +230,7 @@ if analysis_spikes_timecourse == 1
         look6_analysis_template_individual_units;
     end
         
-    settings.this_analysis = 0;
+    settings.this_analysis = 1;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';
@@ -251,6 +251,14 @@ if analysis_spikes_timecourse == 1
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';
         settings.function_name = 'look6_spikes_dual_orientation_timecourse';
+        look6_analysis_template_individual_units;
+    end
+    
+    settings.this_analysis = 0;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.temp1_data_folder = 'data_combined_plexon';
+        settings.function_name = 'look6_spikes_orientation_task_interaction';
         look6_analysis_template_individual_units;
     end
     

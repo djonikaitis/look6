@@ -378,10 +378,14 @@ else % If y-ticks do not exist, calculate your own
     fprintf('No values for ytick provided, calculating defaults\n')
     
     % Extract data regardless whether error bars exist or not
-    if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')
+    if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y') && ...
+            sum(sum(isnan(plot_set.ebars_lower_y)))~=numel(plot_set.ebars_lower_y) && ...
+            sum(sum(isnan(plot_set.ebars_upper_y)))~=numel(plot_set.ebars_upper_y)
         t0 = plot_set.ebars_lower_y;
         t1 = plot_set.ebars_upper_y;
-    elseif isfield (plot_set, 'ebars_lower') && isfield (plot_set, 'ebars_upper')
+    elseif isfield (plot_set, 'ebars_lower') && isfield (plot_set, 'ebars_upper') && ...
+            sum(sum(isnan(plot_set.ebars_lower)))~=numel(plot_set.ebars_lower) && ...
+            sum(sum(isnan(plot_set.ebars_upper)))~=numel(plot_set.ebars_upper)
         t0 = plot_set.ebars_lower;
         t1 = plot_set.ebars_upper;
     elseif isfield (plot_set, 'mat_y')
@@ -452,7 +456,9 @@ else
     fprintf('No values for xtick provided, calculating defaults\n')
     
     % Extract data regardless whether error bars exist or not
-    if isfield (plot_set, 'ebars_lower_x') && isfield (plot_set, 'ebars_upper_x')
+    if isfield (plot_set, 'ebars_lower_x') && isfield (plot_set, 'ebars_upper_x') && ...
+            sum(sum(isnan(plot_set.ebars_lower_x)))~=numel(plot_set.ebars_lower_x) && ...
+            sum(sum(isnan(plot_set.ebars_upper_x)))~=numel(plot_set.ebars_upper_x)
         t0 = plot_set.ebars_lower_x;
         t1 = plot_set.ebars_upper_x;
     elseif isfield (plot_set, 'mat_x')
@@ -518,10 +524,14 @@ elseif isfield (plot_set, 'ylim')
 else
     
     % Extract data regardless whether error bars exist or not
-    if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')
+    if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y') && ...
+            sum(sum(isnan(plot_set.ebars_lower_y)))~=numel(plot_set.ebars_lower_y) && ...
+            sum(sum(isnan(plot_set.ebars_upper_y)))~=numel(plot_set.ebars_upper_y)
         t0 = plot_set.ebars_lower_y;
         t1 = plot_set.ebars_upper_y;
-    elseif isfield (plot_set, 'ebars_lower') && isfield (plot_set, 'ebars_upper')
+    elseif isfield (plot_set, 'ebars_lower') && isfield (plot_set, 'ebars_upper') && ...
+            sum(sum(isnan(plot_set.ebars_lower)))~=numel(plot_set.ebars_lower) && ...
+            sum(sum(isnan(plot_set.ebars_upper)))~=numel(plot_set.ebars_upper)
         t0 = plot_set.ebars_lower;
         t1 = plot_set.ebars_upper;
     elseif isfield (plot_set, 'mat_y')
@@ -549,14 +559,14 @@ else
     ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
     ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
     
-    % Set axis limits
-    if ~isnan(ps_h_min) && ~isnan(ps_h_max) && ps_h_min ~= ps_h_max
-        hfig.YLim = [ps_h_min, ps_h_max];
-        fprintf('No values for YLim provided, using defaults\n')
-    else
-        hfig.YLim = [-2, 2];
-        fprintf('Y axis setup from data impossible, setting axis to minimal\n')
-    end
+%     % Set axis limits
+%     if ~isnan(ps_h_min) && ~isnan(ps_h_max) && ps_h_min ~= ps_h_max
+%         hfig.YLim = [ps_h_min, ps_h_max];
+%         fprintf('No values for YLim provided, using defaults\n')
+%     else
+%         hfig.YLim = [-2, 2];
+%         fprintf('Y axis setup from data impossible, setting axis to minimal\n')
+%     end
     
     clear ps_h0_min; clear ps_h0_max; clear ps_h_min; clear ps_h_max;
     
@@ -575,7 +585,9 @@ elseif isfield (plot_set, 'xlim')
 else
     
     % Extract data regardless whether error bars exist or not
-    if isfield (plot_set, 'ebars_upper_x') && isfield (plot_set, 'ebars_upper_x')
+    if isfield (plot_set, 'ebars_upper_x') && isfield (plot_set, 'ebars_upper_x') && ...
+            sum(sum(isnan(plot_set.ebars_lower_x)))~=numel(plot_set.ebars_lower_x) && ...
+            sum(sum(isnan(plot_set.ebars_upper_x)))~=numel(plot_set.ebars_upper_x)
         t0 = plot_set.ebars_lower_x;
         t1 = plot_set.ebars_upper_x;
     elseif isfield (plot_set, 'mat_x')
