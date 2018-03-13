@@ -1,6 +1,6 @@
 % Prepare each figure
 
-num_fig = 1 %1:6;
+num_fig = 1:6;
 
 for fig1 = num_fig % Plot figures
     
@@ -44,7 +44,7 @@ for fig1 = num_fig % Plot figures
     % Select appropriate time interval for spike binning
     
     if new_mat == 1
-               
+        
         % Create a matrix with plot_bins
         int_bins = settings.int_bins;
         bin_length = settings.bin_length;
@@ -70,7 +70,7 @@ for fig1 = num_fig % Plot figures
         % Convert to HZ
         b_length = plot_bins_end - plot_bins_start;
         mat1_ini = mat1_ini.*(1000./b_length);
-                
+        
         % Save data
         d1 = struct;
         d1.mat1_ini = mat1_ini;
@@ -82,178 +82,176 @@ for fig1 = num_fig % Plot figures
     end
     
     
-    
-    %     %% Select data for plotting
-    %
-    %     % Get means and bootstrap data;
-    %     [~,n,o] = size(mat1_ini);
-    %     mat2_ini = NaN(1, n, o);
-    %     mat2_ini_upper = NaN(1, n, o);
-    %     mat2_ini_lower = NaN(1, n, o);
-    %
-    %     for i1 = 1:size(mat1_ini, 3)
-    %
-    %         % Get average data
-    %         mat2_ini(1,:,i1)= nanmean(mat1_ini(:, :, i1));
-    %
-    %         % Get error bars
-    %         ind = ~isnan(mat1_ini(:,1,i1));
-    %         temp1 = mat1_ini(ind,:,i1);
-    %         a = plot_helper_error_bar_calculation_v10(temp1, settings);
-    %         try
-    %             mat2_ini_upper(1,:,i1)= a.se_upper;
-    %             mat2_ini_lower(1,:,i1)= a.se_lower;
-    %         end
-    %
-    %     end
-    
-    
-    
-    
-    
     %% Plot data
     
     if fig1>=1 && fig1<=6
-        
-        temp1 = unique(S.esetup_memory_coord, 'rows');
-        [th,radiusdeg] = cart2pol(temp1(:,1), temp1(:,2));
-        theta = (th*180)/pi;
-        memory_angle = theta;
         
         plot_set = struct;
         
         % Data
         if fig1==1
-            cond_name = 'look'
+            cond2 = 'look';
+            v1 = 1;
+            plot_set.data_color_min = [1];
+            plot_set.figure_title = 'Look, texture on';
+        elseif fig1==2
+            cond2 = 'avoid';
+            v1 = 1;
+            plot_set.data_color_min = [2];
+            plot_set.figure_title = 'Avoid, texture on';
+        elseif fig1==3
+            cond2 = 'control fixate';
+            v1 = 1;
+            plot_set.data_color_min = [4];
+            plot_set.figure_title = 'Control, texture on';
+        elseif fig1==4
+            cond2 = 'look';
+            v1 = 0;
+            plot_set.data_color_min = [1];
+            plot_set.figure_title = 'Look, no texture';
+        elseif fig1==5
+            cond2 = 'avoid';
+            v1 = 0;
+            plot_set.data_color_min = [2];
+            plot_set.figure_title = 'Avoid, no texture';
+        elseif fig1==6
+            cond2 = 'control fixate';
+            v1 = 0;
+            plot_set.data_color_min = [4];
+            plot_set.figure_title = 'Control, no texture';
         end
         
-        for i=1:numel(memory_angle)
+        % Calculate memory locations
+        temp1 = unique(S.esetup_memory_coord, 'rows');
+        [th,radiusdeg] = cart2pol(temp1(:,1), temp1(:,2));
+        theta = (th*180)/pi;
+        cond1 = theta;
+        
+        % Initialize conditions
+        S.expcond1 = NaN(size(S.START));
+        for i=1:size(temp1,1)
             index = S.esetup_memory_coord(:,1)==temp1(i,1) & S.esetup_memory_coord(:,2)==temp1(i,2)...
-                & strcmp(S.esetup_block_cond, 'look') & S.esetup_background_texture_on(:,1)==1 & strncmp(S.edata_error_code, 'correct', 7);
-            S.expcond(index)=i;
+                & strcmp(S.esetup_block_cond, cond2) & S.esetup_background_texture_on(:,1)==v1 & strncmp(S.edata_error_code, 'correct', 7);
+            S.expcond1(index)=i;
         end
-        %             ind = 1:length(memory_loc);
-        %             plot_set.data_color_min = [1];
-        %             plot_set.figure_title = 'Look, texture on';
-        %         elseif fig1==3
-        %             m = length(memory_loc);
-        %             ind = m+1:m*2;
-        %             plot_set.data_color_min = [2];
-        %             plot_set.figure_title = 'Avoid, texture on';
-        %         elseif fig1==4
-        %             m = length(memory_loc);
-        %             ind = m*2+1:m*3;
-        %             plot_set.data_color_min = [4];
-        %             plot_set.figure_title = 'Control, texture on';
-        %         elseif fig1==5
-        %             m = length(memory_loc);
-        %             ind = m*3+1:m*4;
-        %             plot_set.data_color_min = [1];
-        %             plot_set.figure_title = 'Look, no texture';
-        %         elseif fig1==6
-        %             m = length(memory_loc);
-        %             ind = m*4+1:m*5;
-        %             plot_set.data_color_min = [2];
-        %             plot_set.figure_title = 'Avoid, no texture';
-        %         elseif fig1==7
-        %             m = length(memory_loc);
-        %             ind = m*5+1:m*6;
-        %             plot_set.data_color_min = [4];
-        %             plot_set.figure_title = 'Control, no texture';
-        %         end
-        %
-        %         % Data
-        %         mat_y = [];
-        %         mat_y = mat2_ini(:,:,ind);
-        %
-        %         % Is there any data to plot?
-        %         a = sum(sum(~isnan(mat_y)));
-        %
-        %         if a>0
-        %
-        %             % Initialize structure with data
-        %             plot_set.mat_y = mat_y;
-        %             plot_set.mat_x = pbins;
-        %             plot_set.ebars_lower = mat2_ini_lower(:,:,ind);
-        %             plot_set.ebars_upper = mat2_ini_upper(:,:,ind);
-        %             plot_set.ebars_shade = 1;
-        %
-        %             % Colors
-        %             plot_set.data_color_min = 9;
-        %             plot_set.data_color_max = 10;
-        %
-        %             % Labels for plotting
-        %             plot_set.xlabel = 'Time after memory on, ms';
-        %             plot_set.ylabel = 'Firing rate, Hz';
-        %             plot_set.xtick = [-250, 0, 500:500:2000];
-        %
-        %             % Save data
-        %             plot_set.figure_size = settings.figsize_1col;
-        %             plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(fig1));
-        %             plot_set.path_figure = path_fig;
-        %
-        %             % Plot
-        %             hfig = figure;
-        %             hold on;
-        %             plot_helper_basic_line_figure;
-        %
-        %             %===============
-        %             % Plot inset with probe locations
-        %
-        %             axes('Position',[0.75,0.8,0.1,0.1])
-        %
-        %             axis 'equal'
-        %             set (gca, 'Visible', 'off')
-        %             hold on;
-        %
-        %             % Plot circle radius
-        %             cpos1 = [0,0];
-        %             ticks1 = [1];
-        %             cl1 = [0.5,0.5,0.5];
-        %             for i=1:length(ticks1)
-        %                 h=rectangle('Position', [cpos1(1,1)-ticks1(i), cpos1(1,2)-ticks1(i), ticks1(i)*2, ticks1(i)*2],...
-        %                     'EdgeColor', cl1, 'FaceColor', 'none', 'Curvature', 1, 'LineWidth', 0.5, 'LineStyle', '-');
-        %             end
-        %
-        %             % Plot fixation dot
-        %             cpos1 = [0,0];
-        %             ticks1 = [0.1];
-        %             cl1 = [0.5,0.5,0.5];
-        %             for i=1:length(ticks1)
-        %                 h=rectangle('Position', [cpos1(1,1)-ticks1(i), cpos1(1,2)-ticks1(i), ticks1(i)*2, ticks1(i)*2],...
-        %                     'EdgeColor', cl1, 'FaceColor', cl1, 'Curvature', 1, 'LineWidth', 0.5, 'LineStyle', '-');
-        %             end
-        %
-        %             % Initialize data values for plotting
-        %             for i=1:length(memory_loc)
-        %
-        %                 % Color
-        %                 graphcond = i;
-        %
-        %                 % Find coordinates of a line
-        %                 f_rad = 1;
-        %                 f_arc = memory_loc(i);
-        %                 [xc,yc] = pol2cart(f_arc*pi/180, f_rad);
-        %                 objsize = 0.7;
-        %
-        %                 % Plot cirlce
-        %                 h=rectangle('Position', [xc(1)-objsize(1)/2, yc(1)-objsize(1)/2, objsize(1), objsize(1)],...
-        %                     'EdgeColor', plot_set.color1(i,:), 'FaceColor', plot_set.color1(i,:),'Curvature', 0, 'LineWidth', 1);
-        %
-        %             end
-        %
-        %             % Cue location
-        %             m = find((memory_loc)<-90);
-        %             if numel(m)>1
-        %                 m=m(1);
-        %             end
-        %             text(0, -2, 'Cue in RF', 'Color', plot_set.color1(m,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'center')
-        %
-        %             plot_helper_save_figure;
-        %             close all;
-        %
-        %         end
-        %         % End of checking whether data exists for plotting
+        
+        % Data
+        mat_y = NaN(1, numel(settings.plot_bins), numel(cond1));
+        mat_y_lower = NaN(1,numel(settings.plot_bins), numel(cond1));
+        mat_y_upper =  NaN(1,numel(settings.plot_bins), numel(cond1));
+        
+        for i = 1:numel(cond1)
+            
+            index = S.expcond1 == i;
+            temp1 = mat1_ini(index,:);
+            
+            % Get means
+            a = [];
+            if sum(index)>1
+                a = nanmean(temp1);
+            elseif sum(index) == 1
+                a = temp1;
+            end
+            [n] = numel(a);
+            mat_y(1,1:n,i) = a;
+            
+            % Get error bars
+            settings.bootstrap_on = 0;
+            a = plot_helper_error_bar_calculation_v10(temp1, settings);
+            try
+                mat_y_upper(1,:,i)= a.se_upper;
+                mat_y_lower(1,:,i)= a.se_lower;
+            end
+            settings = rmfield (settings, 'bootstrap_on');
+            
+        end
+        
+        % Is there any data to plot?
+        a = sum(sum(~isnan(mat_y)));
+        
+        if a>0
+            
+            % Initialize structure with data
+            plot_set.mat_y = mat_y;
+            plot_set.mat_x = settings.plot_bins;
+            plot_set.ebars_lower_y = mat_y_lower;
+            plot_set.ebars_upper_y = mat_y_upper;
+            plot_set.ebars_shade = 1;
+            
+            % Colors
+            plot_set.data_color_max = 10;
+            
+            % Labels for plotting
+            plot_set.xlabel = 'Time after memory cue, ms';
+            plot_set.ylabel = 'Firing rate, Hz';
+            
+            % Save data
+            plot_set.figure_size = settings.figsize_1col;
+            plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(fig1));
+            plot_set.path_figure = path_fig;
+            
+            % Plot
+            hfig = figure;
+            hold on;
+            plot_helper_basic_line_figure;
+            
+            %===============
+            % Plot inset with probe locations
+            
+            axes('Position',[0.75,0.8,0.1,0.1])
+            
+            axis 'equal'
+            set (gca, 'Visible', 'off')
+            hold on;
+            
+            % Plot circle radius
+            cpos1 = [0,0];
+            ticks1 = [1];
+            cl1 = [0.5,0.5,0.5];
+            for i=1:length(ticks1)
+                h=rectangle('Position', [cpos1(1,1)-ticks1(i), cpos1(1,2)-ticks1(i), ticks1(i)*2, ticks1(i)*2],...
+                    'EdgeColor', cl1, 'FaceColor', 'none', 'Curvature', 1, 'LineWidth', 0.5, 'LineStyle', '-');
+            end
+            
+            % Plot fixation dot
+            cpos1 = [0,0];
+            ticks1 = [0.1];
+            cl1 = [0.5,0.5,0.5];
+            for i=1:length(ticks1)
+                h=rectangle('Position', [cpos1(1,1)-ticks1(i), cpos1(1,2)-ticks1(i), ticks1(i)*2, ticks1(i)*2],...
+                    'EdgeColor', cl1, 'FaceColor', cl1, 'Curvature', 1, 'LineWidth', 0.5, 'LineStyle', '-');
+            end
+            
+            % Initialize data values for plotting
+            for i=1:length(cond1)
+                
+                % Color
+                graphcond = i;
+                
+                % Find coordinates of a line
+                f_rad = 1;
+                f_arc = cond1(i);
+                [xc,yc] = pol2cart(f_arc*pi/180, f_rad);
+                objsize = 0.7;
+                
+                % Plot cirlce
+                h=rectangle('Position', [xc(1)-objsize(1)/2, yc(1)-objsize(1)/2, objsize(1), objsize(1)],...
+                    'EdgeColor', plot_set.color1(i,:), 'FaceColor', plot_set.color1(i,:),'Curvature', 0, 'LineWidth', 1);
+                
+            end
+            
+            % Cue location
+            m = find((cond1)<-90);
+            if numel(m)>1
+                m=m(1);
+            end
+            text(0, -2, 'Cue in RF', 'Color', plot_set.color1(m,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'center')
+            
+            plot_helper_save_figure;
+            close all;
+            
+        end
+        % End of checking whether data exists for plotting
         
     end
     

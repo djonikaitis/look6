@@ -46,13 +46,11 @@ if size(mat1,1)>1
 end
 
 if size(mat1,1)>1
-    if isfield(settings, 'bootstrap_on') && settings.bootstrap_on==1
-        e_bars.bootstrap_upper = up1_bootstrap;
-        e_bars.bootstrap_lower = lw1_bootstrap;
-        e_bars.bootstrap_matrix = bt1_bootstrap;
-    end
+    e_bars.bootstrap_upper = up1_bootstrap;
+    e_bars.bootstrap_lower = lw1_bootstrap;
+    e_bars.bootstrap_matrix = bt1_bootstrap;
     e_bars.se_upper = up1;
     e_bars.se_lower = lw1;
-else
+else 
     e_bars = struct;
 end
