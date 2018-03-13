@@ -43,21 +43,32 @@ for fig1 = num_fig % Plot figures
             new_mat = 0;
         end
         
+        % Try to load the data for given analysis
+        temp1 = sprintf('_%s_fig1.mat', settings.neuron_name);
+        [path1, path1_short, file_name] = get_generate_path_v10(settings, 'figures', temp1, settings.session_current);
+        if isfile (path1)
+            fprintf ('Skippind data binning and loading "%s"\n', file_name)
+            data_mat = get_struct_v11(path1);
+            mat1_ini = data_mat.mat1_ini;
+            pbins = data_mat.pbins;
+            new_mat = 0;
+        end
+        
     end
-    
-    %===========
-    % Initialize spike timing
-    t1_spike = spikes1.ts;
-    
-    % Get timing of the events
-    t1 = events_mat.msg_1;
-    t1 = t1 + S.tconst; % Reset to time relative to tconst
     
     
     %============
     % Find spikes
     
     if new_mat==1 % This decides whether to over_write the calculated data matrix
+        
+        %===========
+        % Initialize spike timing
+        t1_spike = spikes1.ts;
+        
+        % Get timing of the events
+        t1 = events_mat.msg_1;
+        t1 = t1 + S.tconst; % Reset to time relative to tconst
         
         %============
         % Initialize empty matrix
@@ -105,6 +116,12 @@ for fig1 = num_fig % Plot figures
         
         % Initialize plot bins
         pbins=int_bins+settings.bin_length/2;
+        
+        % Save data
+        d1 = struct;
+        d1.mat1_ini = mat1_ini;
+        d1.pbins = pbins;
+        save (path1, 'd1')
         
     end
     % End of checking whether new_mat==1
@@ -175,7 +192,7 @@ for fig1 = num_fig % Plot figures
         
         % Save data
         plot_set.figure_size = settings.figsize_1col;
-        plot_set.figure_save_name = sprintf ('%s_fig_%s', neuron_name, num2str(fig1));
+        plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(fig1));
         plot_set.path_figure = path_fig;
         
         % Plot
@@ -319,7 +336,7 @@ for fig1 = num_fig % Plot figures
         
         % Save data
         plot_set.figure_size = settings.figsize_1col;
-        plot_set.figure_save_name = sprintf ('%s_fig_%s', neuron_name, num2str(fig1));
+        plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(fig1));
         plot_set.path_figure = path_fig;
         
         % Initialize the data

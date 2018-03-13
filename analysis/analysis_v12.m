@@ -12,7 +12,7 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % use subject initials for one subject or 'all' to run all subjects
-settings.subjects = 'hb';
+settings.subjects = 'all';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
@@ -238,7 +238,7 @@ if analysis_spikes_timecourse == 1
         look6_analysis_template_individual_units;
     end
     
-    settings.this_analysis = 0;
+    settings.this_analysis = 1;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';
