@@ -265,6 +265,14 @@ if analysis_spikes_timecourse == 1
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';
+        settings.function_name = 'look6_spikes_orientation_task_interaction';
+        look6_analysis_template_individual_units;
+    end
+    
+    settings.this_analysis = 0;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.temp1_data_folder = 'data_combined_plexon';
         settings.function_name = 'look6_spikes_orientation_profile';
         look6_analysis_template_individual_units;
     end

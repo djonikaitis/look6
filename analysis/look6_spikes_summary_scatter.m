@@ -4,6 +4,7 @@
 %% Analysis
 
 num_fig = [1:9];
+settings.get_error_bars = 0;
 
 for fig1 = num_fig
     
@@ -19,7 +20,7 @@ for fig1 = num_fig
         [th,radius1] = cart2pol(S.esetup_memory_coord(:,1), S.esetup_memory_coord(:,2));
         arc1 = (th*180)/pi;
         m1 = [round(arc1,1), round(radius1,1)];
-        m2 = unique(m1, 'rows');
+        p = unique(m1, 'rows');
         S.esetup_memory_arc = m1(:,1);
         S.esetup_memory_radius = m1(:,2);
         
@@ -197,27 +198,51 @@ for fig1 = num_fig
             [~,n,o] = size(mat1_ini);
             mat2_ini = NaN(1, n, o);
             mat2_ini_date = NaN(1,1);
-            mat2_ini_upper = NaN(1, n, o);
-            mat2_ini_lower = NaN(1, n, o);
+            if settings.get_error_bars == 1
+                mat2_ini_upper = NaN(1, n, o);
+                mat2_ini_lower = NaN(1, n, o);
+            end
         end
     end
     
+    % Increase matrix size if needed (if delays get longer over period of recordings)
+    [~, n, ~] = size(mat1_ini);
+    [p, q, r] = size(mat2_ini);
+    if q < n
+        temp1 = NaN(p, n, r);
+        temp1_upper = NaN(p, n, r);
+        temp1_lower = NaN(p, n, r);
+        for i = 1:r
+            temp1(:,1:q, i) = mat2_ini(:,:,i);
+        end
+    end
+    mat2_ini = temp1;
+    clear temp1;
+    if settings.get_error_bars == 1
+        mat2_ini_upper = temp1_upper;
+        mat2_ini_lower = temp1_lower;
+        clear temp1_upper; clear temp1_lower;
+    end
+
     % Save averages into mat2_ini
     m = size(mat2_ini, 1);
     
     for i1 = 1:size(mat1_ini, 3)
-        
+                
         % Get average data
-        mat2_ini(m+1,:,i1)= nanmean(mat1_ini(:, :, i1));
+        n = size(mat1_ini, 2);
+        mat2_ini(m+1,1:n,i1)= nanmean(mat1_ini(:, :, i1));
         
         % Get error bars
-%         ind = ~isnan(mat1_ini(:,1,i1));
-%         temp1 = mat1_ini(ind,:,i1);
-%         a = plot_helper_error_bar_calculation_v10(temp1, settings);
-%         try
-%             mat2_ini_upper(m+1,:,i1)= a.se_upper;
-%             mat2_ini_lower(m+1,:,i1)= a.se_lower;
-%         end
+        if settings.get_error_bars == 1
+            ind = ~isnan(mat1_ini(:,1,i1));
+            temp1 = mat1_ini(ind,:,i1);
+            a = plot_helper_error_bar_calculation_v10(temp1, settings);
+            try
+                mat2_ini_upper(m+1,1:n,i1)= a.se_upper;
+                mat2_ini_lower(m+1,1:n,i1)= a.se_lower;
+            end
+        end
         
     end
     
