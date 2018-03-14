@@ -65,11 +65,7 @@ for fig1 = num_fig % Plot figures
     % Initialize few variables
     settings.int_bins = settings.intervalbins_tex;
     settings.bin_length = settings.bin_length_short;
-    if isfield(S, 'texture_on_1')
-        S.tconst = S.texture_on_1 - S.first_display;
-    else
-        S.tconst = (S.edata_background_texture_onset_time(:,1) - S.edata_first_display(:,1))*1000;
-    end
+    S.tconst = S.fixation_on - S.first_display; 
     
     % plot_bins
     settings.plot_bins=settings.int_bins+settings.bin_length/2;
@@ -182,14 +178,13 @@ for fig1 = num_fig % Plot figures
 %         plot_set.ebars_lower_y = mat_y_lower;
 %         plot_set.ebars_upper_y = mat_y_upper;
         plot_set.ebars_shade = 1;
-        plot_set.remove_nan = 1;
         
         % Colors
         plot_set.data_color_min = [23];
         plot_set.data_color_max = [21];
         
         % Labels for plotting
-        plot_set.xlabel = 'Time after texture, ms';
+        plot_set.xlabel = 'Time after memory cue, ms';
         plot_set.ylabel = 'Firing rate, Hz';
         
         % Plot
@@ -341,10 +336,10 @@ for fig1 = num_fig % Plot figures
             plot_set = struct;
             plot_set.mat_y = yc;
             plot_set.mat_x = xc;
-%             plot_set.ebars_lower_y = yc_lower;
-%             plot_set.ebars_upper_y = yc_upper;
-%             plot_set.ebars_lower_x = xc_lower;
-%             plot_set.ebars_upper_x = xc_upper;
+            plot_set.ebars_lower_y = yc_lower;
+            plot_set.ebars_upper_y = yc_upper;
+            plot_set.ebars_lower_x = xc_lower;
+            plot_set.ebars_upper_x = xc_upper;
             plot_set.ebars_shade = 1;
             
             % Colors
@@ -356,7 +351,7 @@ for fig1 = num_fig % Plot figures
             
             
             % Save data
-            plot_set.figure_size = settings.figsize_2col;
+            plot_set.figure_size = [0, 0, 5, 5];
             plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(fig1));
             plot_set.path_figure = path_fig;
             

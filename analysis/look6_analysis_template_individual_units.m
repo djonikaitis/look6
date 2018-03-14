@@ -154,7 +154,7 @@ for i_subj=1:length(settings.subjects)
                     end
                     
                     % Select a subset of units to use (for debugging usually)
-                    settings.channels_used = 1; %settings.channels_available;
+                    settings.channels_used = settings.channels_available;
                     
                     % Run analysis for each unit
                     for i_unit = 1:numel(settings.channels_used)

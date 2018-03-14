@@ -19,7 +19,7 @@ elseif strcmp(settings.data_sessions, 'last')
 elseif strcmp (settings.data_sessions, 'before')
     settings.data_sessions_temp = 20180220; 
 elseif strcmp (settings.data_sessions, 'after')
-    settings.data_sessions_temp = 20170901; 
+    settings.data_sessions_temp = 20171201; 
 elseif strcmp (settings.data_sessions, 'interval')
     settings.data_sessions_temp = [20170330, 20170401]; 
 elseif strcmp(settings.data_sessions, 'selected')
@@ -122,11 +122,9 @@ settings.figsize_4col=[0, 0, 7.2, 2.2];
 % Settings for doing sliding window analysis
 settings.timestep = 50;
 settings.intervalbins_tex=[-250:settings.timestep:500]; % Bins locked to cue
-settings.intervalbins_tex_radial = [-200:settings.timestep:500]; % Large bins for plotting texture selectivity
 settings.intervalbins_mem=[-250:settings.timestep:3000]; % Bins locked to memory
 settings.intervalbins_sacc=[-600:settings.timestep:100]; % Bins locked to saccade cue
 settings.bin_length_short = 75; % Milisecconds used for each time bin (for sliding window size)
-settings.bin_length_long = 200; % Longer time bins
 settings.baseline_bin_count = 3; % How many time bins to use for moving average analysis
 
 settings.colormap = 'magma';

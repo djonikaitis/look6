@@ -26,6 +26,7 @@ for fig1 = num_fig % Plot figures
         plot_bins_start = data_mat.plot_bins_start;
         plot_bins_end = data_mat.plot_bins_end;
         new_mat = 0;
+        clear data_mat;
     end
     
     % Initialize few variables

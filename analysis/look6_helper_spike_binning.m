@@ -4,15 +4,18 @@
 % plot_bins_start/end;
 % t1_spike;
 % t1_evt;
+
+function y = look6_helper_spike_binning (t1_spike, t1_evt, plot_bins_start, plot_bins_end)
         
-mat1_ini = NaN(size(S.START,1), size(plot_bins_start, 2));
+mat1_ini = NaN(size(plot_bins_start,1), size(plot_bins_start, 2));
 
 for tid = 1:size(mat1_ini,1)
     for j = 1:size(plot_bins_start, 2)
         
         % If bin start/end exist
         if ~isnan(t1_evt(tid)) && ...
-                ~isnan(plot_bins_start(tid,j)) && ~isnan(plot_bins_end(tid,j)) 
+                ~isnan(plot_bins_start(tid,j)) && ~isnan(plot_bins_end(tid,j)) && ...
+                plot_bins_start(tid,j) < plot_bins_end(tid,j)
             
             % Index
             index = t1_spike >= t1_evt(tid) + plot_bins_start(tid,j) & ...
@@ -28,3 +31,9 @@ for tid = 1:size(mat1_ini,1)
         
     end
 end
+
+% Convert to HZ
+b_length = plot_bins_end - plot_bins_start;
+mat1_ini = mat1_ini.*(1000./b_length);
+
+y = mat1_ini;
