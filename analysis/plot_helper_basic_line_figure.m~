@@ -95,41 +95,38 @@ if ~isfield (plot_set, 'plot_remove_nan')
     plot_set.plot_remove_nan = 1;
 end
 
-% if isfield (plot_set, 'mat_y')
-%     
-%     for i=1:size(plot_set.mat_y, 3)
-%         temp1 = plot_set.mat_y(:,:,i);
-%         
-%         
-%     end
-% end
-% 
+if isfield (plot_set, 'mat_y')
+    
+    
+    
+    
+end
 
-% % Calculate averages (if multiple data available)
-% % Remove missing data for easier plotting
-% if isfield(plot_set, 'plot_remove_nan') && plot_set.plot_remove_nan==1
-%     
-%     if size(temp_y,1)>1
-%         b = nanmean(temp_y);
-%         ind = isnan(b);
-%     else
-%         b = temp_y;
-%         ind = isnan(b);
-%     end
-%     mat_y = b(:, ~ind);
-%     mat_x = temp_x(:, ~ind);
-%     
-% else
-%     
-%     if size(temp_y,1)>1
-%         b = nanmean(temp_y);
-%     else
-%         b = temp_y;
-%     end
-%     mat_y = b;
-%     mat_x = temp_x;
-%     
-% end
+% Calculate averages (if multiple data available)
+% Remove missing data for easier plotting
+if isfield(plot_set, 'plot_remove_nan') && plot_set.plot_remove_nan==1
+    
+    if size(temp_y,1)>1
+        b = nanmean(temp_y);
+        ind = isnan(b);
+    else
+        b = temp_y;
+        ind = isnan(b);
+    end
+    mat_y = b(:, ~ind);
+    mat_x = temp_x(:, ~ind);
+    
+else
+    
+    if size(temp_y,1)>1
+        b = nanmean(temp_y);
+    else
+        b = temp_y;
+    end
+    mat_y = b;
+    mat_x = temp_x;
+    
+end
 
 
 %% Calculate colors to be used
