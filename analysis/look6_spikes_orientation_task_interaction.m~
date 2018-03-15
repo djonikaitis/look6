@@ -159,6 +159,9 @@ for fig1 = num_fig % Plot figures
             
             plot_set = struct;
             
+            hfig = subplot(2,2,fig_sub);
+            hold on;
+            
             % Select condition to plot
             if fig_sub==1
                 t1 = 'look';
@@ -189,9 +192,9 @@ for fig1 = num_fig % Plot figures
                     a = temp1;
                 end
                 [n] = numel(a);
-                if ~isempty(a)
-                    mat_y(1,1:n,i) = a;
-                end
+                ~isempty(a)
+                mat_y(1,1:n,i) = a;
+            end
                 
                 % Get error bars
                 settings.bootstrap_on = 0;
@@ -220,13 +223,8 @@ for fig1 = num_fig % Plot figures
             plot_set.xlabel = 'Time after memory cue, ms';
             plot_set.ylabel = 'Firing rate, Hz';
             
-            % Is there any data to plot?
-            a = sum(sum(~isnan(plot_set.mat_y)));
-            if a>0
-                hfig = subplot(2,2,fig_sub);
-                hold on;
-                plot_helper_basic_line_figure;
-            end
+            % Plot
+            plot_helper_basic_line_figure;
             
             
             %===============

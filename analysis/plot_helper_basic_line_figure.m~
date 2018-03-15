@@ -274,11 +274,8 @@ for k = 1:2
                 fprintf('Failed to find min and max for "%s" calculations, using defaults (not based on any data)\n', (f1_name{k}))
             end
             
-            % If for some reason values are equal
-            if plot_set.(f1_name{k})(1) == plot_set.(f1_name{k})(2)
-                plot_set.(f1_name{k}) = dummy_val;
-                fprintf('Failed to find min and max for "%s" calculations, using defaults (not based on any data)\n', (f1_name{k}))
-            end
+           if plot_set.(f1_name{k})(1) == plot_set.(f1_name{k})(2)
+           end
             
         end
 
