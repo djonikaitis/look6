@@ -217,8 +217,7 @@ for k = 1:2
         
         % If no data exists, quit
         if isempty(tmin) || isempty(tmax)
-            plot_set.(f1_name{k})(1)=-5;
-            plot_set.(f1_name{k})(2)=5;
+            plot_set.(f1_name{k}) = dummy_val;
             fprintf('No data exists, using defaults for "%s" (not based on any data)\n', (f1_name{k}))
         end
         
@@ -257,7 +256,7 @@ for k = 1:2
     end
 end
 
-%% Calculate X and Y limits in the figure
+%% Calculate X and Y ticks in the figure
 
 % Field names
 f1_name_temp = cell(1); f1_name = cell(1); f1_name_lim = cell(1);

@@ -68,10 +68,6 @@ for fig1 = num_fig % Plot figures
         % Calculate spiking rates
         mat1_ini = look6_helper_spike_binning(t1_spike, t1_evt, plot_bins_start, plot_bins_end);
         
-        % Convert to HZ
-        b_length = plot_bins_end - plot_bins_start;
-        mat1_ini = mat1_ini.*(1000./b_length);
-        
         % Save data
         d1 = struct;
         d1.mat1_ini = mat1_ini;
