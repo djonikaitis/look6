@@ -66,7 +66,7 @@ for fig1 = num_fig % Plot figures
         t1_evt = t1_evt + S.tconst; % Reset to time relative to tconst
         
         % Calculate spiking rates
-        look6_helper_spike_binning;
+        mat1_ini = look6_helper_spike_binning(t1_spike, t1_evt, plot_bins_start, plot_bins_end);
         
         % Convert to HZ
         b_length = plot_bins_end - plot_bins_start;

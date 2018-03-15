@@ -1,10 +1,10 @@
 % Prepare each figure
 
-num_fig = 1;
+num_fig = 3;
 
 for fig1 = num_fig % Plot figures
     
-    fprintf('\nPreparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig)))
+    fprintf('Preparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig)))
     
     S.expcond = NaN(size(S.START));
     
@@ -357,12 +357,6 @@ for fig1 = num_fig % Plot figures
         % Initialize matrices
         int_bins = 1:50:numel(S.session);
         
-        % Plot bins
-        pbins = [];
-        for i = 1:numel(int_bins)-1
-            pbins(i) = (int_bins(i)+int_bins(i+1))/2;
-        end
-        
         % Data
         mat_y = NaN(1, numel(int_bins)-1, numel(cond1));
         mat_y_lower = NaN(1,numel(int_bins)-1, numel(cond1));
@@ -371,15 +365,18 @@ for fig1 = num_fig % Plot figures
         
         % Sliding window analysis
         for j = 1:length(int_bins)-1
+            for k = 1:numel(cond1)
                 
                 ind = int_bins(j):1:int_bins(j+1);
+                trial_id = NaN(numel(S.START), 1);
+                trial_id(1:end) = 1:numel(trial_id)
+                tid() = 1:numel()
                 
                 % Correct trials
-                index = S.esetup_background_texture_on(ind,1)==v1;
+                index = trial_idstrcmp(S.esetup_block_cond, cond1{k}) & ...
+                    S.esetup_background_texture_on(:,1)==v1;
                
-                % Spikes
-                temp0 = mat1_ini(ind,1);
-                temp1 = temp0(index,1);
+                temp1 = mat1_ini(index,1);
                 
                 % Get means
                 a = [];
@@ -388,19 +385,18 @@ for fig1 = num_fig % Plot figures
                 elseif sum(index) == 1
                     a = temp1;
                 end
-                if ~isempty(a)
-                    mat_y(1,j) = a;
-                end
+                mat_y(1,j,k) = a;
                 
                 % Get error bars
                 settings.bootstrap_on = 0;
                 a = plot_helper_error_bar_calculation_v10(temp1, settings);
                 try
-                    mat_y_upper(1,j)= a.se_upper;
-                    mat_y_lower(1,j)= a.se_lower;
+                    mat_y_upper(1,j,k)= a.se_upper;
+                    mat_y_lower(1,j,k)= a.se_lower;
                 end
                 settings = rmfield (settings, 'bootstrap_on');
                 
+            end
         end
         
         % Is there any data to plot?
@@ -449,13 +445,13 @@ for fig1 = num_fig % Plot figures
             
             % Initialize structure with data
             plot_set.mat_y = mat_y;
-            plot_set.mat_x = pbins;
+            plot_set.mat_x = settings.plot_bins;
             plot_set.ebars_lower_y = mat_y_lower;
             plot_set.ebars_upper_y = mat_y_upper;
             plot_set.ebars_shade = 1;
             
             % Colors
-            plot_set.data_color = [0.5,0.5,0.5];
+            plot_set.data_color = [1,2,4];
             
             % Labels for plotting
             plot_set.xlabel = 'Trial number';

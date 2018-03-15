@@ -16,11 +16,11 @@ settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'after';
+settings.data_sessions = 'selected';
 
 % which setup?
 % 'unknown', 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
-settings.exp_setup = 'dj lab';
+settings.exp_setup = 'dj office';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 

@@ -20,23 +20,66 @@
 %
 % plot_set.YTick (or ytick) - else will use values based on the data
 % plot_set.XTick (or xtick) - else will use values based on the data
-% plot_set.YTLim (or ylim) - else will use values based on the data
+% plot_set.YLim (or ylim) - else will use values based on the data
 % plot_set.XLim (or xlim) - else will use values based on the data
 % plot_set.figure_title
 
 
-%% Make sure X & Y data exists
+%% X & Y data
 
-if ~isfield (plot_set, 'mat_x') && isfield (plot_set, 'mat_y')
-    plot_set.mat_x = 1:numel(plot_set.mat_y);
-end
-
+% Check if Y data exists
 if ~isfield (plot_set, 'mat_y')
     fprintf('Y data not present, will set figure options without plotting data\n')
 end
 
+% Create X data if needed
+if ~isfield (plot_set, 'mat_x') && isfield (plot_set, 'mat_y')
+    plot_set.mat_x = [];
+    [~,n,~] = size(plot_set.mat_y);
+    plot_set.mat_x(1,1:n,1) = 1:n;
+end
 
-%% Make sure size of variables is equal
+% Make X data same size as Y
+if isfield (plot_set, 'mat_x')
+    [m1, n1, o1] = size(plot_set.mat_y);
+    [m2, n2, o2] = size(plot_set.mat_x);
+    if o1>1 && o2==1
+        plot_set.mat_x = repmat(plot_set.mat_x, 1, 1, o1);
+    end
+end
+
+%% X & Y error bars data
+
+% Make sure ebars_upper_y & ebars_lower_y exists
+if (isfield (plot_set, 'ebars_lower') && isfield (plot_set, 'ebars_upper')) && ...
+        (~isfield (plot_set, 'ebars_lower_y') && ~isfield (plot_set, 'ebars_upper_y'))
+    
+    plot_set.ebars_lower_y = plot_set.ebars_lower;
+    plot_set = rmfield(plot_set, 'ebars_lower');
+    plot_set.ebars_upper_y = plot_set.ebars_upper;
+    plot_set = rmfield(plot_set, 'ebars_upper');
+    
+end
+
+% Make sure ebars_upper_x & ebars_lower_x exists
+if (isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')) && ...
+        (~isfield (plot_set, 'ebars_lower_x') && ~isfield (plot_set, 'ebars_upper_x'))
+    
+    if ~isfield (plot_set, 'mat_x')
+        plot_set.ebars_lower_x = [];
+        plot_set.ebars_upper_x = [];
+        [~,n,~] = size(plot_set.ebars_lower_y);
+        plot_set.ebars_lower_x(1,1:n,1) = 1:n;
+        plot_set.ebars_upper_x(1,1:n,1) = 1:n;
+    elseif isfield (plot_set, 'mat_x')
+        plot_set.ebars_lower_x = plot_set.mat_x;
+        plot_set.ebars_upper_x = plot_set.mat_x;
+    end
+    
+end
+
+
+%% Make sure size of all variables is equal
 
 % Check X & Y data size
 if isfield (plot_set, 'mat_y')
@@ -44,90 +87,225 @@ if isfield (plot_set, 'mat_y')
     [m1, n1, o1] = size(plot_set.mat_y);
     [m2, n2, o2] = size(plot_set.mat_x);
     
-    if m1~=m2
-        error ('X and Y matrix size mismatch')
-    end
-    if n1~=n2
-        error ('X and Y matrix size mismatch')
-    end
-    if o1>1 && o2>1 && o1~=o2
+    if m1~=m2 || n1~=n2 || o1~=o2
         error ('X and Y matrix size mismatch')
     end
     
 end
 
-% Check error bars size
-if isfield (plot_set, 'mat_y')
+% Y error bar size
+if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')
     
-    if (  (isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')) || ...
-            (isfield (plot_set, 'ebars_lower') && isfield (plot_set, 'ebars_upper'))  )
-        
-        % Temp data selection
-        if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')
-            temp1 = plot_set.ebars_lower_y;
-            temp2 = plot_set.ebars_upper_y;
-        else
-            temp1 = plot_set.ebars_lower;
-            temp2 = plot_set.ebars_lower;
-        end
-        
-        [m1, n1, o1] = size(plot_set.mat_y);
-        [m2, n2, o2] = size(temp1);
-        [m3, n3, o3] = size(temp2);
-        
-        if m1~=m2 || m1~=m3
-            error ('X and Y matrix size mismatch')
-        end
-        if n1~=n2 || n1~=n3
-            error ('X and Y matrix size mismatch')
-        end
-        if o1~=o2 || o1~=o3
-            error ('X and Y matrix size mismatch')
-        end
-        
+    [m1, n1, o1] = size(plot_set.ebars_lower_y);
+    [m2, n2, o2] = size(plot_set.ebars_upper_y);
+    
+    if m1~=m2 || n1~=n2 || o1~=o2
+        error ('Y error bar size mismatch')
+    end
+    
+end
+
+% X error bar size
+if isfield (plot_set, 'ebars_lower_x') && isfield (plot_set, 'ebars_upper_x')
+    
+    [m1, n1, o1] = size(plot_set.ebars_lower_x);
+    [m2, n2, o2] = size(plot_set.ebars_upper_x);
+    
+    if m1~=m2 || n1~=n2 || o1~=o2
+        error ('X error bar size mismatch')
+    end
+    
+end
+
+% X and Y error bar size
+if isfield (plot_set, 'ebars_lower_x') && isfield (plot_set, 'ebars_lower_y')
+    
+    [m1, n1, o1] = size(plot_set.ebars_lower_x);
+    [m2, n2, o2] = size(plot_set.ebars_lower_y);
+    
+    if m1~=m2 || n1~=n2 || o1~=o2
+        error ('X and Y error bar size mismatch')
+    end
+    
+end
+
+% Y data and Y-bar data size
+if isfield (plot_set, 'mat_y') && isfield (plot_set, 'ebars_lower_y')
+    
+    [m1, n1, o1] = size(plot_set.mat_y);
+    [m2, n2, o2] = size(plot_set.ebars_lower_y);
+    
+    if m1~=m2 || n1~=n2 || o1~=o2
+        error ('Y data and Y error bar size mismatch')
     end
     
 end
 
 %% Remove NaN values
 
+% plot_set.mat_remove_nan is output matrix for it
+
 if ~isfield (plot_set, 'plot_remove_nan')
-    plot_set.plot_remove_nan = 1;
+    plot_set.plot_remove_nan = 0;
 end
 
-if isfield (plot_set, 'mat_y')
-    
-    
-    
-    
-end
-
-% Calculate averages (if multiple data available)
-% Remove missing data for easier plotting
 if isfield(plot_set, 'plot_remove_nan') && plot_set.plot_remove_nan==1
     
-    if size(temp_y,1)>1
-        b = nanmean(temp_y);
-        ind = isnan(b);
-    else
-        b = temp_y;
-        ind = isnan(b);
+    if isfield (plot_set, 'mat_y')
+        
+        [m,n,o] = size(plot_set.mat_y);
+        plot_set.mat_remove_nan = NaN(1, n, o);
+        
+        for i=1:size(plot_set.mat_y, 3)
+            
+            temp1 = plot_set.mat_y(:,:,i);
+            if size(temp1,1)>1
+                b = nanmean(temp1);
+                plot_set.mat_remove_nan(1,:,i) = isnan(b);
+            else
+                b = temp1;
+                plot_set.mat_remove_nan(1,:,i) = isnan(b);
+            end
+            
+        end
     end
-    mat_y = b(:, ~ind);
-    mat_x = temp_x(:, ~ind);
-    
-else
-    
-    if size(temp_y,1)>1
-        b = nanmean(temp_y);
-    else
-        b = temp_y;
-    end
-    mat_y = b;
-    mat_x = temp_x;
-    
 end
 
+%% Calculate X and Y limits in the figure
+
+% Field names
+f1_name_temp = cell(1); f1_name = cell(1);
+f1_name_temp{1} = 'YLim';
+f1_name_temp{2} = 'XLim';
+f1_name{1} = 'ylim';
+f1_name{2} = 'xlim';
+
+% Rename variables if needed
+for k=1:2
+    if isfield(plot_set, f1_name_temp{k})
+        plot_set.(f1_name{k}) = plot_set.(f1_name_temp{k});
+        plot_set = rmfield(plot_set, f1_name_temp{k});
+    end
+end
+
+% if X-Y limits dont exist, calculate them
+for k = 1:2
+    if ~isfield(plot_set, f1_name{k})
+        
+        dummy_val = [-5, 5]; % Dummy axis setup in case of code failur
+        
+        % Select data
+        tmin = [];
+        tmax = [];
+        if k==1
+            if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')
+                tmin = plot_set.ebars_lower_y;
+                tmax = plot_set.ebars_upper_y;
+            elseif isfield (plot_set, 'mat_y')
+                tmin = plot_set.mat_y;
+                tmax = plot_set.mat_y;
+            end
+        elseif k==2
+            if isfield (plot_set, 'ebars_lower_x') && isfield (plot_set, 'ebars_upper_x')
+                tmin = plot_set.ebars_lower_x;
+                tmax = plot_set.ebars_upper_x;
+            elseif isfield (plot_set, 'mat_x')
+                tmin = plot_set.mat_x;
+                tmax = plot_set.mat_x;
+            end
+        end
+        
+        % If no data exists, quit
+        if isempty(tmin) || isempty(tmax)
+            plot_set.(f1_name{k})(1)=-5;
+            plot_set.(f1_name{k})(2)=5;
+            fprintf('No data exists, using defaults for "%s" (not based on any data)\n', (f1_name{k}))
+        end
+        
+        % If data exists, find min and max values
+        if ~isempty(tmin) && ~isempty(tmax)
+            
+            [m,n,o] = size(tmin);
+            a = reshape(tmin, m*n*o, 1, 1);
+            h0_min = min(a);
+            a = reshape(tmax, m*n*o, 1, 1);
+            h0_max = max(a);
+            
+            % If data exists, then calculate axis limits
+            if h0_min ~= h0_max && ~isnan(h0_min) && ~isnan(h0_max)
+                
+                if isfield (plot_set, 'legend')
+                    val1_min = 0.20;
+                    val1_max = 0.50; 
+                else
+                    val1_min = 0.06;
+                    val1_max = 0.06; 
+                end
+                plot_set.(f1_name{k})(1) = h0_min - ((h0_max - h0_min) * val1_min);
+                plot_set.(f1_name{k})(2) = h0_max + ((h0_max - h0_min) * val1_max);
+                fprintf('No values for %s provided, calculated based on data\n', (f1_name{k}))
+            end
+            
+            % In case finding min and max failed, quit
+            if h0_min == h0_max || isnan(h0_min) || isnan(h0_max)
+                plot_set.(f1_name{k}) = dummy_val;
+                fprintf('Failed to find min and max for "%s" calculations, using defaults (not based on any data)\n', (f1_name{k}))
+            end
+            
+        end
+
+    end
+end
+
+%% Calculate X and Y limits in the figure
+
+% Field names
+f1_name_temp = cell(1); f1_name = cell(1); f1_name_lim = cell(1);
+f1_name_temp{1} = 'YTick';
+f1_name_temp{2} = 'XTick';
+f1_name{1} = 'ytick';
+f1_name{2} = 'xtick';
+f1_name_lim{1} = 'ylim';
+f1_name_lim{2} = 'xlim';
+
+% Rename variables if needed
+for k=1:2
+    if isfield(plot_set, f1_name_temp{k})
+        plot_set.(f1_name{k}) = plot_set.(f1_name_temp{k});
+        plot_set = rmfield(plot_set, f1_name_temp{k});
+    end
+end
+
+  
+% if X-Y limits dont exist, calculate them
+for k = 1:2
+    
+    if isfield (plot_set, f1_name{k}) && ~isempty(plot_set.(f1_name{k})) && ~isstr(plot_set.(f1_name{k}))
+     
+        % If ticks do not exist, calculate your own
+    else 
+        
+        fprintf('No values for "%s" provided, calculating one based on the range of data used\n', f1_name{k})
+
+        tmin = plot_set.(f1_name_lim{k})(1);
+        tmax = plot_set.(f1_name_lim{k})(2);
+        
+        % Select number of tick values
+        a = (tmax-tmin)/3;
+        b = [0.01, 0.02, 0.05, 0.1, 0.5, 1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000];
+        c = b(a>=b);
+        if ~isempty(c)
+            step1 = c(end);
+        else
+            step1 = a;
+        end
+        
+        % Set ticks
+        ps_tick = [-step1*1000:step1:step1*1000];
+        plot_set.(f1_name{k}) = ps_tick;
+        
+    end
+end
 
 %% Calculate colors to be used
 
@@ -213,69 +391,39 @@ end
 %% Plot error shaded area
 
 
-if (  (isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')) || ...
-        (isfield (plot_set, 'ebars_lower') && isfield (plot_set, 'ebars_upper'))  ) ...
-        && isfield (plot_set, 'ebars_shade')
+if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y') && ...
+        isfield (plot_set, 'ebars_shade')
     
+    a = size(plot_set.ebars_lower_y, 3);
     
-    % Temp data selection
-    if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')
-        temp1 = plot_set.ebars_lower_y;
-    else
-        temp1 = plot_set.ebars_lower;
-    end
-    
-    for k = 1:size(temp1,3)
+    for k = 1:a
         
-        % Select data dimension
-        if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')
-            ebars_lower_y = plot_set.ebars_lower_y(:,:,k);
-            ebars_upper_y = plot_set.ebars_upper_y(:,:,k);
-        else
-            ebars_lower_y = plot_set.ebars_lower(:,:,k);
-            ebars_upper_y = plot_set.ebars_upper(:,:,k);
+        % Select Y data
+        ebars_lower_y = plot_set.ebars_lower_y(:,:,k);
+        ebars_upper_y = plot_set.ebars_upper_y(:,:,k);
+        
+        % Remove NaN values from Y data
+        if isfield(plot_set, 'plot_remove_nan') && plot_set.plot_remove_nan==1
+            index = plot_set.mat_remove_nan(1,:,k);
+            ebars_lower_y = ebars_lower_y(~index);
+            ebars_upper_y = ebars_upper_y(~index);
         end
         
-        % Plot only if y values are not NaNs
-        if sum(isnan(ebars_lower_y)) ~= numel(ebars_lower_y) || sum(isnan(ebars_upper_y)) ~= numel(ebars_upper_y)
-            
-            % Select x axis values
-            % Use either values same as plotting
-            % Or use pre-specified values
-            if ~isfield(plot_set, 'ebars_upper_x')
-                if size(plot_set.mat_y, 3)>1 && size(plot_set.mat_x, 3)==1
-                    temp_x_lower = plot_set.mat_x;
-                    temp_x_upper = plot_set.mat_x;
-                elseif size(plot_set.mat_y, 3)==size(plot_set.mat_x, 3)
-                    temp_x_lower = plot_set.mat_x(:,:,k);
-                    temp_x_upper = plot_set.mat_x(:,:,k);
-                else
-                    error ('X and Y matrix size mismatch')
-                end
-            elseif isfield(plot_set, 'ebars_lower_x') && isfield(plot_set, 'ebars_upper_x')
-                if size(plot_set.mat_y, 3)>1 && size(plot_set.ebars_lower_x, 3)==1
-                    temp_x_lower = plot_set.ebars_lower_x;
-                    temp_x_upper = plot_set.ebars_upper_x;
-                elseif size(plot_set.mat_y, 3)==size(plot_set.ebars_lower_x, 3)
-                    temp_x_lower = plot_set.ebars_lower_x(:,:,k);
-                    temp_x_upper = plot_set.ebars_upper_x(:,:,k);
-                else
-                    error ('X and Y matrix size mismatch')
-                end
-            end
-            
-            % Remove missing data for easier plotting
-            % Check one limit to check missing values
-            if isfield(plot_set, 'plot_remove_nan') && plot_set.plot_remove_nan==1
-                b = ebars_lower_y;
-                ind = isnan(b);
-                ebars_lower_y = b(:, ~ind);
-                ebars_upper_x = temp_x_upper(:, ~ind);
-                ebars_lower_x = temp_x_lower(:, ~ind);
-            else
-                ebars_upper_x = temp_x_upper;
-                ebars_lower_x = temp_x_lower;
-            end
+        % Select X data
+        ebars_lower_x = plot_set.ebars_lower_x(:,:,k);
+        ebars_upper_x = plot_set.ebars_upper_x(:,:,k);
+        
+        % Remove NaN values from X data
+        if isfield(plot_set, 'plot_remove_nan') && plot_set.plot_remove_nan==1
+            index = plot_set.mat_remove_nan(1,:,k);
+            ebars_lower_x = ebars_lower_x(~index);
+            ebars_upper_x = ebars_upper_x(~index);
+        end
+        
+        % Plot only if Y values are not NaNs
+        if ~isempty(ebars_lower_y) && ~isempty(ebars_lower_y) && ...
+                sum(isnan(ebars_lower_y)) ~= numel(ebars_lower_y) && ...
+                sum(isnan(ebars_upper_y)) ~= numel(ebars_upper_y)
             
             xc1 = ebars_lower_x(1); % Min x, min y
             xc2 = ebars_upper_x(1); % Min x, max y
@@ -296,10 +444,8 @@ if (  (isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y'
             % Select color
             color1 = plot_set.face_color1(k,:);
             
-            h=fill([xc1,xc2,xc3,xc4, xc5, xc6],[yc1, yc2, yc3, yc4, yc5, yc6], [1 0.7 0.2], 'linestyle', 'none');
-            if ~isempty(h)
-                set (h(end), 'FaceColor', color1,'linestyle', 'none', 'FaceAlpha', 1)
-            end
+            h = fill([xc1,xc2,xc3,xc4, xc5, xc6],[yc1, yc2, yc3, yc4, yc5, yc6], [1 0.7 0.2], 'linestyle', 'none');
+            set (h(end), 'FaceColor', color1,'linestyle', 'none', 'FaceAlpha', 1)
             
         end
         
@@ -315,60 +461,42 @@ if isfield (plot_set, 'mat_y')
     for k=1:size(plot_set.mat_y,3)
         
         % Select data dimension
-        if size(plot_set.mat_y, 3)>1 && size(plot_set.mat_x, 3)==1
-            temp_y = plot_set.mat_y(:,:,k);
-            temp_x = plot_set.mat_x;
-        elseif size(plot_set.mat_y, 3)==size(plot_set.mat_x, 3)
-            temp_y = plot_set.mat_y(:,:,k);
-            temp_x = plot_set.mat_x(:,:,k);
-        else
-            error ('X and Y matrix size mismatch')
+        mat_y = plot_set.mat_y(:,:,k);
+        mat_x = plot_set.mat_x(:,:,k);
+        
+        % Calculate averages Y
+        if size(mat_y, 1)>1
+            mat_y = nanmean(mat_y);
         end
         
-        % Calculate averages (if multiple data available)
-        % Remove missing data for easier plotting
+        % Calculate averages X
+        if size(mat_x, 1)>1
+            mat_x = nanmean(mat_x);
+        end
+        
+        % Remove NaN values from Y data
         if isfield(plot_set, 'plot_remove_nan') && plot_set.plot_remove_nan==1
-            
-            if size(temp_y,1)>1
-                b = nanmean(temp_y);
-                ind = isnan(b);
-            else
-                b = temp_y;
-                ind = isnan(b);
-            end
-            mat_y = b(:, ~ind);
-            mat_x = temp_x(:, ~ind);
-            
-        else
-            
-            if size(temp_y,1)>1
-                b = nanmean(temp_y);
-            else
-                b = temp_y;
-            end
-            mat_y = b;
-            mat_x = temp_x;
-            
+            index = plot_set.mat_remove_nan(1,:,k);
+            mat_y = mat_y(~index);
+            mat_x = mat_x(~index);
         end
         
         % Draw line
-        if numel(mat_x) == numel(mat_y)
+        if ~isempty(mat_y) && ~isempty(mat_x) && ...
+                numel(mat_x) == numel(mat_y)
             h=plot(mat_x, mat_y);
-        else
-            error('X and Y matrix size mismatch')
-        end
-        
-        % Select color
-        color1 = plot_set.color1(k,:);
-        
-        % Set color and line width
-        if ~isempty(h)
+            
+            % Select color
+            color1 = plot_set.color1(k,:);
+            
+            % Set line color and width
             if isfield (settings, 'wlinegraph')
                 set (h(end), 'LineWidth', settings.wlinegraph, 'Color', color1)
             else
                 sprintf('Line width not specified in settings.wlinegraph, using default line width')
                 set (h(end), 'LineWidth', 1, 'Color', color1)
             end
+            
         end
         
     end
@@ -377,61 +505,57 @@ end
 
 %% Legend
 
-% Plot legend text
-if isfield (plot_set, 'legend')
+% Legend x coordinate
+if isfield (plot_set, 'legend') && ~isfield (plot_set, 'legend_x_coord')
     
-    if isfield (plot_set, 'legend_x_coord') && isfield (plot_set, 'legend_y_coord')
-        x1_temp = plot_set.legend_x_coord;
-        y1_temp = plot_set.legend_y_coord;
-        
+    if isfield(plot_set, 'mat_x')
+        cx1 = plot_set.mat_x(1);
+        sprintf('Legend coordinate x set automatically based on data')
+    elseif isfield(plot_set, 'xlim')
+        cx1 = plot_set.xlim(1)+1;
+        sprintf('No data exist, legend coordinate x set based on axis limits')
     else
-        
-        % Legend coordinates not specified, using defaults
-        fprintf('Legend coordinates not specified, using defaults\n')
-        
-        % Extract data regardless whether error bars exist or not
-        if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')
-            t0 = plot_set.ebars_lower_y;
-            t1 = plot_set.ebars_upper_y;
-        elseif isfield (plot_set, 'ebars_lower') && isfield (plot_set, 'ebars_upper')
-            t0 = plot_set.ebars_lower;
-            t1 = plot_set.ebars_upper;
-        elseif isfield (plot_set, 'mat_y')
-            t0 = plot_set.mat_y;
-            t1 = plot_set.mat_y;
-        else
-            t0 = -2;
-            t1 = 2;
-        end
-        
-        % Calculate min and max
-        ps_h0_min = []; ps_h0_max = [];
-        for i1 = 1:size(t0, 3)
-            ps_h0_min(i1) = min(t0(:,:,i1));
-            ps_h0_max(i1) = max(t1(:,:,i1));
-        end
-        
-        % Calculate axis limits
-        val1 = 0.5;
-        val2 = 0.2;
-        
-        ps_h0_max = max(ps_h0_max); ps_h0_min = min(ps_h0_min);
-        ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
-        ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
-        
-        % Calculate legend position
-        for k=1:numel(plot_set.legend)
-            y1_temp(k) = ps_h_max - (ps_h_max - ps_h_min)*0.1*k;
-            x1_temp(k) = plot_set.mat_x(1);
-        end
-        
+        error ('Not possible to set x legend coordinate')
     end
+    
+    % Calculate legend position
+    temp1 = [];
+    for k=1:numel(plot_set.legend)
+        temp1(k) = cx1;
+    end
+    
+    plot_set.legend_x_coord = temp1;
+    
+end
+
+if isfield (plot_set, 'legend') && ~isfield (plot_set, 'legend_y_coord')
+    
+    if isfield(plot_set, 'ylim')
+        tmin = plot_set.ylim(1);
+        tmax = plot_set.ylim(2);
+        sprintf('Legend coordinate y set automatically based on data')
+    else
+        error ('Not possible to set y legend coordinate')
+    end
+    
+    % Calculate legend position
+    temp1 = []; x1_temp = [];
+    for k=1:numel(plot_set.legend)
+        temp1(k) = tmax - (tmax - tmin)*0.1*k;
+    end
+
+    plot_set.legend_y_coord = temp1;
+    
+end
+
+% Set the legend
+if isfield (plot_set, 'legend')
     
     for k=1:numel(plot_set.legend)
         
         l1 = plot_set.legend{k};
-        x1 = x1_temp(k);
-        y1 = y1_temp(k);
+        x1 = plot_set.legend_x_coord(k);
+        y1 = plot_set.legend_y_coord(k);
         
         % Select color
         color1 = plot_set.color1(k,:);
@@ -447,274 +571,36 @@ if isfield (plot_set, 'legend')
     end
 end
 
-hfig = gca;
-set (hfig, 'FontSize', settings.fontsz);
-
-
-
-%% Y Tick
-
-if isfield (plot_set, 'YTick') && ~isempty(plot_set.YTick) && ~isstr(plot_set.YTick)
-    
-    hfig.YTick = plot_set.YTick;
-    
-elseif isfield (plot_set, 'ytick') && ~isempty(plot_set.ytick) && ~isstr(plot_set.ytick)
-    
-    hfig.YTick = plot_set.ytick;
-    
-else % If y-ticks do not exist, calculate your own
-    
-    fprintf('No values for ytick provided, calculating defaults\n')
-    
-    % Extract data regardless whether error bars exist or not
-    if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y') && ...
-            sum(sum(isnan(plot_set.ebars_lower_y)))~=numel(plot_set.ebars_lower_y) && ...
-            sum(sum(isnan(plot_set.ebars_upper_y)))~=numel(plot_set.ebars_upper_y)
-        t0 = plot_set.ebars_lower_y;
-        t1 = plot_set.ebars_upper_y;
-    elseif isfield (plot_set, 'ebars_lower') && isfield (plot_set, 'ebars_upper') && ...
-            sum(sum(isnan(plot_set.ebars_lower)))~=numel(plot_set.ebars_lower) && ...
-            sum(sum(isnan(plot_set.ebars_upper)))~=numel(plot_set.ebars_upper)
-        t0 = plot_set.ebars_lower;
-        t1 = plot_set.ebars_upper;
-    elseif isfield (plot_set, 'mat_y')
-        t0 = plot_set.mat_y;
-        t1 = plot_set.mat_y;
-    elseif isfield(plot_set, 'YLim')
-        t0 = plot_set.YLim(1);
-        t1 = plot_set.YLim(2);
-    elseif isfield(plot_set, 'ylim')
-        t0 = plot_set.ylim(1);
-        t1 = plot_set.ylim(2);
-    else
-        t0 = -5;
-        t1 = 5;
-    end
-    
-    % Calculate min and max
-    ps_h0_min = []; ps_h0_max = [];
-    for i1 = 1:size(t0, 3)
-        ps_h0_min(i1) = min(t0(:,:,i1));
-        ps_h0_max(i1) = max(t1(:,:,i1));
-    end
-    
-    % Calculate axis limits
-    if isfield (plot_set, 'legend')
-        val1 = 0.50; val2 = 0.20;
-    else
-        val1 = 0.05; val2 = 0.05;
-    end
-    ps_h0_max = max(ps_h0_max); ps_h0_min = min(ps_h0_min);
-    ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
-    ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
-    
-    % Select number of tick values
-    try
-        a = (ps_h_max-ps_h_min)/3;
-        b = [0.01, 0.02, 0.05, 0.1, 0.5, 1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
-        c = b(a>=b);
-        step1 = c(end);
-    catch
-        step1 = 1;
-    end
-    
-    % Set ticks
-    ps_tick = [-step1*1000:step1:step1*1000];
-    try
-        hfig.YTick = ps_tick;
-    end
-    
-    % Clean up
-    clear ps_tick; clear ps_h0_max; clear ps_h0_min; clear ps_h_max; clear ps_h_min; clear t0; clear t1;
-    
-end
-
-
-%%  X Tick
-
-if isfield (plot_set, 'XTick') && ~isempty(plot_set.XTick) && ~isstr(plot_set.XTick)
-    
-    hfig.XTick = plot_set.XTick;
-    
-elseif isfield (plot_set, 'xtick') && ~isempty(plot_set.xtick) && ~isstr(plot_set.xtick)
-    
-    hfig.XTick = plot_set.xtick;
-    
-else
-    
-    fprintf('No values for xtick provided, calculating defaults\n')
-    
-    % Extract data regardless whether error bars exist or not
-    if isfield (plot_set, 'ebars_lower_x') && isfield (plot_set, 'ebars_upper_x') && ...
-            sum(sum(isnan(plot_set.ebars_lower_x)))~=numel(plot_set.ebars_lower_x) && ...
-            sum(sum(isnan(plot_set.ebars_upper_x)))~=numel(plot_set.ebars_upper_x)
-        t0 = plot_set.ebars_lower_x;
-        t1 = plot_set.ebars_upper_x;
-    elseif isfield (plot_set, 'mat_x')
-        t0 = plot_set.mat_x;
-        t1 = plot_set.mat_x;
-    elseif isfield(plot_set, 'XLim')
-        t0 = plot_set.XLim(1);
-        t1 = plot_set.XLim(2);
-    elseif isfield(plot_set, 'xlim')
-        t0 = plot_set.xlim(1);
-        t1 = plot_set.xlim(2);
-    else
-        t0 = -5;
-        t1 = 5;
-    end
-    
-    % Calculate min and max
-    ps_h0_min = []; ps_h0_max = [];
-    for i1 = 1:size(t0, 3)
-        ps_h0_min(i1) = min(t0(:,:,i1));
-        ps_h0_max(i1) = max(t1(:,:,i1));
-    end
-    
-    % Calculate axis limits
-    val1 = 0.05;
-    val2 = 0.05;
-    ps_h0_max = max(ps_h0_max);
-    ps_h0_min = min(ps_h0_min);
-    ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
-    ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
-    
-    % Select number of tick values
-    try
-        a = (ps_h_max-ps_h_min)/3;
-        b = [0.01, 0.02, 0.05, 0.1, 0.5, 1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
-        c = b(a>=b);
-        step1 = c(end);
-    catch
-        step1 = 1;
-    end
-    
-    % Set ticks
-    ps_tick = [-step1*1000:step1:step1*1000];
-    try
-        hfig.XTick = ps_tick;
-    end
-    
-    clear ps_tick; clear ps_h0_max; clear ps_h0_min; clear ps_h_max; clear ps_h_min; clear t0; clear t1;
-end
-
-
-
-%% Y Lim
-
-if isfield (plot_set, 'YLim')
-    
-    hfig.YLim = plot_set.YLim;
-    
-elseif isfield (plot_set, 'ylim')
-    
-    hfig.YLim = plot_set.ylim;
-    
-else
-    
-    % Extract data regardless whether error bars exist or not
-    if isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y') && ...
-            sum(sum(isnan(plot_set.ebars_lower_y)))~=numel(plot_set.ebars_lower_y) && ...
-            sum(sum(isnan(plot_set.ebars_upper_y)))~=numel(plot_set.ebars_upper_y)
-        t0 = plot_set.ebars_lower_y;
-        t1 = plot_set.ebars_upper_y;
-    elseif isfield (plot_set, 'ebars_lower') && isfield (plot_set, 'ebars_upper') && ...
-            sum(sum(isnan(plot_set.ebars_lower)))~=numel(plot_set.ebars_lower) && ...
-            sum(sum(isnan(plot_set.ebars_upper)))~=numel(plot_set.ebars_upper)
-        t0 = plot_set.ebars_lower;
-        t1 = plot_set.ebars_upper;
-    elseif isfield (plot_set, 'mat_y')
-        t0 = plot_set.mat_y;
-        t1 = plot_set.mat_y;
-    else
-        t0 = -2;
-        t1 = 2;
-    end
-    
-    % Calculate min and max
-    ps_h0_min = []; ps_h0_max = [];
-    for i1 = 1:size(t0, 3)
-        ps_h0_min(i1) = min(t0(:,:,i1));
-        ps_h0_max(i1) = max(t1(:,:,i1));
-    end
-    
-    % Setup axis limits
-    if isfield (plot_set, 'legend')
-        val1 = 0.51; val2 = 0.21;
-    else
-        val1 = 0.06; val2 = 0.06;
-    end
-    ps_h0_max = max(ps_h0_max); ps_h0_min = min(ps_h0_min);
-    ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
-    ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
-    
-%     % Set axis limits
-%     if ~isnan(ps_h_min) && ~isnan(ps_h_max) && ps_h_min ~= ps_h_max
-%         hfig.YLim = [ps_h_min, ps_h_max];
-%         fprintf('No values for YLim provided, using defaults\n')
-%     else
-%         hfig.YLim = [-2, 2];
-%         fprintf('Y axis setup from data impossible, setting axis to minimal\n')
-%     end
-    
-    clear ps_h0_min; clear ps_h0_max; clear ps_h_min; clear ps_h_max;
-    
-end
-
-%%  X Lim
-
-if isfield (plot_set, 'XLim')
-    
-    hfig.XLim = plot_set.XLim;
-    
-elseif isfield (plot_set, 'xlim')
-    
-    hfig.XLim = plot_set.xlim;
-    
-else
-    
-    % Extract data regardless whether error bars exist or not
-    if isfield (plot_set, 'ebars_upper_x') && isfield (plot_set, 'ebars_upper_x') && ...
-            sum(sum(isnan(plot_set.ebars_lower_x)))~=numel(plot_set.ebars_lower_x) && ...
-            sum(sum(isnan(plot_set.ebars_upper_x)))~=numel(plot_set.ebars_upper_x)
-        t0 = plot_set.ebars_lower_x;
-        t1 = plot_set.ebars_upper_x;
-    elseif isfield (plot_set, 'mat_x')
-        t0 = plot_set.mat_x;
-        t1 = plot_set.mat_x;
-    else
-        t0 = -2;
-        t1 = 2;
-    end
-    
-    % Calculate min and max
-    ps_h0_min = []; ps_h0_max = [];
-    for i1 = 1:size(t0, 3)
-        ps_h0_min(i1) = min(t0(:,:,i1));
-        ps_h0_max(i1) = max(t1(:,:,i1));
-    end
-    
-    % Setup axis limits
-    val1 = 0.06; val2 = 0.06;
-    ps_h0_max = max(ps_h0_max); ps_h0_min = min(ps_h0_min);
-    ps_h_max = ps_h0_max + ((ps_h0_max - ps_h0_min) * val1);
-    ps_h_min = ps_h0_min - ((ps_h0_max - ps_h0_min) * val2);
-    
-    % Set axis limits
-    if ~isnan(ps_h_min) && ~isnan(ps_h_max) && ps_h_min ~= ps_h_max
-        hfig.XLim = [ps_h_min, ps_h_max];
-        fprintf('No values for XLim provided, using defaults\n')
-    else
-        hfig.XLim = [-2, 2];
-        fprintf('X axis setup from data impossible, setting axis to minimal\n')
-    end
-    
-    clear ps_h0_min; clear ps_h0_max; clear ps_h_min; clear ps_h_max; clear temp1
-    
-    
-end
+ 
 
 %% Other
+
+hfig = gca;
+if isfield (settings, 'fontsz')
+    set (hfig, 'FontSize', settings.fontsz);
+else
+    sprintf('Font size not specified in settings.fontszlab, using default fonts')
+end
+
+% Y tick
+if isfield (plot_set, 'ytick')
+    hfig.YTick = plot_set.ytick;
+end
+
+% X tick
+if isfield (plot_set, 'xtick')
+    hfig.XTick = plot_set.xtick;
+end
+
+% Y Lim   
+if isfield (plot_set, 'ylim')
+    hfig.YLim = plot_set.ylim;
+end 
+
+%  X Lim
+if isfield (plot_set, 'xlim')
+    hfig.XLim = plot_set.xlim;
+end   
 
 % X label
 if isfield (plot_set, 'xlabel')
