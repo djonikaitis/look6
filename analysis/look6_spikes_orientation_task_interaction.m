@@ -34,8 +34,9 @@ end
 
 %% Do figures
 
-for fig1 = num_fig % Plot figures
+for fig1 = 1:numel(num_fig) % Plot figures
     
+    settings.figure_current = num_fig(fig1);
     fprintf('Preparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig))  )
     
     %=============
@@ -152,7 +153,7 @@ for fig1 = num_fig % Plot figures
     
     %% Plot the data
     
-    if fig1==1
+    if settings.figure_current==1
         
         % Data
         for fig_sub = 1:3
@@ -265,7 +266,7 @@ for fig1 = num_fig % Plot figures
     
     %% Plot the data
     
-    if fig1==1
+    if settings.figure_current==1
         
         % Data
         for fig_sub = 4
@@ -400,7 +401,7 @@ for fig1 = num_fig % Plot figures
             
             % Save data
             plot_set.figure_size = [0, 0, 5, 5];
-            plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(fig1));
+            plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(settings.figure_current));
             plot_set.path_figure = path_fig;
             
             % Initialize the data

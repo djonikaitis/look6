@@ -4,8 +4,9 @@ if size (S.esetup_background_texture_on, 2) == 2 % Only if two textures were pre
     
 num_fig = 1:3;
 
-for fig1 = num_fig % Plot figures
+for fig1 = 1:numel(num_fig) % Plot figures
     
+    settings.figure_current = num_fig(fig1);
     fprintf('Preparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig)))
       
         
@@ -15,7 +16,7 @@ for fig1 = num_fig % Plot figures
         % Texture vs no texture condition, works as basic
         % selection criterion for visual responsiveness of
         % neurons
-        if fig1==1 || fig1==2 || fig1==3
+        if settings.figure_current==1 || settings.figure_current==2 || settings.figure_current==3
             
             
             % Plot no orientation trials too
@@ -178,23 +179,23 @@ for fig1 = num_fig % Plot figures
         
         %% Plot the data
         
-        if fig1==1 || fig1==2 || fig1==3
+        if settings.figure_current==1 || settings.figure_current==2 || settings.figure_current==3
             
             % Data
             mat1 = []; m1=[]; m2=[];
             plot_set = struct;
             
-            if fig1==1
+            if settings.figure_current==1
                 mat1 = mat2_ini(:,:,1:numel(orientation1), 1);
                 m1 = mat2_ini_lower(:,:,:,1);
                 m2 = mat2_ini_upper(:,:,:,1);
                 plot_set.figure_title = 'Texture 1 selectivity';
-            elseif fig1==2
+            elseif settings.figure_current==2
                 mat1 = mat2_ini(:,:,1:numel(orientation1), 2);
                 m1 = mat2_ini_lower(:,:,:,2);
                 m2 = mat2_ini_upper(:,:,:,2);
                 plot_set.figure_title = 'Texture 2 selectivity';
-            elseif fig1==3
+            elseif settings.figure_current==3
                 ind = pbins<=0;
                 mat1(:,ind,:) = mat2_ini(:,ind,:, 1);
                 m1(:,ind,:) = mat2_ini_lower(:,ind,:,1);
@@ -225,7 +226,7 @@ for fig1 = num_fig % Plot figures
             
             % Save data
             plot_set.figure_size = settings.figsize_1col;
-            plot_set.figure_save_name = sprintf ('%s_fig_%s', neuron_name, num2str(fig1));
+            plot_set.figure_save_name = sprintf ('%s_fig_%s', neuron_name, num2str(settings.figure_current));
             plot_set.path_figure = path_fig;
             
             % Plot

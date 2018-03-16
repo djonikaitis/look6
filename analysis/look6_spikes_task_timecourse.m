@@ -2,8 +2,9 @@
 
 num_fig = 1:6;
 
-for fig1 = num_fig % Plot figures
+for fig1 = 1:numel(num_fig) % Plot figures
     
+    settings.figure_current = num_fig(fig1);
     fprintf('Preparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig))  )
     
     %=============
@@ -81,37 +82,37 @@ for fig1 = num_fig % Plot figures
     
     %% Plot data
     
-    if fig1>=1 && fig1<=6
+    if settings.figure_current>=1 && settings.figure_current<=6
         
         plot_set = struct;
         
         % Data
-        if fig1==1
+        if settings.figure_current==1
             cond2 = 'look';
             v1 = 1;
             plot_set.data_color_min = [1];
             plot_set.figure_title = 'Look, texture on';
-        elseif fig1==2
+        elseif settings.figure_current==2
             cond2 = 'avoid';
             v1 = 1;
             plot_set.data_color_min = [2];
             plot_set.figure_title = 'Avoid, texture on';
-        elseif fig1==3
+        elseif settings.figure_current==3
             cond2 = 'control fixate';
             v1 = 1;
             plot_set.data_color_min = [4];
             plot_set.figure_title = 'Control, texture on';
-        elseif fig1==4
+        elseif settings.figure_current==4
             cond2 = 'look';
             v1 = 0;
             plot_set.data_color_min = [1];
             plot_set.figure_title = 'Look, no texture';
-        elseif fig1==5
+        elseif settings.figure_current==5
             cond2 = 'avoid';
             v1 = 0;
             plot_set.data_color_min = [2];
             plot_set.figure_title = 'Avoid, no texture';
-        elseif fig1==6
+        elseif settings.figure_current==6
             cond2 = 'control fixate';
             v1 = 0;
             plot_set.data_color_min = [4];
@@ -184,7 +185,7 @@ for fig1 = num_fig % Plot figures
             
             % Save data
             plot_set.figure_size = settings.figsize_1col;
-            plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(fig1));
+            plot_set.figure_save_name = sprintf ('%s_fig_%s', settings.neuron_name, num2str(settings.figure_current));
             plot_set.path_figure = path_fig;
             
             % Plot
@@ -233,7 +234,7 @@ for fig1 = num_fig % Plot figures
                 
                 % Plot cirlce
                 h=rectangle('Position', [xc(1)-objsize(1)/2, yc(1)-objsize(1)/2, objsize(1), objsize(1)],...
-                    'EdgeColor', plot_set.color1(i,:), 'FaceColor', plot_set.color1(i,:),'Curvature', 0, 'LineWidth', 1);
+                    'EdgeColor', plot_set.main_color(i,:), 'FaceColor', plot_set.main_color(i,:),'Curvature', 0, 'LineWidth', 1);
                 
             end
             
@@ -242,7 +243,7 @@ for fig1 = num_fig % Plot figures
             if numel(m)>1
                 m=m(1);
             end
-            text(0, -2, 'Cue in RF', 'Color', plot_set.color1(m,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'center')
+            text(0, -2, 'Cue in RF', 'Color', plot_set.main_color(m,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'center')
             
             plot_helper_save_figure;
             close all;
