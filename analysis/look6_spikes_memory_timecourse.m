@@ -1,6 +1,6 @@
 % Prepare each figure
 
-num_fig = 2;
+num_fig = 5;
 
 
 %%  Calculate few variables, done only once for all figures
@@ -106,16 +106,17 @@ for fig1 = 1:numel(num_fig) % Plot figures
         look6_spikes_memory_timecourse_loc_orientation_interaction;
         
     end
-    
-%     if settings.figure_current==3
-%         
-%         look6_spikes_memory_timecourse_task;
-%         
-%     end
+
     
     if settings.figure_current==4
         
         look6_spikes_memory_timecourse_task;
+        
+    end
+    
+    if settings.figure_current==5
+        
+        look6_spikes_memory_timecourse_cumulative;
         
     end
     

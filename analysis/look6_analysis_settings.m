@@ -19,7 +19,7 @@ elseif strcmp(settings.data_sessions, 'last')
 elseif strcmp (settings.data_sessions, 'before')
     settings.data_sessions_temp = 20180220; 
 elseif strcmp (settings.data_sessions, 'after')
-    settings.data_sessions_temp = 20171201; 
+    settings.data_sessions_temp = 20170801; 
 elseif strcmp (settings.data_sessions, 'interval')
     settings.data_sessions_temp = [20170330, 20170401]; 
 elseif strcmp(settings.data_sessions, 'selected')

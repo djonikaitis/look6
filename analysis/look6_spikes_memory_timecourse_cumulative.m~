@@ -1,12 +1,11 @@
 
-close all; 
-
 task_names_used = unique(S.esetup_block_cond);
 orientations_used = unique(S.esetup_background_texture_line_angle(:,1));
-texture_on_used = [1, 0];
+texture_on_used = [1];
 memory_angles_used = unique(S.memory_angle);
 
-
+m1 = memory_angles_used<-90;
+m1)
 
 %% Calculate axis limits
 
@@ -84,7 +83,7 @@ plot_set.ylim(2) = h0_max + ((h0_max - h0_min) * val1_max);
 all_fig_y_lim = plot_set.ylim;
 
 % Figure size
-fig_subplot_dim = [numel(texture_on_used), numel(task_names_used)];
+fig_subplot_dim = [numel(task_names_used), 2];
 fig_size = [0, 0, fig_subplot_dim(2)*2.2, fig_subplot_dim(1)*2.2];
 
 extended_title = 0; % Initialize
@@ -95,7 +94,7 @@ extended_title = 0; % Initialize
 for i_fig1 = 1:numel(task_names_used)
     
     task_name_current = task_names_used{i_fig1};
-    fprintf('\nPreparing panels for the "%s" task \n', task_name_current)
+    fprintf('\nPreparing panel for the "%s" task \n', task_name_current)
     
     for i_fig2 = 1:numel(texture_on_used)
         

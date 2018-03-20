@@ -554,7 +554,7 @@ if isfield (plot_set, 'mat_y')
             if isfield (settings, 'wlinegraph')
                 set (h(end), 'LineWidth', settings.wlinegraph, 'Color', color1)
             else
-                sprintf('Line width not specified in settings.wlinegraph, using default line width')
+                fprintf('Line width not specified in settings.wlinegraph, using default line width\n')
                 set (h(end), 'LineWidth', 1, 'Color', color1)
             end
             
@@ -571,10 +571,10 @@ if isfield (plot_set, 'legend') && ~isfield (plot_set, 'legend_x_coord')
     
     if isfield(plot_set, 'mat_x')
         cx1 = plot_set.mat_x(1);
-        sprintf('Legend coordinate x set automatically based on data')
+        fprintf('Legend coordinate x set automatically based on data\n')
     elseif isfield(plot_set, 'xlim')
         cx1 = plot_set.xlim(1)+1;
-        sprintf('No data exist, legend coordinate x set based on axis limits')
+        fprintf('No data exist, legend coordinate x set based on axis limits\n')
     else
         error ('Not possible to set x legend coordinate')
     end
@@ -594,7 +594,7 @@ if isfield (plot_set, 'legend') && ~isfield (plot_set, 'legend_y_coord')
     if isfield(plot_set, 'ylim')
         tmin = plot_set.ylim(1);
         tmax = plot_set.ylim(2);
-        sprintf('Legend coordinate y set automatically based on data')
+        fprintf('Legend coordinate y set automatically based on data\n')
     else
         error ('Not possible to set y legend coordinate')
     end
@@ -625,7 +625,7 @@ if isfield (plot_set, 'legend')
         if isfield (settings, 'fontszlabel')
             text(x1, y1, l1, 'Color', color1,  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left')
         else
-            sprintf('Font size not specified in settings.fontszlabel, using default fonts')
+            fprintf('Font size not specified in settings.fontszlabel, using default fonts\n')
             text(x1, y1, l1, 'Color', color1,  'FontSize', 12, 'HorizontalAlignment', 'left')
         end
         
@@ -641,7 +641,7 @@ hfig = gca;
 if isfield (settings, 'fontsz')
     set (hfig, 'FontSize', settings.fontsz);
 else
-    sprintf('Font size not specified in settings.fontsz, using default fonts')
+    fprintf('Font size not specified in settings.fontsz, using default fonts\n')
     set (hfig, 'FontSize', 10);
 end
 

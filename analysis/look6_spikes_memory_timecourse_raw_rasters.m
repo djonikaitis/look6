@@ -1,4 +1,6 @@
 
+close all;
+
 threshold1 = 50; % Max number of trials to plot
 
 task_names_used = unique(S.esetup_block_cond);

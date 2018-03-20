@@ -1,6 +1,6 @@
 % Prepare each figure
 
-num_fig = 1:3;
+num_fig = 4;
 
 %%  Calculate few variables, done only once for all figures
 
@@ -127,6 +127,7 @@ for fig1 = 1:numel(num_fig) % Plot figures
         look6_spikes_orientation_timecourse_texture_on_response;
         
     end
+    
     
 end
 % End of plotting each figure
