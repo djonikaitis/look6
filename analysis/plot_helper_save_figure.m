@@ -8,8 +8,8 @@ if isfield (plot_set, 'path_figure') && ...
         set(gcf, 'PaperPositionMode', 'manual');
         set(gcf, 'PaperUnits', 'inches');
         set(gcf, 'PaperPosition', plot_set.figure_size)
-        set(gcf, 'PaperSize', [plot_set.figure_size(3),plot_set.figure_size(4)]);
-        print (f_name, '-dpdf')
+        set(gcf, 'PaperSize', [plot_set.figure_size(3),plot_set.figure_size(4)])
+        print (f_name, '-dpdf', '-r1000')
     else
         error ('Figure path not defined, can not plot data')
     end

@@ -156,7 +156,7 @@ end
 % plot_set.mat_remove_nan is output matrix for it
 
 if ~isfield (plot_set, 'plot_remove_nan')
-    plot_set.plot_remove_nan = 0;
+    plot_set.plot_remove_nan = 1;
 end
 
 if isfield (plot_set, 'mat_y') || isfield (plot_set, 'ebars_lower_y')
@@ -258,8 +258,13 @@ for k = 1:2
             if ~isempty(h0_min) && ~isempty(h0_max) && h0_min ~= h0_max && ~isnan(h0_min) && ~isnan(h0_max)
                 
                 if isfield (plot_set, 'legend')
-                    val1_min = 0.20;
-                    val1_max = 0.50;
+                    if k==1
+                        val1_min = 0.20;
+                        val1_max = 0.50;
+                    elseif k==2
+                        val1_min = 0.06;
+                        val1_max = 0.06;
+                    end
                 else
                     val1_min = 0.06;
                     val1_max = 0.06;
@@ -350,7 +355,11 @@ if isfield (plot_set, 'mat_y') || isfield(plot_set, 'ebars_lower_y')
     %===============
     % It's a single color
     if isfield(plot_set, 'data_color') && ~isempty(plot_set.data_color)
-        if sum(sum(plot_set.data_color<=1)) == numel(plot_set.data_color)
+        if numel(plot_set.data_color)==1 % If theres only one color value
+            ind = plot_set.data_color;
+            plot_set.main_color = settings.color1(ind,:);
+            plot_set.shade_color = settings.face_color1(ind,:);
+        elseif sum(sum(plot_set.data_color<=1)) == numel(plot_set.data_color)
             if size(plot_set.(f_name),3) == size(plot_set.data_color,1) % Only if appropriate number of colors is specified
                 plot_set.main_color = plot_set.data_color;
             end
@@ -669,6 +678,13 @@ end
 % Figure title
 if isfield (plot_set, 'figure_title')
     if isfield (plot_set, 'figure_title_color')
+        if numel(plot_set.figure_title_color)==1
+            ind = plot_set.data_color;
+            plot_set.title_color = settings.color1(ind,:);
+        elseif numel(plot_set.figure_title_color)==3
+            plot_set.title_color = plot_set.data_color;
+        end
+        title (plot_set.figure_title, 'FontSize', settings.fontszlabel, 'Color', plot_set.title_color);
     else
         title (plot_set.figure_title, 'FontSize', settings.fontszlabel)
     end
