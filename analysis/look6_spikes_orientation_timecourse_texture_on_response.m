@@ -1,4 +1,6 @@
 
+close all;
+
 task_names_used = unique(S.esetup_block_cond);
 orientations_used = unique(S.esetup_background_texture_line_angle(:,1));
 texture_on_used = [1, 0];

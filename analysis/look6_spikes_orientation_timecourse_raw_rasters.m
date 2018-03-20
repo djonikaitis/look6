@@ -1,4 +1,6 @@
 
+close all;
+
 threshold1 = 50; % Max number of trials to plot
 
 task_names_used = unique(S.esetup_block_cond);
@@ -111,7 +113,7 @@ end
 
 %% Work on each panel
 
-for i_fig1 = 1 %:numel(task_names_used)
+for i_fig1 = 1:numel(task_names_used)
     
     task_name_current = task_names_used{i_fig1};
     fprintf('\nPreparing figure for the "%s" task \n', task_name_current)

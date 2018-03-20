@@ -1,3 +1,6 @@
+
+close all;
+
 task_names_used = unique(S.esetup_block_cond);
 orientations_used = unique(S.esetup_background_texture_line_angle(:,1));
 texture_on_used = [1, 0];
@@ -74,7 +77,7 @@ for i_fig1 = 1
         %===============
         % Plot inset with probe locations
         
-        axes('Position',[0.35,0.25,0.06,0.06])
+        axes('Position',[0.17,0.85,0.06,0.06])
         
         axis 'equal'
         set (gca, 'Visible', 'off')
