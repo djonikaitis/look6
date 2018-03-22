@@ -5,50 +5,27 @@ task_names_used = unique(S.esetup_block_cond);
 orientations_used = unique(S.esetup_background_texture_line_angle(:,1));
 texture_on_used = [1, 0];
 memory_angles_used = unique(S.memory_angle);
-
+error_code_current = 'correct';
 
 %% Plot the data
 
-% Matrices
-k = numel(texture_on_used);
-mat_y = NaN(1, numel(settings.plot_bins), k);
-test1 = NaN(1, k);
-mat_y_lower = NaN(1,numel(settings.plot_bins), k);
-mat_y_upper =  NaN(1,numel(settings.plot_bins), k);
+%==============
+% Data
+data_mat = struct;
+data_mat.mat1_ini = mat1_ini;
+data_mat.var1{1} = S.esetup_background_texture_on(:,1);
+data_mat.var1_match{1} = texture_on_used;
+data_mat.var1{2} = S.edata_error_code;
+data_mat.var1_match{2} = error_code_current;
+settings.bootstrap_on = 0;
 
-for k = 1:numel(texture_on_used)
-    
-    texture_on_current = texture_on_used(k);
-    
-    % Get index
-    index = S.esetup_background_texture_on(:,1) == texture_on_current & ...
-        strncmp(S.edata_error_code, 'correct', 7);
-    temp1 = mat1_ini(index,:);
-    test1(1,k) = sum(index);
-    
-    % Get means
-    a = [];
-    if sum(index)>1
-        a = nanmean(temp1);
-    elseif sum(index) == 1
-        a = temp1;
-    end
-    [n] = numel(a);
-    mat_y(1,1:n,k) = a;
-    
-    % Get error bars
-    settings.bootstrap_on = 0;
-    a = plot_helper_error_bar_calculation_v10(temp1, settings);
-    try
-        mat_y_upper(1,:,k)= a.se_upper;
-        mat_y_lower(1,:,k)= a.se_lower;
-    end
-    settings = rmfield (settings, 'bootstrap_on');
-    
-end
+[mat_y, mat_y_upper, mat_y_lower, ~] = look6_helper_indexed_selection(data_mat, settings);
 
-% Plot data
-if sum(test1)>0
+%================
+% Is there any data to plot?
+fig_plot_on = sum(sum(isnan(mat_y))) ~= numel(mat_y);
+
+if fig_plot_on==1
     
     plot_set = struct;
     

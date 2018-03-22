@@ -16,11 +16,11 @@ settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'after';
+settings.data_sessions = 'selected';
 
 % which setup?
 % 'unknown', 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
-settings.exp_setup = 'dj laptop';
+settings.exp_setup = 'dj office';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 
@@ -237,13 +237,13 @@ if analysis_spikes_timecourse == 1
         look6_analysis_template_individual_units;
     end
     
-%     settings.this_analysis = 1;
-%     settings.overwrite = 1;
-%     if settings.this_analysis==1
-%         settings.temp1_data_folder = 'data_combined_plexon';
-%         settings.function_name = 'look6_spikes_orientation_timecourse';
-%         look6_analysis_template_individual_units;
-%     end
+    settings.this_analysis = 1;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.temp1_data_folder = 'data_combined_plexon';
+        settings.function_name = 'look6_spikes_orientation_timecourse';
+        look6_analysis_template_individual_units;
+    end
     
 %     settings.this_analysis = 0;
 %     settings.overwrite = 1;

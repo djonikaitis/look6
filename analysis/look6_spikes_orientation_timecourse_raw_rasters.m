@@ -5,63 +5,36 @@ threshold1 = 50; % Max number of trials to plot
 
 task_names_used = unique(S.esetup_block_cond);
 orientations_used = unique(S.esetup_background_texture_line_angle(:,1));
-texture_on_used = [1, 0];
+texture_on_used = [1,0];
 memory_angles_used = unique(S.memory_angle);
+error_code_current = 'correct';
+
+texture_on_current = 1;
 
 %% Calculate axis limits
 
-% Matrices
-j = numel(task_names_used);
-k = numel(orientations_used);
-mat_y = NaN(1, numel(settings.plot_bins), j, k);
-test1 = NaN(1, j, k);
-mat_y_lower = NaN(1,numel(settings.plot_bins), j, k);
-mat_y_upper =  NaN(1,numel(settings.plot_bins), j, k);
+%==============
+% Data
+data_mat = struct;
+data_mat.mat1_ini = mat1_ini;
+data_mat.var1{1} = S.esetup_block_cond;
+data_mat.var1_match{1} = task_names_used;
+data_mat.var1{2} = S.esetup_background_texture_line_angle(:,1);
+data_mat.var1_match{2} = orientations_used;
+data_mat.var1{3} = S.esetup_background_texture_on(:,1);
+data_mat.var1_match{3} = texture_on_current;
+data_mat.var1{4} = S.edata_error_code;
+data_mat.var1_match{4} = error_code_current;
+settings.bootstrap_on = 0;
 
-for j = 1:numel(task_names_used)
-    for k = 1:numel(orientations_used)
-        
-        task_name_current = task_names_used(j);
-        orientation_current = orientations_used(k);
-        
-        % Get index
-        index = S.esetup_background_texture_on(:,1) == 1 & ...
-            S.esetup_background_texture_line_angle(:,1) == orientation_current &...
-            strcmp(S.esetup_block_cond, task_name_current) & ...
-            strncmp(S.edata_error_code, 'correct', 7);
-        temp1 = mat1_ini(index,:);
-        test1(1,j,k) = sum(index);
-        
-        % Get means
-        a = [];
-        if sum(index)>1
-            a = nanmean(temp1);
-        elseif sum(index) == 1
-            a = temp1;
-        end
-        [n] = numel(a);
-        mat_y(1,1:n,j,k) = a;
-        
-        % Get error bars
-        settings.bootstrap_on = 0;
-        a = plot_helper_error_bar_calculation_v10(temp1, settings);
-        try
-            mat_y_upper(1,:,j,k)= a.se_upper;
-            mat_y_lower(1,:,j,k)= a.se_lower;
-        end
-        settings = rmfield (settings, 'bootstrap_on');
-        
-    end
-end
+[~, mat_y_upper, mat_y_lower, test1] = look6_helper_indexed_selection(data_mat, settings);
 
+%===============
+% Y limits
 % Reshape matrixes to know numbers of trials
 [m,n,o,q,r,s] = size(mat_y_upper);
 a = reshape(mat_y_lower, m, n, o*q*r*s);
 b = reshape(mat_y_upper, m, n, o*q*r*s);
-
-[m,n,o,q,r,s] = size(test1);
-test1_copy = test1;
-test1 = reshape(test1, m, n*o*q*r*s);
 
 % Initialize structure with data
 plot_set = struct;
@@ -69,7 +42,7 @@ plot_set.ebars_lower_y = a;
 plot_set.ebars_upper_y = b;
 look6_helper_data_limits;
 
-% Count the rasters
+% Add buffer on the axis
 val1_min = 0.05;
 val1_max = 0.05;
 h0_min = plot_set.ylim(1);
@@ -78,6 +51,10 @@ plot_set.ylim(1) = h0_min - ((h0_max - h0_min) * val1_min);
 plot_set.ylim(2) = h0_max + ((h0_max - h0_min) * val1_max);
 
 % Add space for spike rasters
+[m,n,o,q,r,s] = size(test1);
+test1_copy = test1;
+test1 = reshape(test1_copy, m, n*o*q*r*s);
+
 a = max(test1);
 if a>threshold1
     a = threshold1;
@@ -85,30 +62,27 @@ end
 plot_set.ylim(2) = plot_set.ylim(2) + a*2;
 all_fig_y_lim = plot_set.ylim;
 
+
 %%  Figure size
 
 if numel(orientations_used)==4
-    p_dim = [2,2];
-    fig_size = [0,0,4,4];
+    fig_subplot_dim = [2,2];
 elseif numel(orientations_used)==5
-    p_dim = [2,3];
-    fig_size = [0,0,4,4];
+    fig_subplot_dim = [2,3];
 elseif numel(orientations_used)==6
-    p_dim = [2,3];
-    fig_size = [0,0,4,4];
+    fig_subplot_dim = [2,3];
 elseif numel(orientations_used)==7
-    p_dim = [3,3];
-    fig_size = [0,0,6,6];
+    fig_subplot_dim = [3,3];
 elseif numel(orientations_used)==8
-    p_dim = [3,3];
-    fig_size = [0,0,6,6];
+    fig_subplot_dim = [3,3];
 elseif numel(orientations_used)==9
-    p_dim = [3,3];
-    fig_size = [0,0,6,6];
+    fig_subplot_dim = [3,3];
 elseif numel(orientations_used)==10
-    p_dim = [3,4];
-    fig_size = [0,0,8,8];
+    fig_subplot_dim = [3,4];
 end
+
+fig_size = [0, 0, fig_subplot_dim(2) * settings.figsize_1col(4), fig_subplot_dim(1) * settings.figsize_1col(3)];
+
 
 
 %% Work on each panel
@@ -116,14 +90,16 @@ end
 for i_fig1 = 1:numel(task_names_used)
     
     task_name_current = task_names_used{i_fig1};
-    fprintf('\nPreparing figure for the "%s" task \n', task_name_current)
+    fprintf('\n%s: preparing figure for the "%s" task \n', settings.neuron_name, task_name_current)
     
     % Is there any data to plot for current condition and location?
     a = test1_copy(:, i_fig1, :);
     fig_plot_on = sum(a);
-    
+        
     extended_title = 0;
     
+    if fig_plot_on > 0
+
     % Data
     for i_fig2 = 1:numel(orientations_used)
         
@@ -133,43 +109,40 @@ for i_fig1 = 1:numel(task_names_used)
         if test1_copy(1, i_fig1, i_fig2)>0
             
             % Initialize figure
-            hfig = subplot(p_dim(1), p_dim(2), i_fig2);
+            hfig = subplot(fig_subplot_dim(1), fig_subplot_dim(2), i_fig2);
             hold on;
-            fprintf('\nPreparing panel for %s deg texture tilt angle \n', num2str(orientation_current))
+            fprintf('\n%s: preparing panel for %s deg texture tilt angle \n', settings.neuron_name, num2str(orientation_current))
             
             % Data
             plot_set = struct;
             
-            % Data
             mat_y = NaN(1, numel(settings.plot_bins));
             mat_y_lower = NaN(1,numel(settings.plot_bins));
             mat_y_upper =  NaN(1,numel(settings.plot_bins));
             
             % Get index
             index = S.esetup_background_texture_line_angle(:,1) == orientation_current & ...
-                S.esetup_background_texture_on(:,1) == 1 & ...
                 strcmp(S.esetup_block_cond, task_name_current) & ...
+                S.esetup_background_texture_on(:,1) == texture_on_current & ...
                 strncmp(S.edata_error_code, 'correct', 7);
             temp1 = mat1_ini(index,:);
             
             % Get means
             a = []; i = 1;
-            if sum(index)>1
+            if sum(index)>=settings.trial_number_threshold
                 a = nanmean(temp1);
-            elseif sum(index) == 1
-                a = temp1;
             end
             [n] = numel(a);
             mat_y(1,1:n,i) = a;
             
             % Get error bars
-            settings.bootstrap_on = 0;
-            a = plot_helper_error_bar_calculation_v10(temp1, settings);
-            try
+            if sum(index)>=settings.trial_number_threshold
+                settings.bootstrap_on = 0;
+                a = plot_helper_error_bar_calculation_v10(temp1, settings);
                 mat_y_upper(1,:,i)= a.se_upper;
                 mat_y_lower(1,:,i)= a.se_lower;
+                settings = rmfield (settings, 'bootstrap_on');
             end
-            settings = rmfield (settings, 'bootstrap_on');
             
             %==============
             % Plot spikes and events
@@ -201,7 +174,7 @@ for i_fig1 = 1:numel(task_names_used)
                 a = a * all_fig_y_lim(2);
                 a = a - i*2;
                 for j = 1:numel(data1)
-                    plot([data1(j),data1(j)], [a(j),a(j)-1], 'LineWidth', 0.1, 'Color', [0,0,0]);
+                    plot([data1(j),data1(j)], [a(j),a(j)-1], 'LineWidth', 0.1, 'Color', [0.1,0.1,0.1]);
                 end
             end
             
@@ -248,6 +221,8 @@ for i_fig1 = 1:numel(task_names_used)
         % End of decision whether to subplot
     end
     % End of plotting each orientation
+    end
+    % End of decision whether to plot
     
     %==========
     % Save data

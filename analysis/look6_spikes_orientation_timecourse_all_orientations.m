@@ -5,51 +5,33 @@ task_names_used = unique(S.esetup_block_cond);
 orientations_used = unique(S.esetup_background_texture_line_angle(:,1));
 texture_on_used = [1, 0];
 memory_angles_used = unique(S.memory_angle);
+error_code_current = 'correct';
+
+texture_on_current = 1;
 
 %% Subplot 1
 
 for i_fig1 = 1
     
+    %==============
     % Data
-    var1 = orientations_used;
-    mat_y = NaN(1, numel(settings.plot_bins), numel(var1));
-    test1 = NaN(1, numel(var1));
-    mat_y_lower = NaN(1,numel(settings.plot_bins), numel(var1));
-    mat_y_upper =  NaN(1,numel(settings.plot_bins), numel(var1));
+    data_mat = struct;
+    data_mat.mat1_ini = mat1_ini;
+    data_mat.var1{1} = S.esetup_background_texture_line_angle(:,1);
+    data_mat.var1_match{1} = orientations_used;
+    data_mat.var1{2} = S.esetup_background_texture_on(:,1);
+    data_mat.var1_match{2} = texture_on_current;
+    data_mat.var1{3} = S.edata_error_code;
+    data_mat.var1_match{3} = error_code_current;
+    settings.bootstrap_on = 0;
     
-    for i = 1:numel(orientations_used)
+    [mat_y, mat_y_upper, mat_y_lower, ~] = look6_helper_indexed_selection(data_mat, settings);
+
+    %================
+    % Is there any data to plot?
+    fig_plot_on = sum(sum(isnan(mat_y))) ~= numel(mat_y);
         
-        orientation_current = orientations_used(i);
-        
-        % Get index
-        index = S.esetup_background_texture_on(:,1) == 1 & ...
-            S.esetup_background_texture_line_angle(:,1) == orientation_current &...
-            strncmp(S.edata_error_code, 'correct', 7);
-        temp1 = mat1_ini(index,:);
-        test1(1,i) = sum(index);
-        
-        % Get means
-        a = [];
-        if sum(index)>1
-            a = nanmean(temp1);
-        elseif sum(index) == 1
-            a = temp1;
-        end
-        [n] = numel(a);
-        mat_y(1,1:n,i) = a;
-        
-        % Get error bars
-        settings.bootstrap_on = 0;
-        a = plot_helper_error_bar_calculation_v10(temp1, settings);
-        try
-            mat_y_upper(1,:,i)= a.se_upper;
-            mat_y_lower(1,:,i)= a.se_lower;
-        end
-        settings = rmfield (settings, 'bootstrap_on');
-        
-    end
-    
-    if sum(test1)>1
+    if fig_plot_on==1
         
         hfig = subplot(1, 2, i_fig1);
         hold on;
@@ -75,7 +57,7 @@ for i_fig1 = 1
         plot_helper_basic_line_figure;
         
         %===============
-        % Plot inset with probe locations
+        % Plot inset with legend
         
         axes('Position',[0.17,0.85,0.06,0.06])
         
@@ -112,45 +94,26 @@ for i_fig1 = 2
     hfig = subplot(1,2,i_fig1);
     hold on;
     
-    % Select condition to plot
-    var1 = orientations_used;
-    
+    %==============
     % Data
-    mat_y = NaN(1, numel(var1), 1);
-    test1 = NaN(1, numel(var1));
-    mat_y_lower = NaN(1, numel(var1), 1);
-    mat_y_upper =  NaN(1, numel(var1), 1);
+    data_mat = struct;
+    data_mat.mat1_ini = mat2_ini;
+    data_mat.var1{1} = S.esetup_background_texture_line_angle(:,1);
+    data_mat.var1_match{1} = orientations_used;
+    data_mat.var1{2} = S.esetup_background_texture_on(:,1);
+    data_mat.var1_match{2} = texture_on_current;
+    data_mat.var1{3} = S.edata_error_code;
+    data_mat.var1_match{3} = error_code_current;
+    settings.bootstrap_on = 0;
     
-    for i = 1:numel(orientations_used)
-        
-        orientation_current = orientations_used(i);
-        
-        index = S.esetup_background_texture_on(:,1) == 1 & ...
-            S.esetup_background_texture_line_angle(:,1) == orientation_current &...
-            strncmp(S.edata_error_code, 'correct', 7);
-        temp1 = mat2_ini(index,:);
-        test1(1,i) = sum(index);
-        
-        
-        % Get means
-        a = [];
-        if sum(index)>1
-            a = nanmean(temp1);
-        elseif sum(index) == 1
-            a = temp1;
-        end
-        mat_y(1,i,1) = a;
-        
-        % Get error bars
-        settings.bootstrap_on = 0;
-        a = plot_helper_error_bar_calculation_v10(temp1, settings);
-        try
-            mat_y_upper(1,i,1)= a.se_upper;
-            mat_y_lower(1,i,1)= a.se_lower;
-        end
-        settings = rmfield (settings, 'bootstrap_on');
-    end
+    [mat_y, mat_y_upper, mat_y_lower, ~] = look6_helper_indexed_selection(data_mat, settings);
     
+    [m,n,o] = size(mat_y);
+    mat_y = reshape(mat_y, m, n*o);
+    mat_y_lower = reshape(mat_y_lower, m, n*o);
+    mat_y_upper = reshape(mat_y_upper, m, n*o);
+    
+    %=============
     % Duplicate data
     m = size(mat_y,2);
     for i = 1:size(mat_y,3)
@@ -206,9 +169,11 @@ for i_fig1 = 2
         
     end
     
-    fig_plot_on = sum(test1);
+    %================
+    % Is there any data to plot?
+    fig_plot_on = sum(sum(isnan(mat_y))) ~= numel(mat_y);
     
-    if fig_plot_on>0
+    if fig_plot_on==1
         
         % Calculate figure limits
         for i = 1:size(yc_upper,3)
@@ -229,7 +194,7 @@ for i_fig1 = 2
         plot_set.ebars_shade = 1;
         
         % Colors
-        plot_set.data_color = [1,2,4];
+        plot_set.data_color = [0.1, 0.1, 0.1];
         
         % Labels for plotting
         plot_set.YLim = [-h_max, h_max];
@@ -340,7 +305,7 @@ end
 if fig_plot_on>0
 
     plot_set.figure_size = settings.figsize_2col;
-    plot_set.figure_save_name = sprintf ('%s_fig%_all_orientations', settings.neuron_name, num2str(settings.figure_current));
+    plot_set.figure_save_name = sprintf ('%s_fig%s', settings.neuron_name, num2str(settings.figure_current));
     plot_set.path_figure = path_fig;
     
     plot_helper_save_figure;

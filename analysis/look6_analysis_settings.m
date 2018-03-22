@@ -129,6 +129,8 @@ settings.baseline_bin_count = 3; % How many time bins to use for moving average 
 
 settings.colormap = 'magma';
 
+settings.trial_number_threshold = 5;
+
 %% Figure colors
 
 color1=[];
