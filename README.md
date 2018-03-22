@@ -16,29 +16,38 @@ modify this part into:
     if (~isempty (macaddress) && sum(macaddress==[YOUR MAC ADDRESS])==6) || ...
         (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'guest setup'))
 
-Next, modify path definitions. Reasoning is very simple: "look6" is experiment name, and question is where are you storing folder "look6"?
+Next, modify path definitions. Reasoning is very simple: "look6" is experiment name, and question is where are you storing folder "look6" that contains different subfolders "experiment", "analysis", "data".
 
     % "analysis" code is stored in:
     settings.path_baseline_code = sprintf('~/proj/experiments/');
-"baseline_code" refers to where folder "experiments" is stored. For example, it could be for you in your 
+
+"baseline_code" refers to where folder "look6/experiment" is stored. In my case it is in directory '~/proj/experiments/look6/experiment'. As you see, settings.path_baseline_code specifies just short directory - '~/proj/experiments/', without adding 'look6/experiment'. This is always taken care of automatically and all following directions have to be short.
 
     settings.path_baseline_figures = sprintf('~/Dropbox/Experiments/');
+    
+"baseline_figures" is where output of all analysis is stored. In my case its in dropbox, for easy sharing. Modify where you want "look6/figures" to get stored.
     
     % "Experiments_data" folder with eyelink and psychtoolbox data:
     settings.path_baseline_data = sprintf('~/proj/experiments_data/');
     
+"baseline_data" is again stored in computer, to save dropbox space. Thus full path is '~/proj/experiments_data/look6/data'. Modify it according to your setup.
+    
     % "Experiments_data" folder, with plexon data:
     % (might differ from other psychtoolbox data folder due to large plexon file sizes)
     settings.path_baseline_plexon = sprintf('~/proj/experiments_data/');
+    
+In some cases you might wanna store plexon data separately, as files are massive. However, you dont need change this, as I won't provide any raw plexon data.
 
     % Path to plexon toolbox
     settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';
     
+No need to modify this, as no access to raw plexon data provided.
+    
     % Path to server to download data
     settings.path_baseline_server = '/Volumes/tirin/data/RigE/Experiments_data/';
+    
+No access to server provided either.
 
+So if you modified your paths, we are good to go!
 
-
-"look6" folder with all figures is stored in the path '~/Dropbox/Experiments/', whereas all data is stored in the path '~/proj/experiments_data/'. I could store all data on dropbox, but I don't have enough space there, thus data is stored under separate path. Edit the fields "settings.path_" to match your computer.
-Also, I use mac address to access each setup without changing the code (variable "macaddress"). For this you find your mac address, and correspondingly edit the code. Alternatively, you could also name your setup and access it as a settings part. For example, if you want to call your setup 'guest_setup', 
 
