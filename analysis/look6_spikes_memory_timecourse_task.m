@@ -1,10 +1,6 @@
 
 close all; 
 
-task_names_used = unique(S.esetup_block_cond);
-orientations_used = unique(S.esetup_background_texture_line_angle(:,1));
-texture_on_used = [1, 0];
-memory_angles_used = unique(S.memory_angle);
 error_code_current = 'correct';
 
 
@@ -14,7 +10,7 @@ error_code_current = 'correct';
 % Data
 data_mat = struct;
 data_mat.mat1_ini = mat1_ini;
-data_mat.var1{1} = S.memory_angle;
+data_mat.var1{1} = S.memory_angle_relative;
 data_mat.var1_match{1} = memory_angles_used;
 data_mat.var1{2} = S.esetup_block_cond;
 data_mat.var1_match{2} = task_names_used;
@@ -74,7 +70,7 @@ for i_fig1 = 1:numel(task_names_used)
         % Data
         data_mat = struct;
         data_mat.mat1_ini = mat1_ini;
-        data_mat.var1{1} = S.memory_angle;
+        data_mat.var1{1} = S.memory_angle_relative;
         data_mat.var1_match{1} = memory_angles_used;
         data_mat.var1{2} = S.esetup_block_cond;
         data_mat.var1_match{2} = task_name_current;

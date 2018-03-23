@@ -313,7 +313,7 @@ end
 % if X-Y limits dont exist, calculate them
 for k = 1:2
     
-    if isfield (plot_set, f1_name{k}) && ~isempty(plot_set.(f1_name{k}))
+    if isfield (plot_set, f1_name{k}) && ~isempty(plot_set.(f1_name{k})) && ~isstr(plot_set.(f1_name{k}))
      
         % If ticks do not exist, calculate your own
     else 
@@ -647,20 +647,14 @@ end
 
 % Y tick
 if isfield (plot_set, 'ytick')
-    if ischar (plot_set.ytick)
-        if strcmp(plot_set.ytick, 'none')
-            hfig.YTick = plot_set.ylim(2)*1000;
-        end
-    else
-        hfig.YTick = plot_set.ytick;
-    end
+    hfig.YTick = plot_set.ytick;
 end
 
 % X tick
 if isfield (plot_set, 'xtick')
-    if ischar (plot_set.xtick)
+    if ischar plot_set.xtick
         if strcmp(plot_set.xtick, 'none')
-            hfig.XTick = plot_set.xlim(2)*1000;
+            hgig.XTick
         end
     else
         hfig.XTick = plot_set.xtick;
