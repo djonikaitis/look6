@@ -4,6 +4,8 @@
 % V1.11 November 29, 2017. Added exp setup with paths.
 % V1.12 February 1, 2018. Can over-write server files
 
+%% All settings part
+
 clear all;
 clc;
 close all;
@@ -20,7 +22,7 @@ settings.data_sessions = 'selected';
 
 % which setup?
 % 'unknown', 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
-settings.exp_setup = 'dj office';
+settings.exp_setup = 'unknown';
 
 eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general settings
 

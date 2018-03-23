@@ -1,0 +1,97 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf200
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 FILE: analysis_v12
+\b0 \
+\
+%% All settings part\
+\
+% Which subject?\
+settings.subjects - subject initials. options are: \'91aq\'92, \'91hb\'92, or \'91all\'92. If you use all, it will run both, \'91aq\'92 and \'91hb\'92 analysis.\
+\
+% Which session to run?\
+settings.data_sessions - which dates to analyse:\
+\'92all\'92 - runs all dates recorded\
+\'91last\'92 - runs last date recorded\
+\'91before\'92 - runs the dates recorded before a date specified in look6_analysis_settings file. One can change the dates in look6_analysis_settings easily. \
+\'91after\'92 - runs dates recorded after a date specified in look6_analysis_settings file.\
+\'91interval\'92 - runs date range specified in look6_analysis_settings file.\
+\'91selected\'92 - runs one selected day specified in look6_analysis_settings file.\
+\
+% Which setup?\
+settings.exp_setup - which computer is used to run analysis. This is used to specify paths to all folders. If you have specified mac address in the look6_path_definition file, then just keep settings.exp_setup = \'91unknown\'92 and all is fine. If you have not specified mac address, then you have to name your setup, and use that to access all the paths (more on paths later). For example, if I say settings.exp_setup = \'91dj office\'92 it will run part of look6_path_definition file where exp_setup is named \'91dj office\'92. See bellow for explanation on paths file. \
+\
+% Select analysis to run \
+Make variable equal to 1 for running particular analysis section. For example, now it will run analysis_spikes_timecourse code:\
+\
+analysis_edf_and_psych_data_import = 0;\
+analysis_eyelink_drift_and_conversion = 0;\
+analysis_detect_saccades = 0;\
+analysis_behaviour_srt_plots = 0;\
+analysis_import_plexon_files = 0;\
+analysis_spikes_timecourse = 1;\
+\
+Also, each analysis section contains sub-analysis. For example, \'93analysis_spikes_timecourse\'94 contains  references to \'93look6_spikes_memory_timecourse\'94 and to \'93look6_spikes_orientation_timecourse\'94 files. There you can also specify whether you want to run this subsection: \'93settings.this_analysis = 1;\'94 or don\'92t want to run it: \'93settings.this_analysis = 0;\'94\
+Further, you can specify if you want to over-write existing figures \'93settings.overwrite = 1;\'94 or if you want to skip analysis given the figures already exist: \'93settings.overwrite = 0;\'94\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\b \cf0 FILE: look6_path_definitions\
+\
+
+\b0 You need to change this file only once for a computer, and you\'92re set.
+\b \
+\
+
+\b0 There are 2 ways to access the path definitions. One is automatic, by using mac address. The other is manual, that is in analysis_v12 file you have to specify settings.exp_setup = \'91yoursetup\'92. Ill describe both ways.\
+\
+Mac address. First part of the script obtains mac address of current machine. It usually should work, and produce a 6 element matrix called current_macaddress. Next, the code is divided into sections for each setup: DJ office, DJ laptop etc. You have to add a section about your setup. Lets say you copy DJ office part and adapt it to your setup. Its done easy:\
+\
+setup_macaddress = [136; 99; 223; 185; 223; 187]; \
+Replace numbers with your mac address, for example:\
+setup_macaddress = [0; 0; 0; 0; 0; 1]; \
+\
+setup_name = 'dj office';\
+Replace with the name you want to name your setup, for example:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 setup_name = 'dj amazing computer\'92;\
+\
+If you won\'92t specify \'93setup_macaddress\'94, then code will work as long as you have specified \'93setup_name\'94.\
+\
+Next, you have to modify paths to each folder:\
+    \
+ % "analysis" code is stored in:\
+settings.path_baseline_code = sprintf('~/proj/experiments/');\
+settings.path_baseline_code is where you store your matlab code. that is, where folders look6/analysis or look6/helper_functions are stored. For example, if path is \'91~/Desktop/look6/analysis\'92, then you need to modify variable into:\
+settings.path_baseline_code = sprintf(\'91~/Desktop/\'91);\
+Note, you always specify short version of the path, that is without look6 part! Code will always append correct path extensions when needed.\
+\
+settings.path_baseline_figures = sprintf('~/Dropbox/Experiments/');\
+settings.path_baseline_figures is where you store figures. I store them on \'91Dropbox/Experiments/look6/figures\'92 for easy sharing, therefore path is linked to Dropbox.\
+    \
+% "Experiments_data" folder with eyelink and psychtoolbox data:\
+settings.path_baseline_data = sprintf('~/proj/experiments_data/');\
+settings.path_baseline_data is where data is stored. Based on your storage capacity it could be your computer or online server or whatever. \
+\
+% "Experiments_data" folder, with plexon data:\
+ % (might differ from other psychtoolbox data folder due to large plexon file sizes)\
+ settings.path_baseline_plexon = sprintf('~/proj/experiments_data/');\
+You need to specify this path only if you have access to raw plexon data (.pl2 files).\
+\
+% Path to plexon toolbox\
+settings.path_plexon_toolbox = '~/Dropbox/MatlabToolbox/PlexonMatlabOfflineFiles/';\
+You need to specify this path only if you have access to raw plexon data (.pl2 files) and want to convert those files using plexon provided APIs.\
+\
+% Path to server to download data\
+settings.path_baseline_server = '/Volumes/tirin/data/RigE/Experiments_data/';\
+You need to specify this path only if you have access to raw behavioral data in the lab, that is uploaded to lab server. \
+\
+So after you specified your paths, you are ready to go! No any code should work if you run analysis_v12 file. \
+\
+\
+\
+}

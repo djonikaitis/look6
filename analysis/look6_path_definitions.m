@@ -6,20 +6,23 @@
 try
     localhost = java.net.InetAddress.getLocalHost;
     networkinterface = java.net.NetworkInterface.getByInetAddress(localhost);
-    macaddress = typecast(networkinterface.getHardwareAddress, 'uint8');
+    current_macaddress = typecast(networkinterface.getHardwareAddress, 'uint8');
 catch
-    macaddress = [];
+    current_macaddress = [];
     error ('Could not get mac address')
 end
 
 
 %% DJ office
 
-if (~isempty (macaddress) && sum(macaddress==[136; 99; 223; 185; 223; 187])==6) || ...
-        (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'dj office'))
+setup_macaddress = [136; 99; 223; 185; 223; 187];
+setup_name = 'dj office';
+
+if (~isempty (current_macaddress) && sum(current_macaddress==setup_macaddress)==6) || ...
+        (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, setup_name))
     
     % save setup name
-    settings.exp_setup = 'dj office';
+    settings.exp_setup = setup_name;
     
     % "analysis" code is stored in:
     settings.path_baseline_code = sprintf('~/proj/experiments/');
@@ -42,11 +45,14 @@ end
 
 %% DJ laptop
 
-if (~isempty (macaddress) && sum(macaddress==[120; 79; 67; 164; 4; 139])==6) || ...
-        (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'dj laptop'))
+setup_macaddress = [120; 79; 67; 164; 4; 139];
+setup_name = 'dj laptop';
+
+if (~isempty (current_macaddress) && sum(current_macaddress==setup_macaddress)==6) || ...
+        (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, setup_name))
     
     % save setup name
-    settings.exp_setup = 'dj laptop';
+    settings.exp_setup = setup_name;
     
     % "analysis" code is stored in:
     settings.path_baseline_code = sprintf('~/proj/experiments/');
@@ -74,12 +80,14 @@ end
 
 %% Plexon office
 
+setup_macaddress = [100; 0; 106; 109; 3; 123];
+setup_name = 'plexon office';
 
-if (~isempty (macaddress) && sum(macaddress==[100; 0; 106; 109; 3; 123])==6) || ...
-    (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon office'))
-
+if (~isempty (current_macaddress) && sum(current_macaddress==setup_macaddress)==6) || ...
+        (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, setup_name))
+    
     % save setup name
-    settings.exp_setup = 'plexon office';
+    settings.exp_setup = setup_name;
 
     % "analysis" code is stored in:
     settings.path_baseline_code = 'E:\DJ_exp\Experiments\';
@@ -106,11 +114,14 @@ end
 
 %% Plexon computer lab
     
-if (~isempty (macaddress) && sum(macaddress==[188; 48; 91; 218; 166; 148])==6) || ...
-    (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'plexon lab'))
+setup_macaddress = [188; 48; 91; 218; 166; 148];
+setup_name = 'plexon lab';
 
+if (~isempty (current_macaddress) && sum(current_macaddress==setup_macaddress)==6) || ...
+        (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, setup_name))
+    
     % save setup name
-    settings.exp_setup = 'plexon lab';
+    settings.exp_setup = setup_name;
 
     % "analysis" code is stored in:
     settings.path_baseline_code = 'C:\Users\Plexon\Desktop\Experiments\';
@@ -143,11 +154,14 @@ end
 
 %% Experiments computer in RIG E 
 
-if (~isempty (macaddress) && sum(macaddress==[160; 54; 159; 160; 223; 212])==6) || ...
-    (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, 'edoras'))
+setup_macaddress = [160; 54; 159; 160; 223; 212];
+setup_name = 'edoras';
 
+if (~isempty (current_macaddress) && sum(current_macaddress==setup_macaddress)==6) || ...
+        (isfield (settings, 'exp_setup') && strcmp(settings.exp_setup, setup_name))
+    
     % save setup name
-    settings.exp_setup = 'edoras';
+    settings.exp_setup = setup_name;
     
     % "analysis" code is stored in:
     settings.path_baseline_code = 'C:\Users\Rig-E\Desktop\GitExp\';
@@ -176,6 +190,10 @@ if (~isempty (macaddress) && sum(macaddress==[160; 54; 159; 160; 223; 212])==6) 
     settings.edf2asc_path = '"C:\Program Files (x86)\SR Research\EyeLink\EDF_Access_API\Example\edf2asc.exe"';
     
 end
+
+%% Other setups?
+
+
 
 %% Catch errors
 
