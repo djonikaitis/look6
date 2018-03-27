@@ -1,11 +1,11 @@
 
 close all;
 
-
 error_code_current = 'correct';
 
 % Reduce memory angles used to only RF and opposite location
-memory_angles_used = [0, -180];
+memory_angles_subset = [0, -180];
+
 
 
 %% Calculate axis limits
@@ -15,7 +15,7 @@ memory_angles_used = [0, -180];
 data_mat = struct;
 data_mat.mat1_ini = mat1_ini;
 data_mat.var1{1} = S.memory_angle_relative;
-data_mat.var1_match{1} = memory_angles_used;
+data_mat.var1_match{1} = memory_angles_relative_used;
 data_mat.var1{2} = S.esetup_block_cond;
 data_mat.var1_match{2} = task_names_used;
 data_mat.var1{3} = S.esetup_background_texture_on(:,1);
@@ -75,7 +75,7 @@ for i_fig1 = 1:numel(task_names_used)
         data_mat = struct;
         data_mat.mat1_ini = mat1_ini;
         data_mat.var1{1} = S.memory_angle_relative;
-        data_mat.var1_match{1} = memory_angles_used;
+        data_mat.var1_match{1} = memory_angles_relative_used;
         data_mat.var1{2} = S.esetup_block_cond;
         data_mat.var1_match{2} = task_name_current;
         data_mat.var1{3} = S.esetup_background_texture_on(:,1);
@@ -185,14 +185,14 @@ for i_fig1 = 1:numel(task_names_used)
         end
         
         % Initialize data values for plotting
-        for i=1:length(memory_angles_used)
+        for i=1:length(memory_angles_relative_used)
             
             % Color
             graphcond = i;
             
             % Find coordinates of a line
             f_rad = 1;
-            f_arc = memory_angles_used(i);
+            f_arc = memory_angles_relative_used(i);
             [xc,yc] = pol2cart(f_arc*pi/180, f_rad);
             objsize = 0.7;
             
@@ -203,7 +203,7 @@ for i_fig1 = 1:numel(task_names_used)
         end
         
         % Cue location
-        m = find((memory_angles_used)<-90);
+        m = find(memory_angles_relative_used==0);
         if numel(m)>1
             m=m(1);
         end
@@ -231,7 +231,7 @@ for i_fig1 = 1:numel(texture_on_used)
     data_mat.var1{1} = S.esetup_block_cond;
     data_mat.var1_match{1} = task_names_used;
     data_mat.var1{2} = S.memory_angle_relative;
-    data_mat.var1_match{2} = memory_angles_used;
+    data_mat.var1_match{2} = memory_angles_subset;
     data_mat.var1{3} = S.esetup_background_texture_on(:,1);
     data_mat.var1_match{3} = texture_on_current;
     data_mat.var1{4} = S.edata_error_code;

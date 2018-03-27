@@ -6,6 +6,7 @@ error_code_current = 'correct';
 extended_title = 0;
 memory_angles_subset = [0, -180];
 
+
 %% Accumulate data over units
 
 %==============
@@ -27,13 +28,11 @@ settings.bootstrap_on = 0;
 % Initialize data matrix to concatenate all data
 % One channel - one row;
 % One day - as many rows as there are channels;
-% if i_date == 1
-    if i_unit == 1
-        [~,n,o,p,q] = size(data_mat_ini_single);
-        data_mat_ini_comb = NaN(1, n, o, p, q);
-        data_mat_ini_date = NaN(1,1);
-    end
-% end
+if settings.channel_current == settings.channels_used(1)
+    [~,n,o,p,q] = size(data_mat_ini_single);
+    data_mat_ini_comb = NaN(1, n, o, p, q);
+    data_mat_ini_date = NaN(1,1);
+end
 
 % Increase matrix size if current recording has more time bins than earlier
 % recordings
@@ -54,7 +53,7 @@ if q < n
     clear temp1;
 end
 
-% Save averages into mat2_ini
+% Save averages into data_mat_ini_comb
 [p, q, r, s, t] = size(data_mat_ini_comb);
 for r1 = 1:r
     for s1 = 1:s
@@ -99,49 +98,47 @@ if settings.channel_current == settings.channels_used(end)
     % Save output
     all_fig_y_lim = plot_set.ylim;
     
+    %=================
+    % Y limits for difference figure
+    
+    % Select data
+    ind1 = data_mat_ini_date == settings.date_current; % Select current date
+    mat_y_temp = NaN(sum(ind1), 2, 2);
+        
+    % Look data
+    ind2 = find(strcmp(task_names_used, 'look'));
+    if ~isempty(ind2)
+        t1 = data_mat_ini_comb(ind1, :, :, ind2, :);
+        mat_y_temp(:,1,:) = t1(:,1,1,:)-t1(:,1,2,:); % Calculate cued-uncued difference
+    end
+
+    % Avoid data
+    ind2 = find(strcmp(task_names_used, 'avoid'));
+    if ~isempty(ind2)
+        t1 = data_mat_ini_comb(ind1, :, :, ind2, :);
+        mat_y_temp(:,2,:) = t1(:,1,1,:)-t1(:,1,2,:); % Calculate cued-uncued difference
+    end
+
+    %===============
+    % Determine axis limits
+    % Initialize structure with data
+    plot_set = struct;
+    plot_set.ebars_lower_y = mat_y_temp;
+    plot_set.ebars_upper_y = mat_y_temp;
+    look6_helper_data_limits;
+        
+    % Add buffer on the axis
+    val1_min = 0.05;
+    val1_max = 0.05;
+    h0_min = plot_set.ylim(1);
+    h0_max = plot_set.ylim(2);
+    plot_set.ylim(1) = h0_min - ((h0_max - h0_min) * val1_min);
+    plot_set.ylim(2) = h0_max + ((h0_max - h0_min) * val1_max);
+    
+    fig_lim = plot_set.ylim;
+    
 end
 
-
-%% Figure folder
-
-% % if ~isempty(settings.dates_used) && ...
-% %         ~isempty(settings.channels_used) && i_unit == numel(settings.channels_used)
-% %
-% %     if fig1 == num_fig(1)
-% %
-% %         % Figure folder
-% %         if numel(settings.dates_used)>1
-% %             a = sprintf('dates %s - %s', num2str(settings.dates_used(1)), num2str(settings.dates_used(end)));
-% %             [b, ~, ~] = get_generate_path_v10(settings, 'figures');
-% %             path_fig = sprintf('%s%s/', b, a);
-% %         elseif numel(settings.dates_used)==1
-% %             [~, path_fig, ~] = get_generate_path_v10(settings, 'figures', [], settings.session_current);
-% %         end
-% %
-% %         %==============
-% %         % Create figure folders. Delete old figures.
-% %         if ~isdir(path_fig)
-% %             mkdir(path_fig)
-% %             fprintf('Created new figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
-% %         elseif isdir(path_fig)
-% %             fprintf('Overwriting existing figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
-% %             % Delete figure files, leave other files un-touched
-% %             a = dir(path_fig);
-% %             for i = 1:numel(a)
-% %                 if strncmp(a(i).name, 'fig', 3)
-% %                     path1 = sprintf('%s%s', path_fig, a(i).name);
-% %                     delete (path1)
-% %                 end
-% %             end
-% %         end
-% %
-% %     end
-% %     % End of decision whether to create figures folder
-% %
-% % end
-%
-%
-% %% Select data for plotting
 
 %================
 % Figure size
@@ -254,39 +251,24 @@ if settings.channel_current == settings.channels_used(end)
         % Select data
         ind1 = data_mat_ini_date == settings.date_current; % Select current date
         mat_y_temp = NaN(sum(ind1), 2);
+        
         % Look data
         ind2 = find(strcmp(task_names_used, 'look'));
         if ~isempty(ind2)
             t1 = data_mat_ini_comb(ind1, :, :, ind2, i_fig1);
             mat_y_temp(:,1) = t1(:,1,1)-t1(:,1,2); % Calculate cued-uncued difference
         end
+        
         % Avoid data
         ind2 = find(strcmp(task_names_used, 'avoid'));
         if ~isempty(ind2)
             t1 = data_mat_ini_comb(ind1, :, :, ind2, i_fig1);
             mat_y_temp(:,2) = t1(:,1,1)-t1(:,1,2); % Calculate cued-uncued difference
         end
+        
         % Determine date used (x axis)
         a = 1;
         mat_x = [a-0.2, a+0.2];
-        
-        %===============
-        % Determine axis limits
-        % Initialize structure with data
-        plot_set = struct;
-        plot_set.ebars_lower_y = mat_y_temp;
-        plot_set.ebars_upper_y = mat_y_temp;
-        look6_helper_data_limits;
-        
-        % Add buffer on the axis
-        val1_min = 0.05;
-        val1_max = 0.05;
-        h0_min = plot_set.ylim(1);
-        h0_max = plot_set.ylim(2);
-        plot_set.ylim(1) = h0_min - ((h0_max - h0_min) * val1_min);
-        plot_set.ylim(2) = h0_max + ((h0_max - h0_min) * val1_max);    
-        
-        fig_lim = plot_set.ylim;
         
         %================
         % Is there any data to plot?
@@ -310,9 +292,9 @@ if settings.channel_current == settings.channels_used(end)
                 for k = 1:size(mat_y_temp, 2)
                     
                     if k==1
-                        graphcond = [1];
+                        graphcond = 1;
                     elseif k==2
-                        graphcond = [2];
+                        graphcond = 2;
                     end
                     
                     h=plot(mat_x(k), mat_y_temp(j,k));
@@ -323,21 +305,22 @@ if settings.channel_current == settings.channels_used(end)
             end
             
             % Plot each line
-            for j = 1:size(mat_y_temp,1)
-                plot_set.data_color = [0.5, 0.5, 0.5];
-                h=plot(mat_x, mat_y_temp(j,:));
-                set (h(end), 'LineWidth', settings.wlineerror, 'Color', plot_set.data_color)
-            end
-            % ============
-            % ============
+            plot_set = struct;
+            plot_set.data_color = [0.5, 0.5, 0.5];
+            plot_set.mat_y = mat_y_temp;
+            plot_set.mat_x = mat_x;
+            
+            % Plot
+            plot_helper_basic_line_figure;
+
                
             % ============
             % Plot averages
             
             plot_set = struct;
-
+            
             plot_set.mat_x = mat_x;
-            if size(mat_y_temp, 1)
+            if size(mat_y_temp, 1)==1
                 plot_set.mat_y = mat_y_temp;
             else
                 plot_set.mat_y = nanmean(mat_y_temp);

@@ -10,6 +10,33 @@ temp1 = S.esetup_memory_coord;
 theta = (th*180)/pi;
 S.memory_angle = theta;
 
+% Reset memory arc relative to RF center (assumes
+% RF is in left lower visual field) at the moment.
+% Done for each session separately.
+S.memory_angle_relative = NaN(numel(S.session), 1);
+for i = 1:max(S.session)
+    index = S.session == i;
+    a = unique(S.memory_angle(index));
+    a = min(a);
+    S.memory_angle_relative(index) = S.memory_angle(index) - a;
+end
+% Round off
+S.memory_angle_relative = round(S.memory_angle_relative, 1);
+% Reset to range -180:180
+ind = S.memory_angle_relative<-180;
+S.memory_angle_relative(ind)=S.memory_angle_relative(ind)+360;
+ind = S.memory_angle_relative>=180;
+S.memory_angle_relative(ind)=S.memory_angle_relative(ind)-360;
+
+%=====================
+% Initialize a few variables
+task_names_used = unique(S.esetup_block_cond);
+orientations_used = unique(S.esetup_background_texture_line_angle(:,1));
+texture_on_used = [1,0];
+memory_angles_used = unique(S.memory_angle);
+memory_angles_relative_used = unique(S.memory_angle_relative);
+
+
 
 %% Do figures
 
@@ -129,7 +156,6 @@ for fig1 = 1:numel(num_fig) % Plot figures
         look6_spikes_orientation_timecourse_texture_on_response;
         
     end
-    
     
 end
 % End of plotting each figure

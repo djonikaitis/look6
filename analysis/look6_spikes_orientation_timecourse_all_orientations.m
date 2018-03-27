@@ -1,12 +1,7 @@
 
 close all;
 
-task_names_used = unique(S.esetup_block_cond);
-orientations_used = unique(S.esetup_background_texture_line_angle(:,1));
-texture_on_used = [1, 0];
-memory_angles_used = unique(S.memory_angle);
 error_code_current = 'correct';
-
 texture_on_current = 1;
 
 %% Subplot 1
