@@ -29,7 +29,6 @@ end
 
 %% Figure/stats folder name
 
-% Figure folder name
 a = settings.function_name;
 m = numel(settings.exp_name);
 if strncmp(a, settings.function_name, m)
@@ -56,6 +55,7 @@ for i_subj=1:length(settings.subjects)
     
     % Which dates to run?
     settings.dates_used = get_dates_used_v10 (settings, settings.temp1_data_folder);
+    
     if isempty( settings.dates_used)
         fprintf('No dates for the specified range detected, skipping analysis\n')
     end
@@ -75,20 +75,22 @@ for i_subj=1:length(settings.subjects)
         if ~isdir(path_fig) || settings.overwrite==1
             
             %==============
-            % Create figure folders
+            % Create figure folders. Delete old figures.
             if ~isdir(path_fig)
                 mkdir(path_fig)
+                fprintf('Created new figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
             elseif isdir(path_fig)
-                try
-                    rmdir(path_fig, 's')
+                fprintf('Overwriting figures "%s" for the date %s (overwrite only .pdf files)\n', settings.figure_folder_name, num2str(settings.date_current));
+                % Delete figure files, leave other files un-touched
+                a = dir(path_fig);
+                for i = 1:numel(a)
+                    b = a(i).name;
+                    m = length(b);
+                    if length(b)>4 && strcmp(b(m-3:m), '.pdf')
+                        path1 = sprintf('%s%s', path_fig, b);
+                        delete (path1)
+                    end
                 end
-                mkdir(path_fig)
-            end
-            
-            if settings.overwrite==1
-                fprintf('Overwriting existing figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
-            else
-                fprintf('Create new figures folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
             end
             
             %=================
@@ -111,7 +113,7 @@ for i_subj=1:length(settings.subjects)
             
             %% DO YOUR ANALYSIS HERE
             
-            if ~isempty(S)
+            if ~isempty(S) && ~isempty(sacc1)
                 eval(settings.function_name)
             end
             
@@ -126,7 +128,4 @@ for i_subj=1:length(settings.subjects)
     
 end
 % End of each subject
-
-% Clear out figure folder name
-settings = rmfield(settings, 'figure_folder_name');
 

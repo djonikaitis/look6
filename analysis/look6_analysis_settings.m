@@ -19,7 +19,7 @@ elseif strcmp(settings.data_sessions, 'last')
 elseif strcmp (settings.data_sessions, 'before')
     settings.data_sessions_temp = 20180220; 
 elseif strcmp (settings.data_sessions, 'after')
-    settings.data_sessions_temp = 20170801; 
+    settings.data_sessions_temp = 20180201; 
 elseif strcmp (settings.data_sessions, 'interval')
     settings.data_sessions_temp = [20170330, 20170401]; 
 elseif strcmp(settings.data_sessions, 'selected')
@@ -159,7 +159,9 @@ color1(8,:)=color1(4,:)+d1.*0.4; % Control2
 color1(9,:)= [0.2, 0.8, 0.2]; % Cued
 color1(10,:)= [0.3, 0.3, 0.3]; % Uncued
 color1(11,:) = [0.1, 0.5, 0.4]; % Correct
-color1(12,:) =  [1, 0.7, 0]; % Error
+color1(12,:) =  [1, 0.7, 0]; % Error 1
+color1(13,:) =  [1, 0.2, 0]; % Error 2
+
 %===========
 % Spikes
 

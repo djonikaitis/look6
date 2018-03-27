@@ -27,7 +27,8 @@ if ~isfield (settings, 'temp1_data_folder')
     settings.temp1_data_folder = 'data_combined_plexon';
 end
 
-% Figure folder name
+%% Figure/stats folder name
+
 a = settings.function_name;
 m = numel(settings.exp_name);
 if strncmp(a, settings.function_name, m)

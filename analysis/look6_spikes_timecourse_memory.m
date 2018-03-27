@@ -1,6 +1,7 @@
 % Prepare each figure
 
-num_fig = 1:3;
+num_fig = [1:5];
+
 
 %%  Calculate few variables, done only once for all figures
 
@@ -37,13 +38,12 @@ memory_angles_used = unique(S.memory_angle);
 memory_angles_relative_used = unique(S.memory_angle_relative);
 
 
-
-%% Do figures
+%% Figures calculations
 
 for fig1 = 1:numel(num_fig) % Plot figures
     
     settings.figure_current = num_fig(fig1);
-    fprintf('\nPreparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig)))
+    fprintf('\nPreparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig))  )
     
     %=============
     % Load data or calculate data?
@@ -56,7 +56,7 @@ for fig1 = 1:numel(num_fig) % Plot figures
     end
     
     % Try to load the data for given analysis
-    temp1 = sprintf('_%s_tex.mat', settings.neuron_name);
+    temp1 = sprintf('_%s_mem_delay.mat', settings.neuron_name);
     [path1, path1_short, file_name] = get_generate_path_v10(settings, 'figures', temp1, settings.session_current);
     if isfile (path1)
         fprintf ('Skippind data binning and loading "%s"\n', file_name)
@@ -70,13 +70,13 @@ for fig1 = 1:numel(num_fig) % Plot figures
     end
     
     % Initialize few variables
-    settings.int_bins = settings.intervalbins_tex;
+    settings.int_bins = settings.intervalbins_mem;
     settings.bin_length = settings.bin_length_short;
-    if isfield(S, 'texture_on_1')
-        S.tconst = S.texture_on_1 - S.first_display;
-    else
-        S.tconst = (S.edata_background_texture_onset_time(:,1) - S.edata_first_display(:,1))*1000;
-    end
+    S.tconst = S.memory_on - S.first_display;
+    
+    % Remove bins after memory delay
+    a = prctile(S.esetup_memory_delay*1000, 75);
+    settings.int_bins(settings.int_bins + settings.bin_length > a) = [];
     
     % plot_bins
     settings.plot_bins=settings.int_bins+settings.bin_length/2;
@@ -86,14 +86,10 @@ for fig1 = 1:numel(num_fig) % Plot figures
     
     if new_mat == 1
         
-        %================
-        % Calculate short time bins
-        
         % Create a matrix with plot_bins
         int_bins = settings.int_bins;
         bin_length = settings.bin_length;
-        t_dur = NaN(numel(S.START), 1);
-        t_dur(1:end) = max(settings.int_bins);
+        t_dur = (S.edata_fixation_off - S.edata_memory_on) * 1000;
         
         look6_helper_int_bins_calculator;
         
@@ -103,7 +99,7 @@ for fig1 = 1:numel(num_fig) % Plot figures
         plot_bins_start2 = NaN(numel(t_dur), 1); % Output matrix
         plot_bins_end2 = NaN(numel(t_dur), 1); % Output matrix
         
-        plot_bins_start2(:,1) = 100;
+        plot_bins_start2(:,1) = 500;
         plot_bins_end2(:,1) = t_dur;
         
     end
@@ -120,7 +116,7 @@ for fig1 = 1:numel(num_fig) % Plot figures
         
         % Calculate spiking rates
         mat1_ini = look6_helper_spike_binning(t1_spike, t1_evt, plot_bins_start, plot_bins_end);
-        
+
         % Calculate long time bin rates
         mat2_ini = look6_helper_spike_binning(t1_spike, t1_evt, plot_bins_start2, plot_bins_end2);
         
@@ -137,30 +133,40 @@ for fig1 = 1:numel(num_fig) % Plot figures
         
     end
     
+    
     %% Plot data
     
-    if settings.figure_current ==1
+    
+    if settings.figure_current==1
         
-        look6_spikes_orientation_timecourse_raw_rasters;
+        look6_spikes_timecourse_memory_raw_rasters;
         
     end
-        
+    
     if settings.figure_current==2
         
-        look6_spikes_orientation_timecourse_all_orientations;
+        look6_spikes_timecourse_memory_orientation_response;
         
     end
     
     if settings.figure_current==3
         
-        look6_spikes_orientation_timecourse_texture_on_response;
+        look6_spikes_timecourse_memory_scatter;
         
     end
     
+    if settings.figure_current==4
+        
+        look6_spikes_timecourse_memory_task;
+        
+    end
+    
+    if settings.figure_current==5
+        
+        look6_spikes_timecourse_memory_cumulative;
+        
+    end
+    
+    
 end
 % End of plotting each figure
-
-    
-    
-    
-    

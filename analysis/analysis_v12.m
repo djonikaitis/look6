@@ -30,9 +30,9 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 analysis_edf_and_psych_data_import = 0;
 analysis_eyelink_drift_and_conversion = 0;
 analysis_detect_saccades = 0;
-analysis_behaviour_srt_plots = 0;
+analysis_behaviour_srt_plots = 1;
 analysis_import_plexon_files = 0;
-analysis_spikes_timecourse = 1;
+analysis_spikes_timecourse = 0;
 
 
 %% Preprocessing: import data into usable format
@@ -44,7 +44,7 @@ analysis_spikes_timecourse = 1;
 if analysis_edf_and_psych_data_import == 1
     
     % Connect to server and import data from it
-    settings.this_analysis = 0;
+    settings.this_analysis = 1;
     if settings.this_analysis == 1
         settings.server_overwrite = 0;
         settings.data_direction = 'download';
@@ -112,15 +112,6 @@ end
 %     end
 % end
 
-%% Check that experimental files are all compatible
-
-settings.this_analysis = 0;
-if settings.this_analysis == 1
-    settings.overwrite = 0;
-    settings.function_name = 'look6_preprocessing_checking_data_variables';
-    look6_analysis_template_behaviour;
-end
-
 
 %% Preprocessing: detect and plot saccades
 
@@ -147,6 +138,13 @@ end
 
 
 if analysis_behaviour_srt_plots == 1
+    
+    settings.this_analysis = 1;
+    settings.overwrite = 0;
+    if settings.this_analysis == 1
+        settings.function_name = 'look6_preprocessing_checking_data_variables';
+        look6_analysis_template_behaviour;
+    end
     
     settings.this_analysis = 1;
     settings.overwrite = 1;
@@ -247,14 +245,6 @@ if analysis_spikes_timecourse == 1
         look6_analysis_template_individual_units;
     end
     
-%     settings.this_analysis = 0;
-%     settings.overwrite = 1;
-%     if settings.this_analysis==1
-%         settings.temp1_data_folder = 'data_combined_plexon';
-%         settings.function_name = 'look6_spikes_dual_orientation_timecourse';
-%         look6_analysis_template_individual_units;
-%     end
-    
     settings.this_analysis = 1;
     settings.overwrite = 1;
     if settings.this_analysis==1
@@ -262,6 +252,14 @@ if analysis_spikes_timecourse == 1
         settings.function_name = 'look6_spikes_timecourse_precue';
         look6_analysis_template_individual_units;
     end
+    
+    %     settings.this_analysis = 0;
+%     settings.overwrite = 1;
+%     if settings.this_analysis==1
+%         settings.temp1_data_folder = 'data_combined_plexon';
+%         settings.function_name = 'look6_spikes_dual_orientation_timecourse';
+%         look6_analysis_template_individual_units;
+%     end
     
 %     settings.this_analysis = 0;
 %     settings.overwrite = 1;

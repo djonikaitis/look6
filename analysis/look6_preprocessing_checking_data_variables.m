@@ -9,7 +9,16 @@ a{3} = 'probe_extended_map';
 for i = 1:numel(a)
     fprintf(fout, '\n');
     if isfield (S, a{i})
-        b = unique(S.(a{i}));
+        temp1 = S.(a{i});
+        clear c;
+        for j = 1:numel(temp1)
+            if iscell(temp1{j})
+                c(j) = temp1{j};
+            else
+                c{j} = temp1{j};
+            end
+        end
+        b = unique(c);
         if iscell(b)
             for j = 1:numel(b)
                 targettext='Field "%s", variable detected: "%s"\n';

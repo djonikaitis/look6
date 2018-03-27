@@ -32,6 +32,15 @@ if ~isfield (plot_set, 'mat_y')
     fprintf('Y data not present, will set figure options without plotting data\n')
 end
 
+% Flip dimensions if necessary
+if isfield (plot_set, 'mat_x') && isfield (plot_set, 'mat_y')
+    [m1, n1, o1] = size(plot_set.mat_y);
+    [m2, n2, o2] = size(plot_set.mat_x);
+    if m1~=n1 && m2~=n2 && m1~=m2 && m1==n2 && n1==m2 && o2==1
+        plot_set.mat_x = plot_set.mat_x';
+    end
+end
+
 % Create X data if needed
 if ~isfield (plot_set, 'mat_x') && isfield (plot_set, 'mat_y')
     plot_set.mat_x = [];
