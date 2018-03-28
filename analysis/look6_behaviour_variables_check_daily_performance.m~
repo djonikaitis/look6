@@ -3,7 +3,7 @@
 %================
 
 settings.bin_length = 50;
-settings.int_bins_start = 1:1:numel(S.session)-settings.bin_length;
+settings.int_bins_start = 1:numel(S.session)-settings.bin_length;
 settings.int_bins_end = settings.int_bins_start + settings.bin_length;
 settings.plot_bins = (settings.int_bins_start+settings.int_bins_end)/2;
 
@@ -26,11 +26,12 @@ data_mat.var1_match{3} = error_code_subset;
 
 data_mat = look6_helper_indexed_selection_behaviour(data_mat, settings);
 
-% Is there data to plot?
+% Is 
 [i,j,k,m,o] = size(data_mat.trial_counts);
 mat_y = reshape(data_mat.trial_counts, 1, i*j*k*m*o);
 
-fig_plot_on = nansum(mat_y) > 0;
+fig_plot_on = sum(mat_y) > 0;
+
 
 % Plot a figure?
 if fig_plot_on == 1
@@ -41,7 +42,7 @@ if fig_plot_on == 1
     % Plot blocks
     %=================
     
-    for i_fig1 = [4,5]
+    for i_fig1 = [3,4]
         
         hfig = subplot(fig_subplot_dim(1), fig_subplot_dim(2), i_fig1);
         hold on;
@@ -60,17 +61,17 @@ if fig_plot_on == 1
         for i=1:max(block_no)
             
             % Select current block
-            ind_block = find(block_no==i);
+            indBl = find(block_no==i);
             
-            if ~isempty(ind_block)
+            if ~isempty(indBl)
                 
                 % Define coordinates of the square
-                x1 = ind_block(1);
-                x2 = (ind_block(end)-ind_block(1))+1;
+                x1 = indBl(1);
+                x2 = (indBl(end)-indBl(1))+1;
                 y1 = -100; y2 = 300;
                 
                 % Which conditiopn is it
-                task_name_current = unique(S.esetup_block_cond(ind_block));
+                task_name_current = unique(S.esetup_block_cond(indBl));
                 
                 % Color
                 if strcmp(task_name_current, 'look')
@@ -96,15 +97,15 @@ end
 
 if fig_plot_on == 1
     
-    hfig = subplot(fig_subplot_dim(1), fig_subplot_dim(2), 4);
+    hfig = subplot(fig_subplot_dim(1), fig_subplot_dim(2), 3);
     hold on;
     
     % Data
     temp1 = [];
     ind1 = strcmp(error_code_subset, 'correct');
-    temp1(:,:,:,:,1) = data_mat.trial_counts(:,:,:,:,ind1);
+    temp1(:,:,:,:,1) = data_mat.output(:,:,:,:,ind1);
     ind1 = strcmp(error_code_subset, 'looked at st2');
-    temp1(:,:,:,:,2) = data_mat.trial_counts(:,:,:,:,ind1);
+    temp1(:,:,:,:,2) = data_mat.output(:,:,:,:,ind1);
     
     total1 = nansum(temp1(:,:,:,:,:), 4); % Sum across look/avoid tasks
     total2 = nansum(total1(:,:,:,:,:), 5); % Sum across correct/error trials
@@ -145,12 +146,12 @@ end
 
 if fig_plot_on == 1
     
-    hfig = subplot(fig_subplot_dim(1), fig_subplot_dim(2), 5);
+    hfig = subplot(fig_subplot_dim(1), fig_subplot_dim(2), 4);
     hold on;
     
     % Data
     temp1 = [];
-    temp1 = data_mat.trial_counts;
+    temp1 = data_mat.output;
     total1 = nansum(temp1(:,:,:,:,:), 4); % Sum across look/avoid tasks
     total2 = nansum(total1(:,:,:,:,:), 5); % Sum across correct/error trials
     ind1 = strcmp(error_code_subset, 'broke fixation');

@@ -5,10 +5,10 @@ function pbins = plot_helper_bargraph_coordinates_x_v10(plot_set)
 
 %===========
 % Initialize variables
-if isfield(plot_set, 'mat1')
-    mat1 = plot_set.mat1;
+if isfield(plot_set, 'mat_y')
+    mat1 = plot_set.mat_y;
 else
-    error ('plot_set.mat1 does not exist')
+    error ('plot_set.mat_y does not exist')
 end
 
 if isfield (plot_set, 'bar_width')

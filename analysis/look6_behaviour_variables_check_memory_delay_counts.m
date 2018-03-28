@@ -1,50 +1,33 @@
 
-error_code_subset = cell(1); error_code_current = cell(1);
-error_code_subset{1} = 'correct';
-error_code_subset{2} = 'broke fixation';
-error_code_subset{3} = 'looked at st2';
-
-error_code_current{1} = 'correct';
-
-texture_on_current = [1];
-
-settings.int_bins = [0:100:2500];
-settings.plot_bins=(settings.int_bins(1:end-1)+settings.int_bins(2:end))/2;
-
-settings.figure_current = num_fig(fig1);
-fprintf('\nPreparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig))  )
 
 %================
 % Subplot 1
 %================
 
+error_code_current = cell(1);
+error_code_current{1} = 'correct';
+texture_on_current = [1];
+
+settings.bin_length = 100;
+settings.int_bins_start = [0:100:2500];
+settings.int_bins_end = settings.int_bins_start + settings.bin_length;
+settings.plot_bins = (settings.int_bins_start+settings.int_bins_end)/2;
+
+% Y limits
+
 %==============
 % Data
 data_mat = struct;
 data_mat.mat1_ini = S.fixation_off - S.memory_on;
-data_mat.mat1_bins = settings.int_bins;
+data_mat.mat1_ini_bin_start = settings.int_bins_start;
+data_mat.mat1_ini_bin_end = settings.int_bins_end;
 data_mat.var1{1} = S.edata_error_code;
 data_mat.var1_match{1} = error_code_subset;
-data_mat.output = NaN(1, numel(data_mat.mat1_bins)-1, numel(data_mat.var1_match{1}));
 
-for i = 1:numel(data_mat.mat1_bins)-1
-    for j = 1:numel(data_mat.var1_match{1})
-        
-        % Text variable
-        st1 = data_mat.var1_match{1}(j);
-        
-        % Index
-        index = data_mat.mat1_ini >= data_mat.mat1_bins(i) & ...
-            data_mat.mat1_ini < data_mat.mat1_bins(i+1) & ...
-            strcmp (data_mat.var1{1}, st1);
-        
-        % Output
-        data_mat.output(1,i,j) = sum(index);
-        
-    end
-end
+[data_mat] = look6_helper_indexed_selection_behaviour(data_mat, settings);
 
-mat_y = data_mat.output;
+
+mat_y = data_mat.mat_y;
 fig_plot_on = sum(sum(isnan(mat_y))) ~= numel(mat_y);
 
 if fig_plot_on == 1
@@ -61,7 +44,7 @@ if fig_plot_on == 1
     
     % Add histogram
     var1 = S.esetup_memory_delay*1000;
-    temp1 = hist(var1, settings.int_bins);
+    temp1 = hist(var1, settings.int_bins_start);
     plot_set.ylim = [min(temp1), max(temp1)];
     
     % Calculate axis limits
@@ -76,7 +59,7 @@ if fig_plot_on == 1
     fig_lim = plot_set.ylim;
     
     % Plot histogram;
-    hist(var1, settings.int_bins);
+    hist(var1, settings.int_bins_start);
     h = findobj(gca,'Type','patch');
     set(h,'FaceColor',[0.7 0.9 0.7],'EdgeColor','w')
     
@@ -107,7 +90,7 @@ if fig_plot_on == 1
     %===============
     % Averages data
     % Initialize structure with data
-    plot_set.mat_y = data_mat.output;
+    plot_set.mat_y = data_mat.trial_counts;
     plot_set.mat_x = settings.plot_bins;
     
     % Labels for plotting

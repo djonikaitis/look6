@@ -1,0 +1,189 @@
+% Psychophysics performance
+
+% Reset data
+if isfield(S, 'target_on')
+    S.sacconset = sacc1.saccade_matrix(:,1)-S.target_on;
+end
+
+
+%==============
+% Data
+data_mat = struct;
+data_mat.var1{1} = S.memory_angle_relative;
+data_mat.var1_match{1} = memory_angles_relative_used;
+data_mat.var1{2} = S.esetup_block_cond;
+data_mat.var1_match{2} = task_names_used;
+data_mat.var1{3} = S.edata_error_code;
+data_mat.var1_match{3} = error_code_subset;
+data_mat.var1{4} = S.esetup_target_number;
+data_mat.var1_match{4} = 2;
+data_mat.var1{5} = S.esetup_st2_color_level;
+data_mat.var1_match{5} = 0;
+data_mat.var1{6} = S.esetup_response_soa;
+data_mat.var1_match{6} = 0;
+
+data_mat.test1 = NaN(1, numel(data_mat.var1_match{1}), numel(data_mat.var1_match{2}), numel(data_mat.var1_match{3}));
+data_mat.output = NaN(1, numel(data_mat.var1_match{1}), numel(data_mat.var1_match{2}), numel(data_mat.var1_match{3}));
+
+for i = 1:numel(data_mat.var1_match{1})
+    for j = 1:numel(data_mat.var1_match{2})
+        for k = 1:numel(data_mat.var1_match{3})
+            for m = 1:numel(data_mat.var1_match{4})
+                for n = 1:numel(data_mat.var1_match{5})
+                    for o = 1:numel(data_mat.var1_match{6})
+                        
+                        
+                        % Index
+                        index = data_mat.var1{1} == data_mat.var1_match{1}(i) & ...
+                            strcmp (data_mat.var1{2}, data_mat.var1_match{2}(j)) & ...
+                            strcmp (data_mat.var1{3}, data_mat.var1_match{3}(k)) & ...
+                            data_mat.var1{4} == data_mat.var1_match{4}(m) &...
+                            data_mat.var1{5} == data_mat.var1_match{5}(n) &...
+                            data_mat.var1{6} == data_mat.var1_match{6}(o);
+                        
+                        % Output
+                        data_mat.test1(1,i,j,k) = sum(index);
+                        if sum(index)>=settings.trial_number_threshold
+                            data_mat.output(1,i,j,k) = nanmedian(S.sacconset(index,1));
+                        end
+                        
+                    end
+                end
+            end
+        end
+    end
+end
+
+% Select data for plotting
+mat1 = NaN(1, numel(task_names_used), 2);
+for i = 1:numel(task_names_used)
+    
+    ind1 = memory_angles_relative_used == 0;
+    ind2 = strcmp(error_code_subset, 'correct');
+    
+    mat1(1,i,1) = data_mat.output(1,ind1, i, ind2);
+    
+end
+
+%     
+%     % Look correct and error
+%     m1 = nanmean(mat1_ini,2);
+%     mat1(:,1,1) = m1(:,3);
+%     mat1(:,2,1) = m1(:,4);
+%     % Avoid correct and error
+%     mat1(:,1,2) = m1(:,5);
+%     mat1(:,2,2) = m1(:,6);
+%     
+%     % Initialize structure
+%     plot_set.mat1 = mat1;
+%     
+%     plot_set.bar_width = 0.05;
+%     plot_set.pbins = plot_helper_bargraph_coordinates_x_v10(plot_set);
+%     
+%     plot_set.data_color = [9,10];
+%     
+%     plot_set.XTick = [];
+%     plot_set.x_plot_bins = plot_set.pbins;
+%     plot_set.xtick_label{1} = 'Correct';
+%     plot_set.xtick_label{2} = 'Error';
+%     plot_set.XLim = [plot_set.pbins(1)-0.1, plot_set.pbins(end)+0.1];
+%     plot_set.YTick = [100:25:200];
+%     plot_set.YLim = [90, 225];
+%     plot_set.figure_title = 'Main task trials';
+%     plot_set.xlabel = ' ';
+%     plot_set.ylabel = 'Reaction time, ms';
+%     
+%     plot_set.legend{1} = 'Look';
+%     plot_set.legend{2} = 'Avoid';
+%     for i=1:numel(plot_set.legend{1})
+%         plot_set.legend_y_coord(i) = 100;
+%         plot_set.legend_x_coord(i) = plot_set.pbins(i);
+%     end
+%     
+%     % Saving data
+%     plot_set.figure_size = settings.figsize_1col;
+%     plot_set.figure_save_name = 'main task';
+%     plot_set.path_figure = path_fig;
+%     
+%     
+%     %==================
+%     % Plot
+%     
+%     hfig = figure;
+%     hold on;
+%     
+%     e_bars = plot_helper_error_bar_calculation_v10(mat1, settings);
+%     plot_helper_bargraph_plot_v10
+%     
+%     plot_helper_save_figure;
+%     close all;
+%     
+%     
+%     
+%     
+%     %% FIGURE 2
+%     
+%     plot_set = struct;
+%     mat1=[];
+%     
+%     % Cued location
+%     a1 = conds1(:,1)==0 & conds1(:,2)==1;
+%     ind1 = find(a1==1);
+%     % Un-cued location
+%     a1 = conds1(:,1)==180 & conds1(:,2)==1;
+%     ind2 = find(a1==1);
+%     
+%     % Look correct and error
+%     mat1(:,1,1)=mat1_ini(:,ind1,1);
+%     mat1(:,2,1)=mat1_ini(:,ind2,1);
+%     % Avoid correct and error
+%     mat1(:,1,2)=mat1_ini(:,ind1,2);
+%     mat1(:,2,2)=mat1_ini(:,ind2,2);
+%     
+%     % Initialize structure
+%     plot_set.mat1 = mat1;
+%     
+%     plot_set.bar_width = 0.05;
+%     plot_set.pbins = plot_helper_bargraph_coordinates_x_v10(plot_set);
+%     
+%     plot_set.data_color = [9,10];
+%     
+%     plot_set.XTick = [];
+%     plot_set.x_plot_bins = plot_set.pbins;
+%     plot_set.xtick_label{1} = 'Look';
+%     plot_set.xtick_label{2} = 'Avoid';
+%     plot_set.XLim = [plot_set.pbins(1)-0.1, plot_set.pbins(end)+0.1];
+%     plot_set.YTick = [100:25:175];
+%     plot_set.YLim = [90, 180];
+%     plot_set.figure_title = 'Probe trials';
+%     plot_set.xlabel = ' ';
+%     plot_set.ylabel = 'Reaction time, ms';
+%     
+%     plot_set.legend{1} = 'Cued';
+%     plot_set.legend{2} = 'Un-cued';
+%     for i=1:numel(plot_set.legend{1})
+%         plot_set.legend_y_coord(i) = 100;
+%         plot_set.legend_x_coord(i) = plot_set.pbins(i);
+%     end
+%     
+%     % Saving data
+%     plot_set.figure_size = settings.figsize_1col;
+%     plot_set.figure_save_name = 'probe task';
+%     plot_set.path_figure = path_fig;
+%     
+%     
+%     %==================
+%     % Plot
+%     
+%     hfig = figure;
+%     hold on;
+%     
+%     e_bars = plot_helper_error_bar_calculation_v10(mat1, settings);
+%     plot_helper_bargraph_plot_v10
+%     
+%     plot_helper_save_figure;
+%     close all;
+%     
+%     %===============
+%     
+% end

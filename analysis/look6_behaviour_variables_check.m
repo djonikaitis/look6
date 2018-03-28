@@ -38,6 +38,11 @@ memory_angles_used = unique(S.memory_angle);
 memory_angles_relative_used = unique(S.memory_angle_relative);
 exp_versions_used = unique(S.esetup_exp_version);
 
+error_code_subset = cell(1);
+error_code_subset{1} = 'correct';
+error_code_subset{2} = 'broke fixation';
+error_code_subset{3} = 'looked at st2';
+
 
 %% Figures calculations
 
@@ -46,12 +51,16 @@ for fig1 = 1:numel(num_fig) % Plot figures
     
     close all;
     
+    settings.figure_current = num_fig(fig1);
+    fprintf('\nPreparing figure %s out of %s total for this analysis\n', num2str(fig1), num2str(numel(num_fig))  )
+    
     %================
     % Figure size
     
-    fig_subplot_dim = [3, 2];
+    fig_subplot_dim = [3, 3];
     fig_size = [0, 0, fig_subplot_dim(2) * settings.figsize_1col(3), fig_subplot_dim(1) * settings.figsize_1col(4)];
-    
+   
+
     % Subplot 1
     look6_behaviour_variables_check_memory_delay_counts;
     
@@ -60,6 +69,9 @@ for fig1 = 1:numel(num_fig) % Plot figures
     
     % Subplot 3
     look6_behaviour_variables_check_daily_performance;
+    
+    % Subplot 4
+    look6_behaviour_variables_srt;
     
     %==========
     % Save data

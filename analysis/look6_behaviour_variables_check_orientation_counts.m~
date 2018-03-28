@@ -19,9 +19,30 @@ data_mat.var1_match{3} = error_code_current;
 data_mat.var1{4} = S.esetup_background_texture_on(:,1);
 data_mat.var1_match{4} = texture_on_current;
 
-data_mat = look6_helper_indexed_selection_behaviour(data_mat, settings);
+[data_mat] = look6_helper_indexed_selection_behaviour(data_mat, settings);
 
-mat_y = data_mat.trial_counts;
+
+
+
+data_mat.output = NaN(1, numel(data_mat.mat1_bins), numel(data_mat.var1_match{1}));
+
+for i = 1:numel(data_mat.mat1_bins)
+    for j = 1:numel(data_mat.var1_match{1})
+        for k = 1:numel(data_mat.var1_match{2})
+            
+            % Index
+            index = data_mat.mat1_ini == data_mat.mat1_bins(i) & ...
+                strcmp (data_mat.var1{1}, data_mat.var1_match{1}(j)) & ...
+                strcmp (data_mat.var1{2}, data_mat.var1_match{2}(k));
+            
+            % Output
+            data_mat.output(1,i,j) = sum(index);
+            
+        end
+    end
+end
+
+mat_y = data_mat.output;
 fig_plot_on = sum(sum(isnan(mat_y))) ~= numel(mat_y);
 
 if fig_plot_on == 1
@@ -57,7 +78,7 @@ if fig_plot_on == 1
     %===============
     % Averages data
     % Initialize structure with data
-    plot_set.mat_y = data_mat.trial_counts;
+    plot_set.mat_y = data_mat.output;
     plot_set.mat_x = orientations_used;
     
     % Labels for plotting
