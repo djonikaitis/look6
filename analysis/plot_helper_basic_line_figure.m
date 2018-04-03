@@ -70,16 +70,6 @@ end
 
 %% X & Y error bars data
 
-% Make sure ebars_upper_y & ebars_lower_y exists
-if (isfield (plot_set, 'ebars_lower') && isfield (plot_set, 'ebars_upper')) && ...
-        (~isfield (plot_set, 'ebars_lower_y') && ~isfield (plot_set, 'ebars_upper_y'))
-    
-    plot_set.ebars_lower_y = plot_set.ebars_lower;
-    plot_set = rmfield(plot_set, 'ebars_lower');
-    plot_set.ebars_upper_y = plot_set.ebars_upper;
-    plot_set = rmfield(plot_set, 'ebars_upper');
-    
-end
 
 % Make sure ebars_upper_x & ebars_lower_x exists
 if (isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')) && ...
@@ -89,9 +79,9 @@ if (isfield (plot_set, 'ebars_lower_y') && isfield (plot_set, 'ebars_upper_y')) 
         plot_set.ebars_lower_x = [];
         plot_set.ebars_upper_x = [];
         [m,n,~] = size(plot_set.ebars_lower_y);
-        for i = 1:m
-            plot_set.ebars_lower_x(i,1:n,1) = 1:n;
-            plot_set.ebars_upper_x(i,1:n,1) = 1:n;
+        for m1 = 1:m
+            plot_set.ebars_lower_x(m1,1:n,1) = 1:n;
+            plot_set.ebars_upper_x(m1,1:n,1) = 1:n;
         end
     elseif isfield (plot_set, 'mat_x')
         plot_set.ebars_lower_x = plot_set.mat_x;
@@ -574,6 +564,7 @@ if isfield (plot_set, 'mat_y')
             % Draw line
             if ~isempty(mat_y_temp1_fig) && ~isempty(mat_x_temp1_fig) && ...
                     numel(mat_x_temp1_fig) == numel(mat_y_temp1_fig)
+                
                 h=plot(mat_x_temp1_fig, mat_y_temp1_fig);
                 
                 % Select color

@@ -17,12 +17,10 @@ data_mat = struct;
 data_mat.mat1_ini = S.trial_no;
 data_mat.mat1_ini_bin_start = settings.int_bins_start;
 data_mat.mat1_ini_bin_end = settings.int_bins_end;
-data_mat.var1{1} = S.esetup_exp_version;
-data_mat.var1_match{1} = exp_versions_used;
-data_mat.var1{2} = S.esetup_block_cond;
-data_mat.var1_match{2} = task_names_used;
-data_mat.var1{3} = S.edata_error_code;
-data_mat.var1_match{3} = error_code_subset;
+data_mat.var1{1} = S.esetup_block_cond;
+data_mat.var1_match{1} = task_names_used;
+data_mat.var1{2} = S.edata_error_code;
+data_mat.var1_match{2} = error_code_subset;
 
 data_mat = look6_helper_indexed_selection_behaviour(data_mat, settings);
 
@@ -102,12 +100,12 @@ if fig_plot_on == 1
     % Data
     temp1 = [];
     ind1 = strcmp(error_code_subset, 'correct');
-    temp1(:,:,:,:,1) = data_mat.trial_counts(:,:,:,:,ind1);
+    temp1(:,:,:,1) = data_mat.trial_counts(:,:,:,ind1);
     ind1 = strcmp(error_code_subset, 'looked at st2');
-    temp1(:,:,:,:,2) = data_mat.trial_counts(:,:,:,:,ind1);
+    temp1(:,:,:,2) = data_mat.trial_counts(:,:,:,ind1);
     
-    total1 = nansum(temp1(:,:,:,:,:), 4); % Sum across look/avoid tasks
-    total2 = nansum(total1(:,:,:,:,:), 5); % Sum across correct/error trials
+    total1 = nansum(temp1, 3); % Sum across look/avoid tasks
+    total2 = nansum(total1, 4); % Sum across correct/error trials
     
     mat1 = total1(:,:,:,:,1)./total2*100;
     mat1 = 100 - (100 - mat1)*2; % Convert into target selection
@@ -120,15 +118,9 @@ if fig_plot_on == 1
     plot_set.data_color_min = [0.5,0.5,0.5];
     plot_set.data_color_max = settings.color1(42,:);
     
-    plot_set.legend = exp_versions_used;
-    for i=1:numel(plot_set.legend)
-        plot_set.legend_y_coord(i) = -10 + i*-10;
-        plot_set.legend_x_coord(i) = [settings.plot_bins(1)];
-    end
-    
     % Labels for plotting
     plot_set.ytick = [0:25:100];
-    plot_set.ylim = [min(plot_set.legend_y_coord)-10, 110];
+    plot_set.ylim = [-10, 110];
     plot_set.figure_title = 'Performance';
     plot_set.xlabel = 'Trial number';
     plot_set.ylabel = 'Correct target selected, %';
@@ -151,10 +143,10 @@ if fig_plot_on == 1
     % Data
     temp1 = [];
     temp1 = data_mat.trial_counts;
-    total1 = nansum(temp1(:,:,:,:,:), 4); % Sum across look/avoid tasks
-    total2 = nansum(total1(:,:,:,:,:), 5); % Sum across correct/error trials
+    total1 = nansum(temp1, 3); % Sum across look/avoid tasks
+    total2 = nansum(total1, 4); % Sum across correct/error trials
     ind1 = strcmp(error_code_subset, 'broke fixation');
-    mat1 = total1(:,:,:,:,ind1)./total2*100;
+    mat1 = total1(:,:,:,ind1)./total2*100;
     
     % Initialize structure
     plot_set = struct;
@@ -164,15 +156,9 @@ if fig_plot_on == 1
     plot_set.data_color_min = [0.5,0.5,0.5];
     plot_set.data_color_max = settings.color1(42,:);
     
-    plot_set.legend = exp_versions_used;
-    for i=1:numel(plot_set.legend)
-        plot_set.legend_y_coord(i) = -10 + i*-10;
-        plot_set.legend_x_coord(i) = [settings.plot_bins(1)];
-    end
-    
     % Labels for plotting
     plot_set.ytick = [0:25:100];
-    plot_set.ylim = [min(plot_set.legend_y_coord)-10, 110];
+    plot_set.ylim = [-10, 110];
     plot_set.figure_title = 'Performance';
     plot_set.xlabel = 'Trial number';
     plot_set.ylabel = 'Aborted trials, %';

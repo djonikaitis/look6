@@ -71,13 +71,13 @@ for fig1 = 1:numel(num_fig) % Plot figures
     look6_behaviour_variables_check_daily_performance;
     
     % Subplot 4
-    look6_behaviour_variables_srt;
+    look6_behaviour_variables_srt_bar;
     
     %==========
     % Save data
     %==========
     
-    if fig_plot_on == 1
+%     if fig_plot_on == 1
         
         plot_set.figure_size = fig_size;
         plot_set.figure_save_name = sprintf ('%s %s fig%s', settings.subject_current, num2str(settings.date_current), num2str(settings.figure_current));
@@ -86,7 +86,7 @@ for fig1 = 1:numel(num_fig) % Plot figures
         plot_helper_save_figure;
         close all;
         
-    end
+%     end
     
     
 end

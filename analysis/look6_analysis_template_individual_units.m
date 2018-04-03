@@ -200,3 +200,4 @@ end
 % End of each subject
 
 
+settings = rmfield (settings, 'temp1_data_folder');

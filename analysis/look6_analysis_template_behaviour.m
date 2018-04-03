@@ -129,3 +129,4 @@ for i_subj=1:length(settings.subjects)
 end
 % End of each subject
 
+settings = rmfield (settings, 'temp1_data_folder');

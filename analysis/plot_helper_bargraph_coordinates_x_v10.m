@@ -7,6 +7,8 @@ function pbins = plot_helper_bargraph_coordinates_x_v10(plot_set)
 % Initialize variables
 if isfield(plot_set, 'mat_y')
     mat1 = plot_set.mat_y;
+elseif isfield(plot_set, 'ebars_lower_y')
+    mat1 = plot_set.ebars_lower_y;
 else
     error ('plot_set.mat_y does not exist')
 end
@@ -22,6 +24,7 @@ if isfield (plot_set, 'space_width')
 else
     space_width = bar_width*0.3;
 end
+
 
 %==============
 % Calculate number of bars
@@ -47,5 +50,8 @@ range_bar = [bar_width*m + (m-1)*space_width]; % Bars plus spaces between them t
 range_bar = range_bar/2; % Position to both sides of the unit
 xcoord = [1-range_bar:bar_width+space_width:1+range_bar];
 xcoord(b==0)=[];
+
+% Reshape into matrix same as mat_y
+xcoord = reshape(xcoord, 1, size(mat1,2), size(mat1,3));
 
 pbins = xcoord;
