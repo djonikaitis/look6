@@ -132,7 +132,7 @@ if fig_plot_on == 1
 end
 
 %=================
-% Subplot 4
+% Subplot 5
 %=================
 
 if fig_plot_on == 1

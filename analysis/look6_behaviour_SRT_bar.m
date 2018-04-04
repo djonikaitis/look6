@@ -38,14 +38,14 @@ exp_versions_used = unique(S.esetup_exp_version);
 
 error_code_subset = cell(1);
 error_code_subset{1} = 'correct';
-error_code_subset{2} = 'broke fixation';
-error_code_subset{3} = 'looked at st2';
+error_code_subset{2} = 'looked at st2';
 
 % Reset data
 if isfield(S, 'target_on')
     S.sacconset = sacc1.saccade_matrix(:,1)-S.target_on;
 end
 
+% Other variables used for analysis
 task_names_subset = cell(1);
 task_names_subset{1} = 'look';
 task_names_subset{2} = 'avoid';
@@ -62,10 +62,6 @@ for fig1 = 1:numel(num_fig) % Plot figures
     %================
     % Subplot 1
     %================
-    
-    %===============
-    % Data analysis
-    %===============
     
     %==============
     % Data
@@ -86,33 +82,31 @@ for fig1 = 1:numel(num_fig) % Plot figures
     data_mat.method =  'mean';
     data_mat = look6_helper_indexed_selection_behaviour(data_mat, settings);
     
-    %==========
-    % Plot correct vs error
-    %==========
-    
-    % Select data for plotting
-    
+    % Initialize mat
     if settings.date_current == settings.dates_used(1)
         mat1 = NaN(numel(settings.dates_used), numel(task_names_subset), 2);
     end
     
-    for i = 1:numel(task_names_subset)
-        
-        j = strcmp(error_code_subset, 'correct');
-        mat1(i_date,i,1) = data_mat.mat_y(1, i, j);
-        if numel(settings.dates_used)==1
-            mat1_lower_y(i_date,i,1) = data_mat.mat_y_lower(1, i, j);
-            mat1_upper_y(i_date,i,1) = data_mat.mat_y_upper(1, i, j);
+    % Select data for plotting
+    for i = 1:size(mat1,2)
+        for j = 1:size(mat1,3)
+            mat1(i_date,i,j) = data_mat.mat_y(1, i, j);
+            if numel(settings.dates_used)==1
+                mat1_lower_y(i_date,i,j) = data_mat.mat_y_lower(1, i, j);
+                mat1_upper_y(i_date,i,j) = data_mat.mat_y_upper(1, i, j);
+            end
         end
-        
-        j = strcmp(error_code_subset, 'looked at st2');
-        mat1(i_date,i,2) = data_mat.mat_y(1, i, j);
-        if numel(settings.dates_used)==1
-            mat1_lower_y(i_date,i,2) = data_mat.mat_y_lower(1, i, j);
-            mat1_upper_y(i_date,i,2) = data_mat.mat_y_upper(1, i, j);
-        end
-        
     end
+    
+    % Add error bars
+    if numel(settings.dates_used)>1 && settings.date_current == settings.dates_used(end)
+        settings.bootstrap_on = 0;
+        e_bars = plot_helper_error_bar_calculation_v10(mat1, settings);
+    end
+    
+    %==========
+    % Plot
+    %==========
     
     if ~isempty(settings.dates_used) && settings.date_current == settings.dates_used(end)
         
@@ -141,14 +135,15 @@ for fig1 = 1:numel(num_fig) % Plot figures
             
             plot_set = struct;
             plot_set.mat_y = nanmean(mat1);
-            %             plot_set.ebars_lower_y = mat1_lower_y;
-            %             plot_set.ebars_upper_y = mat1_upper_y;
+            plot_set.ebars_lower_y = e_bars.se_lower;
+            plot_set.ebars_upper_y = e_bars.se_upper;
             
             plot_set.data_color = [1,2];
             
             % xticks
-            plot_set.xtick_label{1} = 'Correct';
-            plot_set.xtick_label{2} = 'Error';
+            plot_set.xtick_label = error_code_subset;
+            ind = strcmp(plot_set.xtick_label, 'looked at st2');
+            plot_set.xtick_label{ind} = 'error';
             
             plot_set.ylim = [90, max(max(plot_set.mat_y)) + 30];
             plot_set.ylabel = 'Reaction time, ms';
@@ -156,7 +151,7 @@ for fig1 = 1:numel(num_fig) % Plot figures
             plot_set.figure_title = 'Main task trials';
             
             plot_set.legend = task_names_subset;
-            for i=1:numel(plot_set.legend{1})
+            for i=1:numel(plot_set.legend)
                 plot_set.legend_y_coord(i) = 95;
             end
             
@@ -194,6 +189,9 @@ for fig1 = 1:numel(num_fig) % Plot figures
     % Select data for plotting
     if settings.date_current == settings.dates_used(1)
         mat2 = NaN(numel(settings.dates_used), numel(memory_angles_relative_st1_subset), numel(task_names_subset));
+        [m,n,o] = size(mat2);
+        mat2_lower_y = NaN(1,n,o);
+        mat2_upper_y = NaN(1,n,o);
     end
     
     for i = 1:size(mat2,2)
@@ -207,9 +205,14 @@ for fig1 = 1:numel(num_fig) % Plot figures
     end
     
     % Add error bars
-%     if numel(settings.dates_used)>1
-%         
-%     end
+    if numel(settings.dates_used)>1 && settings.date_current == settings.dates_used(end)
+        settings.bootstrap_on = 0;
+        e_bars = plot_helper_error_bar_calculation_v10(mat2, settings);
+    end
+    
+    %==========
+    % Plot
+    %==========
     
     if ~isempty(settings.dates_used) && settings.date_current == settings.dates_used(end)
         
@@ -237,8 +240,8 @@ for fig1 = 1:numel(num_fig) % Plot figures
             
             plot_set = struct;
             plot_set.mat_y = nanmean(mat2);
-            %         plot_set.ebars_lower_y = data_mat.mat_y_lower;
-            %         plot_set.ebars_upper_y = data_mat.mat_y_upper;
+            plot_set.ebars_lower_y = e_bars.se_lower;
+            plot_set.ebars_upper_y = e_bars.se_upper;
             
             plot_set.data_color = [9,10];
             
