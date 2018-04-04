@@ -1,5 +1,23 @@
 
-% Different parts of the figure
+%% Initialize parameters
+
+
+if ~isfield(plot_set, 'font_size_label')
+    if isfield(settings, 'font_size_label')
+        plot_set.font_size_label = settings.font_size_label;
+    else
+        plot_set.font_size_label = 10;
+    end
+end
+
+if ~isfield(plot_set, 'font_size_figure')
+    if isfield(settings, 'font_size_figure')
+        plot_set.font_size_figure = settings.font_size_figure;
+    else
+        plot_set.font_size_figure = 8;
+    end
+end
+
 
 %% Make sure size of all variables is equal
 
@@ -105,6 +123,8 @@ end
 
 %% Calculate X and Y axis limits
 
+
+% Part 1 - find data limits
 if strcmp (plot_set.helper_part, 'calculate data limits')
     
     % Field names
@@ -186,7 +206,7 @@ if strcmp (plot_set.helper_part, 'calculate data limits')
     
 end
 
-
+% Part 2 - add axis limits
 if strcmp (plot_set.helper_part, 'calculate axis limits')
     
     % Field names
@@ -387,12 +407,7 @@ if strcmp (plot_set.helper_part, 'general setup')
     
     % Font size
     hfig = gca;
-    if isfield (settings, 'fontsz')
-        set (hfig, 'FontSize', settings.fontsz);
-    else
-        fprintf('Font size not specified in settings.fontsz, using default fonts\n')
-        set (hfig, 'FontSize', 10);
-    end
+    set (hfig, 'FontSize', plot_set.font_size_figure);
     
     % Y tick
     if isfield (plot_set, 'ytick')
@@ -427,7 +442,7 @@ if strcmp (plot_set.helper_part, 'general setup')
         end
         
         hfig.XTick = c1;
-        set(hfig,'XTickLabel', plot_set.xtick_label,'FontSize', settings.fontszlabel)
+        set(hfig,'XTickLabel', plot_set.xtick_label,'FontSize', plot_set.font_size_label)
     end
     
     % Y lim
@@ -442,12 +457,12 @@ if strcmp (plot_set.helper_part, 'general setup')
     
     % X axis label
     if isfield (plot_set, 'xlabel') && ~isfield(plot_set, 'xtick_label')
-        xlabel (plot_set.xlabel, 'FontSize', settings.fontszlabel);
+        xlabel (plot_set.xlabel, 'FontSize', plot_set.font_size_label);
     end
     
     % Y axis label
     if isfield (plot_set, 'ylabel')
-        ylabel (plot_set.ylabel, 'FontSize', settings.fontszlabel);
+        ylabel (plot_set.ylabel, 'FontSize', plot_set.font_size_label);
     end
     
     % Figure title
@@ -459,9 +474,9 @@ if strcmp (plot_set.helper_part, 'general setup')
             elseif numel(plot_set.figure_title_color)==3
                 plot_set.title_color = plot_set.data_color;
             end
-            title (plot_set.figure_title, 'FontSize', settings.fontszlabel, 'Color', plot_set.title_color);
+            title (plot_set.figure_title, 'FontSize', plot_set.font_size_label, 'Color', plot_set.title_color);
         else
-            title (plot_set.figure_title, 'FontSize', settings.fontszlabel)
+            title (plot_set.figure_title, 'FontSize', plot_set.font_size_label)
         end
     end
     

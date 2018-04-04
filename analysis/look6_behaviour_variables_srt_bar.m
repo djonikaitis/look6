@@ -9,7 +9,7 @@ task_names_subset = cell(1);
 task_names_subset{1} = 'look';
 task_names_subset{2} = 'avoid';
 
-memory_angles_relative_subset = [0, -180];
+memory_angles_relative_st1_subset = [0, -180];
 error_code_current = {'correct'};
 
 %==============
@@ -95,7 +95,7 @@ if fig_plot_on == 1
 end
 
 %==============
-% Subplot
+% Subplot 
 %==============
 
 
@@ -104,8 +104,8 @@ end
 
 data_mat = struct;
 data_mat.mat1_ini = S.sacconset;
-data_mat.var1{1} = S.memory_angle_relative;
-data_mat.var1_match{1} = memory_angles_relative_subset;
+data_mat.var1{1} = S.memory_angle_relative_st1;
+data_mat.var1_match{1} = memory_angles_relative_st1_subset;
 data_mat.var1{2} = S.esetup_block_cond;
 data_mat.var1_match{2} = task_names_used;
 data_mat.var1{3} = S.edata_error_code;

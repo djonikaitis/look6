@@ -18,7 +18,7 @@ settings.subjects = 'hb';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'all';
+settings.data_sessions = 'after';
 
 % which setup?
 % 'unknown', 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
@@ -146,7 +146,7 @@ if analysis_behaviour_srt_plots == 1
         look6_analysis_template_behaviour;
     end
     
-    settings.this_analysis = 1;
+    settings.this_analysis = 0;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';
@@ -160,27 +160,27 @@ if analysis_behaviour_srt_plots == 1
 %         settings.function_name = 'look6_behaviour_daily_performance';
 %         look6_analysis_template_behaviour;
 %     end
-% 
-%     settings.this_analysis = 1;
-%     settings.overwrite = 1;
-%     if settings.this_analysis==1
-%         settings.function_name = 'look6_behaviour_training_over_time';
-%         look6_analysis_template_behaviour;
-%     end
-%     
-%     settings.this_analysis = 1;
-%     settings.overwrite = 1;
-%     if settings.this_analysis==1
-%         settings.function_name = 'look6_behaviour_look_avoid_training';
-%         look6_analysis_template_behaviour;
-%     end
-%    
-%     settings.this_analysis = 1;
-%     settings.overwrite = 1;
-%     if settings.this_analysis==1
-%         settings.function_name = 'look6_behaviour_SRT_bar';
-%         look6_analysis_template_behaviour;
-%     end
+
+    settings.this_analysis = 0;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.function_name = 'look6_behaviour_training_over_time';
+        look6_analysis_template_behaviour;
+    end
+    
+    settings.this_analysis = 0;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.function_name = 'look6_behaviour_look_avoid_training';
+        look6_analysis_template_behaviour;
+    end
+   
+    settings.this_analysis = 1;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.function_name = 'look6_behaviour_SRT_bar';
+        look6_analysis_template_behaviour;
+    end
     
 %     settings.this_analysis = 1;
 %     settings.overwrite = 1;

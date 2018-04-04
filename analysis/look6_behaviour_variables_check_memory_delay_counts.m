@@ -100,6 +100,6 @@ if fig_plot_on == 1
     plot_set.ylim = fig_lim;
     
     % Plot
-    plot_helper_basic_line_figure;
+    plot_helper_line_plot_v10;
     
 end

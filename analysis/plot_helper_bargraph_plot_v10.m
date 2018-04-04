@@ -27,7 +27,7 @@
 % plot_set.figure_title
 
 
-%% Initialize bar-width and space width
+%% Initialize parameters
 
 if ~isfield(plot_set, 'bar_width')
     plot_set.bar_width = 0.05;
@@ -136,7 +136,9 @@ plot_helper_general_v10
 %% Calculate colors
 
 plot_set.helper_part = 'calculate colors';
-plot_set.color_dim = 2; % Which dimension to use for calculation of colors
+if ~isfield(plot_set, 'color_dim')
+    plot_set.color_dim = 2; % Which dimension to use for calculation of colors
+end
 plot_helper_general_v10
 
 
@@ -329,27 +331,25 @@ end
 
 % Set the legend
 if isfield (plot_set, 'legend')
-
+    
     for k=1:numel(plot_set.legend)
-
+        
         l1 = plot_set.legend{k};
         x1 = plot_set.legend_x_coord(k);
         y1 = plot_set.legend_y_coord(k);
-
+        
         % Select color
         color1 = [0.9,0.9,0.9];
-
+        
         % Set font size
-        if isfield (settings, 'fontszlabel')
-            text(x1, y1, l1,...
-                'Color', color1, 'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left', 'Rotation', plot_set.legend_rotation);
-        else
-            fprintf('Font size not specified in settings.fontszlabel, using default fonts\n')
-            text(x1, y1, l1, 'Color', color1,  'FontSize', 12, 'HorizontalAlignment', 'left')
-        end
-
+        text(x1, y1, l1,...
+            'Color', color1, 'FontSize', plot_set.font_size_label, 'HorizontalAlignment', 'left', 'Rotation', plot_set.legend_rotation);
+        
+        
     end
 end
+
+%% Figure general setup
 
 plot_set.helper_part = 'general setup';
 plot_helper_general_v10

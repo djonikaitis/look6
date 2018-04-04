@@ -14,6 +14,35 @@ error_code_subset{2} = 'broke fixation';
 error_code_subset{3} = 'looked at st2';
 
 %====================
+% Group data differently
+
+S.expcond = cell(size(S.session,1),1);
+
+index1 = (strcmp(S.esetup_exp_version, 'task switch luminance equal') | strcmp(S.esetup_exp_version, 'task switch luminance change')) ...
+    & strcmp(S.esetup_block_cond, 'look');
+t1 = 'task switch - look';
+S.expcond(index1) = {t1};
+
+index1 = (strcmp(S.esetup_exp_version, 'task switch luminance equal') | strcmp(S.esetup_exp_version, 'task switch luminance change')) ...
+    & strcmp(S.esetup_block_cond, 'avoid');
+t1 = 'task switch - avoid';
+S.expcond(index1) = {t1};
+
+index1 = (strcmp(S.esetup_exp_version, 'look luminance equal') | strcmp(S.esetup_exp_version, 'look luminance change'));
+t1 = 'single task - look';
+S.expcond(index1) = {t1};
+
+index1 = (strcmp(S.esetup_exp_version, 'avoid luminance equal') | strcmp(S.esetup_exp_version, 'avoid luminance change'));
+t1 = 'single - avoid';
+S.expcond(index1) = {t1};
+
+index1 = strncmp(S.esetup_exp_version, 'control', 7);
+t1 = 'control task';
+S.expcond(index1) = {t1};
+
+task_names_used_alternate = unique(S.expcond);
+
+%====================
 % Multi-day figure folders
 
 % Remove single day figures folder
@@ -56,26 +85,27 @@ for fig1 = 1:numel(num_fig) % Plot figures
     
     % Initialize matrices
     if settings.date_current == settings.dates_used(1)
-        test1 = NaN(1, numel(settings.dates_used), numel(exp_versions_used), 3);
-        conds1 = exp_versions_used;
+        test1 = NaN(1, numel(settings.dates_used), numel(task_names_used_alternate), 3);
+        conds1 = task_names_used_alternate;
     end
     
     % Add extra conditions if needed
     if settings.date_current ~= settings.dates_used(1)
-        for i = 1:numel(exp_versions_used)
-            a = strcmp(conds1, exp_versions_used{i});
+        for i = 1:numel(task_names_used_alternate)
+            a = strcmp(conds1, task_names_used_alternate{i});
             if sum(a) == 0
                 m = numel(conds1);
-                conds1{m+1,1} = exp_versions_used{i};
+                conds1{m+1,1} = task_names_used_alternate{i};
                 test1(1, :, m+1, 1:3) = NaN;
             end
         end
     end
     
+    
     for k=1:numel(conds1)
         for m = 1:numel(error_code_subset)
             index1 = strncmp(S.edata_error_code, error_code_subset{m}, numel(error_code_subset{m})) & ...
-                strcmp(S.esetup_exp_version, conds1{k});
+                strcmp(S.expcond, conds1{k});
             test1(1, i_date, k, m)= sum(index1);
         end
     end
@@ -107,9 +137,9 @@ for fig1 = 1:numel(num_fig) % Plot figures
         %=================
         % Subplot 1
         %=================
-
+        
         if fig_plot_on == 1
-                        
+            
             hfig = subplot(fig_subplot_dim(1), fig_subplot_dim(2), 1);
             hold on;
             
@@ -131,8 +161,7 @@ for fig1 = 1:numel(num_fig) % Plot figures
             plot_set.mat_y = mat1;
             plot_set.plot_remove_nan = 0;
             
-            plot_set.data_color_min = [0.5,0.5,0.5];
-            plot_set.data_color_max = settings.color1(42,:);
+            plot_set.data_color = [1,2,5,6,3];
             
             % Labels for plotting
             plot_set.ytick = [0:25:100];
@@ -148,47 +177,47 @@ for fig1 = 1:numel(num_fig) % Plot figures
             
             % Plot
             plot_helper_line_plot_v10;
-            
+%             
         end
         
-        %=================
-        % Subplot 2
-        %=================
-
-        if fig_plot_on == 1
-                        
-            hfig = subplot(fig_subplot_dim(1), fig_subplot_dim(2), 2);
-            hold on;
-            
-            % Data            
-            total2 = nansum(test1, 4); % Sum across correct/error trials
-            ind1 = strcmp(error_code_subset, 'broke fixation');
-            mat1 = test1(:,:,:,ind1)./total2*100;
-            
-            % Initialize structure
-            plot_set = struct;
-            plot_set.mat_y = mat1;
-            plot_set.plot_remove_nan = 0;
-            
-            plot_set.data_color_min = [0.5,0.5,0.5];
-            plot_set.data_color_max = settings.color1(42,:);
-            
-            % Labels for plotting
-            plot_set.ytick = [0:25:100];
-            plot_set.figure_title = 'Aborted trials';
-            plot_set.xlabel = 'Day number';
-            plot_set.ylabel = '% of trials';
-            
-            for i=1:size(mat1,3)
-                plot_set.legend{i} = conds1{i};
-                plot_set.legend_y_coord(i) = i*-10;
-            end
-            plot_set.ylim = [min(plot_set.legend_y_coord)-10, 110];
-            
-            % Plot
-            plot_helper_line_plot_v10;
-            
-        end
+%         %=================
+%         % Subplot 2
+%         %=================
+%         
+%         if fig_plot_on == 1
+%             
+%             hfig = subplot(fig_subplot_dim(1), fig_subplot_dim(2), 2);
+%             hold on;
+%             
+%             % Data
+%             total2 = nansum(test1, 4); % Sum across correct/error trials
+%             ind1 = strcmp(error_code_subset, 'broke fixation');
+%             mat1 = test1(:,:,:,ind1)./total2*100;
+%             
+%             % Initialize structure
+%             plot_set = struct;
+%             plot_set.mat_y = mat1;
+%             plot_set.plot_remove_nan = 0;
+%             
+%             plot_set.data_color_min = [0.5,0.5,0.5];
+%             plot_set.data_color_max = settings.color1(42,:);
+%             
+%             % Labels for plotting
+%             plot_set.ytick = [0:25:100];
+%             plot_set.figure_title = 'Aborted trials';
+%             plot_set.xlabel = 'Day number';
+%             plot_set.ylabel = '% of trials';
+%             
+%             for i=1:size(mat1,3)
+%                 plot_set.legend{i} = conds1{i};
+%                 plot_set.legend_y_coord(i) = i*-10;
+%             end
+%             plot_set.ylim = [min(plot_set.legend_y_coord)-10, 110];
+%             
+%             % Plot
+%             plot_helper_line_plot_v10;
+%             
+%         end
         
         %==========
         % Save data
@@ -205,8 +234,7 @@ for fig1 = 1:numel(num_fig) % Plot figures
         end
         
     end
-    % End of plotting on the last day only
+        
 end
-
 
 

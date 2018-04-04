@@ -72,8 +72,8 @@ for i_subj=1:length(settings.subjects)
         [~, path_fig, ~] = get_generate_path_v10(settings, 'figures');
         
         % Now decide whether to over-write analysis
-        if ~isdir(path_fig) || settings.overwrite==1 || settings.overwrite==2
-             
+        if ~isdir(path_fig) || settings.overwrite==1
+            
             %==============
             % Create figure folders. Delete old figures.
             if ~isdir(path_fig)
@@ -92,7 +92,7 @@ for i_subj=1:length(settings.subjects)
                     end
                 end
             elseif isdir(path_fig) && settings.overwrite==2
-                fprintf('Adding extra figures to the folder folder "%s" for the date %s\n', settings.figure_folder_name, num2str(settings.date_current));
+                fprintf('Adding extra figures to the folder folder "%s" exists for the date %s (overwrite only .pdf files)\n', settings.figure_folder_name, num2str(settings.date_current));
             end
             
             %=================

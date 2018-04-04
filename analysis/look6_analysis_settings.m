@@ -19,7 +19,7 @@ elseif strcmp(settings.data_sessions, 'last')
 elseif strcmp (settings.data_sessions, 'before')
     settings.data_sessions_temp = 20180220; 
 elseif strcmp (settings.data_sessions, 'after')
-    settings.data_sessions_temp = 20180201; 
+    settings.data_sessions_temp = 20180101; 
 elseif strcmp (settings.data_sessions, 'interval')
     settings.data_sessions_temp = [20170330, 20170401]; 
 elseif strcmp(settings.data_sessions, 'selected')
@@ -214,12 +214,14 @@ marker1{20}='o';
 
 %============
 % All other
-settings.msize = 3;
+settings.marker_size = 1;
 settings.wlineerror = 0.9; 
 settings.wlinegraph = 1.8;
-settings.fontsz = 8;
-settings.fontszlabel = 8; % 10
+
+settings.font_size_figure = 8;
+settings.font_size_label = 8;
 
 settings.color1 = color1;
 settings.face_color1 = face_color1;
-settings.marker1 = marker1;
+
+settings.marker_type = marker1;
