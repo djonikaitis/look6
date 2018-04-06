@@ -111,14 +111,14 @@ for i=1:2
     
     caxis([0, a])
     hb = colorbar ('Limits', [0,a], 'Ticks', tick1);
-    ylabel(hb,'Trial numbers', 'FontSize', settings.font_size_label)
+    ylabel(hb,'Trial numbers', 'FontSize', settings.fontszlabel)
     axis equal
     
     % X & Y labels
     sacc1_x_label = 'X position';
     sacc1_y_label = 'Y position';
     xlabel (sacc1_x_label, 'FontSize', settings.font_size_label)
-    ylabel (sacc1_y_label, 'FontSize', settings.font_size_label)
+    ylabel (sacc1_y_label, 'FontSize', settings.font_)
     
     % X & Y ticks
     x_tick =  [-2:2:2];
@@ -134,7 +134,7 @@ for i=1:2
     elseif i==2
         title_text = 'After drift';
     end
-    title(title_text, 'FontSize', settings.font_size_label)
+    title(title_text, 'FontSize', settings.fontszlabel)
     
 end
 
@@ -170,8 +170,8 @@ for i=1:2
     % X & Y labels
     sacc1_x_label = 'Trial number';
     sacc1_y_label = 'Distance from disp center';
-    xlabel (sacc1_x_label, 'FontSize', settings.font_size_label)
-    ylabel (sacc1_y_label, 'FontSize', settings.font_size_label)
+    xlabel (sacc1_x_label, 'FontSize', settings.fontszlabel)
+    ylabel (sacc1_y_label, 'FontSize', settings.fontszlabel)
     
     % X ticks
     a = length(ind_mat); % Value to be used for bins
@@ -196,8 +196,8 @@ for i=1:2
     set(gca, 'YLim', [-0.5, a+0.5])
     
     % Add legend
-    text(100, a-a*0.1, 'Individual trials', 'Color', settings.color1(1,:),  'FontSize', settings.font_size_label, 'HorizontalAlignment', 'left')
-    text(100, a-a*0.2, 'Moving mean/median', 'Color', settings.color1(2,:),  'FontSize', settings.font_size_label, 'HorizontalAlignment', 'left')
+    text(100, a-a*0.1, 'Individual trials', 'Color', settings.color1(1,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left')
+    text(100, a-a*0.2, 'Moving mean/median', 'Color', settings.color1(2,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'left')
     
     
     % Title
@@ -206,7 +206,7 @@ for i=1:2
     elseif i==2
         title_text = 'After drift';
     end
-    title(title_text, 'FontSize', settings.font_size_label)
+    title(title_text, 'FontSize', settings.fontszlabel)
     
 end
 
@@ -229,8 +229,8 @@ for i=1:2
     
     sacc1_x_label = 'Fix deviation';
     sacc1_y_label = 'Trial counts';
-    xlabel (sacc1_x_label, 'FontSize', settings.font_size_label)
-    ylabel (sacc1_y_label, 'FontSize', settings.font_size_label)
+    xlabel (sacc1_x_label, 'FontSize', settings.fontszlabel)
+    ylabel (sacc1_y_label, 'FontSize', settings.fontszlabel)
     
     % Y ticks
     a = max(h.Values); % Value to be used for bins
@@ -260,7 +260,7 @@ for i=1:2
     elseif i==2
         title_text = 'After drift';
     end
-    title(title_text, 'FontSize', settings.font_size_label)
+    title(title_text, 'FontSize', settings.fontszlabel)
     
 end
 

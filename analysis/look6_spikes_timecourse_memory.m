@@ -1,6 +1,6 @@
 % Prepare each figure
 
-num_fig = [1:5];
+num_fig = [2:5];
 
 
 %%  Calculate few variables, done only once for all figures

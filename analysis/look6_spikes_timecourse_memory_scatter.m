@@ -213,7 +213,7 @@ if settings.channel_current == settings.channels_used(end)
                 plot_set.xlim = all_fig_y_lim;
                 
                 % Plot
-                plot_helper_basic_line_figure;
+                plot_helper_line_plot_v10;
                 
                 % Plot unity line
                 h = plot(plot_set.xlim, plot_set.ylim, '-');
@@ -225,8 +225,8 @@ if settings.channel_current == settings.channels_used(end)
                     h=plot(mat_y(j,2), mat_y(j,1));
                     
                     graphcond = plot_set.data_color;
-                    set (h(end), 'Marker', settings.marker1{graphcond}, 'MarkerFaceColor', settings.color1(graphcond,:), ...
-                        'MarkerEdgeColor', 'none', 'MarkerSize', settings.msize)
+                    set (h(end), 'Marker', settings.marker_type{graphcond}, 'MarkerFaceColor', settings.color1(graphcond,:), ...
+                        'MarkerEdgeColor', 'none', 'MarkerSize', 6)
                 end
                 
             end
@@ -299,7 +299,7 @@ if settings.channel_current == settings.channels_used(end)
                     
                     h=plot(mat_x(k), mat_y_temp(j,k));
                     
-                    set (h(end), 'Marker', settings.marker1{graphcond}, 'MarkerFaceColor', settings.color1(graphcond,:), ...
+                    set (h(end), 'Marker', settings.marker_type{graphcond}, 'MarkerFaceColor', settings.color1(graphcond,:), ...
                         'MarkerEdgeColor', 'none', 'MarkerSize', 6)
                 end
             end
@@ -311,7 +311,7 @@ if settings.channel_current == settings.channels_used(end)
             plot_set.mat_x = mat_x;
             
             % Plot
-            plot_helper_basic_line_figure;
+            plot_helper_line_plot_v10;
 
                
             % ============
@@ -344,7 +344,7 @@ if settings.channel_current == settings.channels_used(end)
             plot_set.figure_title = sprintf('%s', t1_temp);
             
             % Plot
-            plot_helper_basic_line_figure;
+            plot_helper_line_plot_v10;
             
             
         end

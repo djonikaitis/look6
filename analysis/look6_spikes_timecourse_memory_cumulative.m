@@ -141,7 +141,7 @@ for i_fig1 = 1:numel(task_names_used)
             end
             
             % Plot
-            plot_helper_basic_line_figure;
+            plot_helper_line_plot_v10;
             
         end
         % End of checking whether data exists for plotting
@@ -207,7 +207,7 @@ for i_fig1 = 1:numel(task_names_used)
         if numel(m)>1
             m=m(1);
         end
-        text(0, -2, 'Cue in RF', 'Color', plot_set.main_color(m,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'center')
+        text(0, -2, 'Cue in RF', 'Color', plot_set.main_color(m,:),  'FontSize', settings.font_size_label, 'HorizontalAlignment', 'center')
         
     end
     %==============
@@ -309,7 +309,7 @@ for i_fig1 = 1:numel(texture_on_used)
         plot_set.legend = task_names_used;
         
         % Plot
-        plot_helper_basic_line_figure;
+        plot_helper_line_plot_v10;
         
     end
     % End of checking whether data exists for plotting

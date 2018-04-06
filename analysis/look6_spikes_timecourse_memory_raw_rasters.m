@@ -216,7 +216,7 @@ for i_fig1 = 1:numel(task_names_used)
                     end
                     
                     % Plot
-                    plot_helper_basic_line_figure;
+                    plot_helper_line_plot_v10;
                     
                     
                 end

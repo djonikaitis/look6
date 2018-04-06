@@ -221,7 +221,7 @@ for fig1 = 1:numel(num_fig) % Plot figures
             plot_set.legend = task_names_used;
             
             % Plot
-            plot_helper_basic_line_figure;
+            plot_helper_line_plot_v10;
             
         end
         
@@ -371,7 +371,7 @@ for fig1 = 1:numel(num_fig) % Plot figures
             plot_set.figure_title = sprintf('%s to %s ms to texture on', num2str(a), num2str(b));
             
             % Plot
-            plot_helper_basic_line_figure;
+            plot_helper_line_plot_v10;
             
             % Subplot 3
             %===============
@@ -427,7 +427,7 @@ for fig1 = 1:numel(num_fig) % Plot figures
             plot_set.figure_title = sprintf('Behaviour performance');
             
             % Plot
-            plot_helper_basic_line_figure;
+            plot_helper_line_plot_v10;
             
             
         end

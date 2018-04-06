@@ -215,9 +215,9 @@ for i_subj=1:length(settings.subjects)
                 
                 set (gca,'FontSize', settings.font_size_figure);
                 set(gca,'XLim',[-50 length(sp1)+50]);
-                xlabel ('Message number', 'FontSize', settings.font_size_label);
-                ylabel ('Plexon time', 'FontSize', settings.font_size_label);
-                title('Detected plex events', 'FontSize', settings.font_size_label)
+                xlabel ('Message number', 'FontSize', settings.font_size_labellabel);
+                ylabel ('Plexon time', 'FontSize', settings.font_size_labellabel);
+                title('Detected plex events', 'FontSize', settings.font_size_labellabel)
                 
                 
                 %==============
@@ -254,9 +254,9 @@ for i_subj=1:length(settings.subjects)
                 end
                 
                 set (gca,'FontSize', settings.font_size_label);
-                xlabel ('Psy start time', 'FontSize', settings.font_size_label);
-                ylabel ('Plex start time', 'FontSize', settings.font_size_label);
-                title('Plex vs psy trial start', 'FontSize', settings.font_size_label)
+                xlabel ('Psy start time', 'FontSize', settings.font_size_labellabel);
+                ylabel ('Plex start time', 'FontSize', settings.fontszlabel);
+                title('Plex vs psy trial start', 'FontSize', settings.fontszlabel)
                 
                 
                 %===============
@@ -277,10 +277,10 @@ for i_subj=1:length(settings.subjects)
                 end
                 histogram(d1_f-d2_f, 50, 'FaceColor', [0.3, 0.8, 0.3]);
                 
-                set (gca,'FontSize', settings.font_size_figure);
-                xlabel ('Time difference (ms)', 'FontSize', settings.font_size_label);
-                ylabel ('Occurence counts', 'FontSize', settings.font_size_label);
-                title('Plex-psy diff(trial start)', 'FontSize', settings.font_size_label)
+                set (gca,'FontSize', settings.fontsz);
+                xlabel ('Time difference (ms)', 'FontSize', settings.fontszlabel);
+                ylabel ('Occurence counts', 'FontSize', settings.fontszlabel);
+                title('Plex-psy diff(trial start)', 'FontSize', settings.fontszlabel)
                 
                 
                 %===============
@@ -294,10 +294,10 @@ for i_subj=1:length(settings.subjects)
                 
                 histogram(d1-d2, 50, 'FaceColor', [0.3, 0.8, 0.3]);
                 
-                set (gca,'FontSize', settings.font_size_figure);
-                xlabel ('Time difference (ms)', 'FontSize', settings.font_size_label);
-                ylabel ('Occurence counts', 'FontSize', settings.font_size_label);
-                title('Plex-psy trial dur diff', 'FontSize', settings.font_size_label)
+                set (gca,'FontSize', settings.fontsz);
+                xlabel ('Time difference (ms)', 'FontSize', settings.fontszlabel);
+                ylabel ('Occurence counts', 'FontSize', settings.fontszlabel);
+                title('Plex-psy trial dur diff', 'FontSize', settings.fontszlabel)
                 
                 % Export the figure & save it
                 f_name = sprintf('%sfigure_1', path_fig);

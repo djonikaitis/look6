@@ -14,7 +14,7 @@ settings.exp_name = 'look6';
 
 % Which subject to run?
 % use subject initials for one subject or 'all' to run all subjects
-settings.subjects = 'hb';
+settings.subjects = 'aq';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
@@ -30,9 +30,9 @@ eval(sprintf('%s_analysis_settings', settings.exp_name)); % Load general setting
 analysis_edf_and_psych_data_import = 0;
 analysis_eyelink_drift_and_conversion = 0;
 analysis_detect_saccades = 0;
-analysis_behaviour_srt_plots = 1;
+analysis_behaviour_srt_plots = 0;
 analysis_import_plexon_files = 0;
-analysis_spikes_timecourse = 0;
+analysis_spikes_timecourse = 1;
 
 
 %% Preprocessing: import data into usable format
@@ -136,15 +136,14 @@ end
 
 %% Behavioural data analysis
 
-
-if analysis_behaviour_srt_plots == 1
+settings.this_analysis = 0;
+settings.overwrite = 0;
+if settings.this_analysis == 1
+    settings.function_name = 'look6_preprocessing_checking_data_variables';
+    look6_analysis_template_behaviour;
+end
     
-    settings.this_analysis = 0;
-    settings.overwrite = 0;
-    if settings.this_analysis == 1
-        settings.function_name = 'look6_preprocessing_checking_data_variables';
-        look6_analysis_template_behaviour;
-    end
+if analysis_behaviour_srt_plots == 1
     
     settings.this_analysis = 0;
     settings.overwrite = 1;
@@ -153,13 +152,6 @@ if analysis_behaviour_srt_plots == 1
         settings.function_name = 'look6_behaviour_variables_check';
         look6_analysis_template_behaviour;
     end
-    
-%     settings.this_analysis = 1;
-%     settings.overwrite = 1;
-%     if settings.this_analysis==1
-%         settings.function_name = 'look6_behaviour_daily_performance';
-%         look6_analysis_template_behaviour;
-%     end
 
     settings.this_analysis = 0;
     settings.overwrite = 1;
@@ -230,23 +222,23 @@ end
 
 if analysis_spikes_timecourse == 1
     
-    settings.this_analysis = 0;
-    settings.overwrite = 1;
-    if settings.this_analysis==1
-        settings.temp1_data_folder = 'data_combined_plexon';
-        settings.function_name = 'look6_spikes_memory_timecourse';
-        look6_analysis_template_individual_units;
-    end
-    
-    settings.this_analysis = 0;
-    settings.overwrite = 1;
-    if settings.this_analysis==1
-        settings.temp1_data_folder = 'data_combined_plexon';
-        settings.function_name = 'look6_spikes_orientation_timecourse';
-        look6_analysis_template_individual_units;
-    end
-    
     settings.this_analysis = 1;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.temp1_data_folder = 'data_combined_plexon';
+        settings.function_name = 'look6_spikes_timecourse_memory';
+        look6_analysis_template_individual_units;
+    end
+    
+    settings.this_analysis = 0;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.temp1_data_folder = 'data_combined_plexon';
+        settings.function_name = 'look6_spikes_timecourse_orientation';
+        look6_analysis_template_individual_units;
+    end
+    
+    settings.this_analysis = 0;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';

@@ -131,7 +131,7 @@ for i_fig1 = 1:numel(task_names_used)
             end
             
             % Plot
-            plot_helper_basic_line_figure;
+            plot_helper_line_plot_v10;
             
         end
         % End of decision whether to plot data
@@ -170,7 +170,7 @@ if ~isnan(all_fig_y_lim(1)) && ~isnan(all_fig_y_lim(2))
     end
     
     % Add text
-    text(0, -0.5, 'Texture tilt', 'Color', [0.2, 0.2, 0.2],  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'center')
+    text(0, -0.5, 'Texture tilt', 'Color', [0.2, 0.2, 0.2],  'FontSize', settings.font_size_label, 'HorizontalAlignment', 'center')
     
 end
 

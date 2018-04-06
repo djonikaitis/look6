@@ -347,9 +347,9 @@ for i_subj=1:length(settings.subjects)
                 h_fig.YTick = [-25, 0, 25];
                 h_fig.XLim = [-50, 50];
                 h_fig.YLim = [-50, 50];
-                title ('All data', 'FontSize', settings.fontszlabel)
-                xlabel ('Horizontal', 'FontSize', settings.fontszlabel);
-                ylabel ('Vertical', 'FontSize', settings.fontszlabel);
+                title ('All data', 'FontSize', settings.font_size_label)
+                xlabel ('Horizontal', 'FontSize', settings.font_size_label);
+                ylabel ('Vertical', 'FontSize', settings.font_size_label);
                 
                 %=================
                 % Plot zoomed in data
@@ -367,9 +367,9 @@ for i_subj=1:length(settings.subjects)
                 h_fig.YTick = [-10, 0, 10];
                 h_fig.XLim = [-15, 15];
                 h_fig.YLim = [-15, 15];
-                title ('Zoom in', 'FontSize', settings.fontszlabel)
-                xlabel ('Horizontal', 'FontSize', settings.fontszlabel);
-                ylabel ('Vertical', 'FontSize', settings.fontszlabel);
+                title ('Zoom in', 'FontSize', settings.font_size_label)
+                xlabel ('Horizontal', 'FontSize', settings.font_size_label);
+                ylabel ('Vertical', 'FontSize', settings.font_size_label);
                 
                 % Save data
                 plot_set.figure_size = settings.figure_size_temp;
@@ -602,9 +602,9 @@ for i_subj=1:length(settings.subjects)
                 h_fig.YTick = [-10, 0, 10];
                 h_fig.XLim = [-15, 15];
                 h_fig.YLim = [-15, 15];
-                title ('Memory delay saccades', 'FontSize', settings.fontszlabel)
-                xlabel ('Horizontal', 'FontSize', settings.fontszlabel);
-                ylabel ('Vertical', 'FontSize', settings.fontszlabel);
+                title ('Memory delay saccades', 'FontSize', settings.font_size_label)
+                xlabel ('Horizontal', 'FontSize', settings.font_size_label);
+                ylabel ('Vertical', 'FontSize', settings.font_size_label);
                 
                 %==============
                 h_fig = subplot(1,2,2); hold on
@@ -658,7 +658,7 @@ for i_subj=1:length(settings.subjects)
                 % Plot legend text
                 for i=1:length(legend1)
                     graphcond = i;
-                    text(legend_pos_x(i), legend_pos_y(i), legend1{i}, 'Color', plot_set.color1(graphcond,:),  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'right')
+                    text(legend_pos_x(i), legend_pos_y(i), legend1{i}, 'Color', plot_set.color1(graphcond,:),  'FontSize', settings.font_size_label, 'HorizontalAlignment', 'right')
                 end
                 
                 
@@ -668,9 +668,9 @@ for i_subj=1:length(settings.subjects)
                 h_fig.YTick = [0, 0.5, 1];
                 h_fig.XLim = [-0.5, ax_max+ax_max*0.05];
                 h_fig.YLim = [-0.01, 1.1];
-                title ('Saccade amp', 'FontSize', settings.fontszlabel)
-                xlabel ('Saccade amplitude', 'FontSize', settings.fontszlabel);
-                ylabel ('Saccade frequency', 'FontSize', settings.fontszlabel);
+                title ('Saccade amp', 'FontSize', settings.font_size_label)
+                xlabel ('Saccade amplitude', 'FontSize', settings.font_size_label);
+                ylabel ('Saccade frequency', 'FontSize', settings.font_size_label);
                 
                 
                 % Save data

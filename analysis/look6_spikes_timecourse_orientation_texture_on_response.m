@@ -49,7 +49,7 @@ if fig_plot_on==1
     % Plot
     hfig = figure;
     hold on;
-    plot_helper_basic_line_figure;
+    plot_helper_line_plot_v10;
     
     % Save data
     plot_set.figure_size = settings.figsize_1col;

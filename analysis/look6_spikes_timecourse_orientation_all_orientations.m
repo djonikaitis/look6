@@ -49,7 +49,7 @@ for i_fig1 = 1
         plot_set.ylabel = 'Firing rate, Hz';
         
         % Plot
-        plot_helper_basic_line_figure;
+        plot_helper_line_plot_v10;
         
         %===============
         % Plot inset with legend
@@ -77,7 +77,7 @@ for i_fig1 = 1
         end
         
         % Add text
-        text(0, -0.5, 'Texture tilt', 'Color', [0.2, 0.2, 0.2],  'FontSize', settings.fontszlabel, 'HorizontalAlignment', 'center')
+        text(0, -0.5, 'Texture tilt', 'Color', [0.2, 0.2, 0.2],  'FontSize', settings.font_size_label, 'HorizontalAlignment', 'center')
     end
 end
 
@@ -276,9 +276,9 @@ for i_fig1 = 2
         for i=1:length(ticks1)
             [x,y] = pol2cart(plot_angle*pi/180,ticks1(i));
             if ticks1labels(i)~=max(ticks1labels)
-                text(x,y, num2str(ticks1labels(i)), 'FontSize', settings.fontsz, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom');
+                text(x,y, num2str(ticks1labels(i)), 'FontSize', settings.font_size_figure, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom');
             else
-                text(x,y, ['spikes, Hz '], 'FontSize', settings.fontsz, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom');
+                text(x,y, ['spikes, Hz '], 'FontSize', settings.font_size_figure, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom');
             end
         end
         
@@ -286,7 +286,7 @@ for i_fig1 = 2
         % Plot data
         %==========
         
-        plot_helper_basic_line_figure;
+        plot_helper_line_plot_v10;
         
     end
     % End of decision wheter to plot data
