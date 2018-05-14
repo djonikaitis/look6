@@ -18,7 +18,7 @@ settings.subjects = 'aq';
 
 % Which sessions to run?
 % 'all', 'last', 'before', 'after', 'interval', 'selected'
-settings.data_sessions = 'after';
+settings.data_sessions = 'selected';
 
 % which setup?
 % 'unknown', 'dj office', 'plexon lab', 'edoras', 'plexon office', 'dj laptop'
@@ -49,9 +49,9 @@ if analysis_edf_and_psych_data_import == 1
         settings.server_overwrite = 0;
         settings.data_direction = 'download';
         settings.server_folders_include = {};
-        settings.server_folders_include{1} = 'data_eyelink_edf';
-        settings.server_folders_include{2} = 'data_psychtoolbox';
-        settings.server_folders_include{3} = 'data_plexon_temp_2';
+%         settings.server_folders_include{1} = 'data_eyelink_edf';
+%         settings.server_folders_include{2} = 'data_psychtoolbox';
+        settings.server_folders_include{1} = 'data_plexon_temp_2';
         % Run code
         preprocessing_data_import_server_v23(settings);
     end
@@ -81,14 +81,14 @@ if analysis_eyelink_drift_and_conversion == 1
     % reset saccades to degrees of visual angle; do drift correction
     settings.this_analysis = 1;
     if settings.this_analysis == 1
-        settings.overwrite = 1; % If 1, runs analysis again even if it was done
+        settings.overwrite = 0; % If 1, runs analysis again even if it was done
         preprocessing_eyelink_conversion_v15(settings);
     end
     
     % Modify raw settings for compatibility between experiments
     settings.this_analysis = 1;
     if settings.this_analysis == 1
-        settings.overwrite = 1;
+        settings.overwrite = 0;
         preprocessing_overwrite_all_settings_v11(settings);
     end
     
@@ -121,7 +121,7 @@ if analysis_detect_saccades == 1
     % Detect saccades
     settings.this_analysis = 1;
     if settings.this_analysis == 1
-        settings.overwrite = 1;
+        settings.overwrite = 0;
         look6_preprocessing_saccade_detection;
     end
     
@@ -136,7 +136,7 @@ end
 
 %% Behavioural data analysis
 
-settings.this_analysis = 0;
+settings.this_analysis = 1;
 settings.overwrite = 0;
 if settings.this_analysis == 1
     settings.function_name = 'look6_preprocessing_checking_data_variables';
@@ -221,6 +221,8 @@ end
 
 
 if analysis_spikes_timecourse == 1
+    
+%     settings.preselected_channels_used = 24; % For debugging
     
     settings.this_analysis = 1;
     settings.overwrite = 1;

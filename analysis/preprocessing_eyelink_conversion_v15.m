@@ -31,7 +31,6 @@ settings = get_settings_ini_v10(settings);
 %% Extra settings
 
 settings.figure_folder_name = 'preprocessing_drift_correction';
-settings.figure_size_temp = [0, 0, 10, 8];
 settings.color_map = magma(50);
 
 

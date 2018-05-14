@@ -1,6 +1,6 @@
 % Prepare each figure
 
-num_fig = [2:5];
+num_fig = [4, 6];
 
 
 %%  Calculate few variables, done only once for all figures
@@ -47,13 +47,14 @@ for fig1 = 1:numel(num_fig) % Plot figures
     
     %=============
     % Load data or calculate data?
+    new_mat = 1;
     
-    % Over-write spike rates?
-    if fig1==1
-        new_mat = 1;
-    else
-        new_mat = 0;
-    end
+%     % Over-write spike rates?
+%     if fig1==1
+%         new_mat = 1;
+%     else
+%         new_mat = 0;
+%     end
     
     % Try to load the data for given analysis
     temp1 = sprintf('_%s_mem_delay.mat', settings.neuron_name);
@@ -62,10 +63,14 @@ for fig1 = 1:numel(num_fig) % Plot figures
         fprintf ('Skippind data binning and loading "%s"\n', file_name)
         data_mat = get_struct_v11(path1);
         mat1_ini = data_mat.mat1_ini;
-        plot_bins_start = data_mat.plot_bins_start;
-        plot_bins_end = data_mat.plot_bins_end;
+%         plot_bins_start = data_mat.mat1_plot_bins_start;
+%         plot_bins_end = data_mat.mat1_plot_bins_end;
         mat2_ini = data_mat.mat2_ini; % Get long (summary) bins
-        new_mat = 0;
+%         if ~isfield (data_mat, 'mat3_ini')
+%             new_mat = 1;
+%         else
+%             new_mat = 0;
+%         end
         clear data_mat;
     end
     
@@ -102,6 +107,25 @@ for fig1 = 1:numel(num_fig) % Plot figures
         plot_bins_start2(:,1) = 500;
         plot_bins_end2(:,1) = t_dur;
         
+        %====================
+        % Calculate bins for orientation selectivity
+        if isfield (S, 'edata_background_texture_onset_time') & size(S.edata_background_texture_onset_time, 2) == 1
+            t_dur = (S.edata_fixation_off - S.edata_memory_on) * 1000;
+        else
+            index = ~isnan(S.edata_background_texture_onset_time(:,2));
+            t_dur(index) = (S.edata_background_texture_onset_time(index,2) - S.edata_memory_on(index,1)) * 1000;
+            index = isnan(S.edata_background_texture_onset_time(:,2));
+            t_dur(index) = (S.edata_fixation_off(index,1) - S.edata_memory_on(index,1)) * 1000;
+%         else
+%             t_dur = (S.edata_fixation_off - S.edata_memory_on) * 1000;
+        end
+        
+        plot_bins_start3 = NaN(numel(t_dur), 1); % Output matrix
+        plot_bins_end3 = NaN(numel(t_dur), 1); % Output matrix
+        
+        plot_bins_start3(:,1) = 250;
+        plot_bins_end3(:,1) = t_dur;
+        
     end
     
     %============
@@ -114,19 +138,29 @@ for fig1 = 1:numel(num_fig) % Plot figures
         t1_evt = events_mat.msg_1; % Get timing of the events
         t1_evt = t1_evt + S.tconst; % Reset to time relative to tconst
         
-        % Calculate spiking rates
-        mat1_ini = look6_helper_spike_binning(t1_spike, t1_evt, plot_bins_start, plot_bins_end);
-
+%         % Calculate spiking rates
+%         mat1_ini = look6_helper_spike_binning(t1_spike, t1_evt, plot_bins_start, plot_bins_end);
+% 
+%         % Calculate long time bin rates
+%         mat2_ini = look6_helper_spike_binning(t1_spike, t1_evt, plot_bins_start2, plot_bins_end2);
+        
         % Calculate long time bin rates
-        mat2_ini = look6_helper_spike_binning(t1_spike, t1_evt, plot_bins_start2, plot_bins_end2);
+        mat3_ini = look6_helper_spike_binning(t1_spike, t1_evt, plot_bins_start3, plot_bins_end3);
         
         % Save data
         d1 = struct;
         d1.mat1_ini = mat1_ini;
-        d1.plot_bins_start = plot_bins_start;
-        d1.plot_bins_end = plot_bins_end;
-        d1.plot_bins = settings.plot_bins;
+        d1.mat1_plot_bins_start = plot_bins_start;
+        d1.mat1_plot_bins_end = plot_bins_end;
+        d1.mat1_plot_bins = settings.plot_bins;
+        
         d1.mat2_ini = mat2_ini;
+        d1.mat2_plot_bins_start = plot_bins_start2;
+        d1.mat2_plot_bins_end = plot_bins_end2;
+        
+        d1.mat3_ini = mat3_ini;
+        d1.mat3_plot_bins_start = plot_bins_start3;
+        d1.mat3_plot_bins_end = plot_bins_end3;
         save (path1, 'd1')
         clear d1;
         fprintf ('Saved binned data as new file "%s"\n', file_name)
@@ -164,6 +198,12 @@ for fig1 = 1:numel(num_fig) % Plot figures
     if settings.figure_current==5
         
         look6_spikes_timecourse_memory_cumulative;
+        
+    end
+    
+    if settings.figure_current==6
+        
+        look6_spikes_timecourse_memory_fits_by_location;
         
     end
     

@@ -150,14 +150,18 @@ for i_subj=1:length(settings.subjects)
                     % Sort them in ascending order
                     a = spikes_init.index_channel;
                     a = a(~isnan(a));
-                    settings.channels_available = a;
+                    settings.channels_available = a
                     
                     if isempty(settings.channels_available)
                         fprintf('No neuro units for the date %s detected, skipping analysis for this day\n', num2str(settings.date_current))
                     end
                     
                     % Select a subset of units to use (for debugging usually)
-                    settings.channels_used = settings.channels_available;
+                    if isfield(settings, 'preselected_channels_used')
+                        settings.channels_used = settings.preselected_channels_used;
+                    else
+                        settings.channels_used = settings.channels_available;
+                    end
                     
                     % Run analysis for each unit
                     for i_unit = 1:numel(settings.channels_used)

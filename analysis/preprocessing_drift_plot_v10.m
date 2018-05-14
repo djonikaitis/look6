@@ -270,7 +270,7 @@ end
 % Save figure
 
 % Save data
-plot_set.figure_size = settings.figure_size_temp;
+plot_set.figure_size = [0,0,8,6];
 plot_set.figure_save_name = 'drift correction';
 plot_set.path_figure = path_fig;
 plot_helper_save_figure;

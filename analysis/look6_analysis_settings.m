@@ -19,11 +19,11 @@ elseif strcmp(settings.data_sessions, 'last')
 elseif strcmp (settings.data_sessions, 'before')
     settings.data_sessions_temp = 20180220; 
 elseif strcmp (settings.data_sessions, 'after')
-    settings.data_sessions_temp = 20180101; 
+    settings.data_sessions_temp = 20180401; 
 elseif strcmp (settings.data_sessions, 'interval')
     settings.data_sessions_temp = [20170330, 20170401]; 
 elseif strcmp(settings.data_sessions, 'selected')
-    settings.data_sessions_temp = 20171222; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
+    settings.data_sessions_temp = 20180419; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
 
 
@@ -214,7 +214,7 @@ marker1{20}='o';
 
 %============
 % All other
-settings.marker_size = 1;
+settings.marker_size = 4;
 settings.wlineerror = 0.9; 
 settings.wlinegraph = 1.8;
 
