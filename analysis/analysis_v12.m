@@ -222,7 +222,7 @@ end
 
 if analysis_spikes_timecourse == 1
     
-    settings.preselected_channels_used = 24; % For debugging
+%     settings.preselected_channels_used = 24; % For debugging
     
     settings.this_analysis = 1;
     settings.overwrite = 1;

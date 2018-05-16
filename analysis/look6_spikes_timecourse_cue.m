@@ -120,7 +120,7 @@ for fig1 = 1:numel(num_fig)
         
         %================
         % Save data
-        save (path1, 'data_mat')
+        save (path1, 'data1')
         fprintf ('Saved binned data as new file "%s"\n', file_name)
         
     end

@@ -23,7 +23,7 @@ elseif strcmp (settings.data_sessions, 'after')
 elseif strcmp (settings.data_sessions, 'interval')
     settings.data_sessions_temp = [20170330, 20170401]; 
 elseif strcmp(settings.data_sessions, 'selected')
-    settings.data_sessions_temp = 20180419; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
+    settings.data_sessions_temp = 20180406; % Which day data to analyse (IF using manual selection only, otherwise this value is ignored)
 end
 
 
@@ -84,6 +84,8 @@ path_spec_names{7} = {'data_plexon_raw'; settings.path_baseline_plexon}; % Raw p
 path_spec_names{8} = {'data_plexon_temp_1'; settings.path_baseline_plexon}; % Plex sorted data (using plex utility)
 path_spec_names{9} = {'data_plexon_temp_2'; settings.path_baseline_plexon}; % Extracted spikes, events, analog - not processed at all
 path_spec_names{10} = {'data_combined_plexon'; settings.path_baseline_plexon}; % Mat structures of plexon data
+path_spec_names{11} = {'data_combined_rf1'; settings.path_baseline_plexon}; % Mat structures of plexon data
+
 
 % Generate path names
 for i=1:numel(path_spec_names)
