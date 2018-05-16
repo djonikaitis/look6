@@ -1,9 +1,9 @@
 % Small routine to calculate plot_bins_mat;
 %
 % Inputs necessary:
-% int_bins;
-% bin_length;
-% t_dur;
+% int_bins - vector/single value
+% bin_length - single value
+% t_dur - duration of each trial (numel = trial number)
 
 plot_bins_start = NaN(numel(t_dur), numel(int_bins)); % Output matrix
 plot_bins_end = NaN(numel(t_dur), numel(int_bins)); % Output matrix

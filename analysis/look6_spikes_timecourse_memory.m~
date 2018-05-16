@@ -207,6 +207,11 @@ for fig1 = 1:numel(num_fig) % Plot figures
         
     end
     
+    if settings.figure_current==7
+        
+        look6_spikes_timecourse_memory_cue_resp;
+        
+    end
     
     
 end
