@@ -26,22 +26,22 @@ meas1 = data1.mat2_ini(index,:);
 
 % Restructure matrix and find which location differs from all others
 var1 = memory_angles_used;
-v1 = NaN(numel(var1), numel(var1));
+stats_mat = NaN(numel(var1), numel(var1));
 for i = 1:size(mtbl1, 1)
     m = mtbl1(i,1);
     n = mtbl1(i,2);
     a = mtbl1(i,6);
     if a<=0.05
-        v1(m,n) = 1;
-        v1(n,m) = 1;
+        stats_mat(m,n) = 1;
+        stats_mat(n,m) = 1;
     elseif a>0.05
-        v1(m,n) = 0;
-        v1(n,m) = 0;
+        stats_mat(m,n) = 0;
+        stats_mat(n,m) = 0;
     end
 end
 
 % Calculate location relative to memory
-v2 = nansum(v1);
+v2 = nansum(stats_mat);
 % Look for RFs that are localized within one quadrant
 loc_ind = find(v2==numel(v2)-1);
 
@@ -278,6 +278,7 @@ end
             plot_set.ebars_lower_y = temp1_lower;
             plot_set.ebars_upper_y = temp1_upper;
             
+            
             if fig_rep1 == 1
                 plot_set.data_color_min = [0.2, 0.2, 0.2];
                 plot_set.data_color_max = [0.8, 0.8, 0.8];
@@ -288,6 +289,8 @@ end
                 plot_set.figure_title = ['RF data'];
                 plot_set.xlabel = 'Cue loc relative to RF';
             end
+            plot_set.val1_max_y = 0.5; % This is due to the need to show statistics
+            plot_set.val1_min_y = 0.4; % This is due to the need to show statistics
 
             if fig_rep1 == 2
                 v1 = memory_angles_relative_used;
@@ -305,6 +308,32 @@ end
             plot_set.xtick = 'none';
             
             plot_helper_bargraph_plot_v10
+            
+            % Add statistics values
+            if fig_rep1 == 1
+                
+                for i = 1:size(stats_mat,1)
+                    s1 = stats_mat(i,:);
+                    x1 = plot_set.mat_x(i);
+                    rng = plot_set.ylim(2) - plot_set.ylim(1);
+                    y0 = plot_set.ebars_upper_y(i);
+                    for j = 1:numel(s1)
+                        y1 = y0 + rng*j*0.06;
+                        if s1(j)==0
+                            l1 = ['ns'];
+                        elseif s1(j)==1
+                            l1 = ['*'];
+                        else
+                            l1 = [' '];
+                        end
+                        c1 = plot_set.main_color(j,:);
+                        text(x1, y1, l1,...
+                            'Color', c1, 'FontSize', plot_set.font_size_label, 'HorizontalAlignment', 'center', 'Rotation', 0);
+                        
+                    end
+                end
+                
+            end
             
         end
         

@@ -357,38 +357,6 @@ mat_y_upper = NaN(1,n,p);
 %     end
 % end
 
-% mat_y = rad2deg(mat_y);
-% ind = mat_y<0;
-% mat_y(ind) = mat_y(ind) + 360;
-% mat_y_lower = rad2deg(mat_y_lower);
-% ind = mat_y_lower<0;
-% mat_y_lower(ind) = mat_y_lower(ind) + 360;
-% mat_y_upper = rad2deg(mat_y_upper);
-% ind = mat_y_upper<0;
-% mat_y_upper(ind) = mat_y_upper(ind) + 360;
-
-% % Recompute data into bins for von mises
-% temp1 = round(mat_y_ini);
-% temp1_output = cell(1, size(temp1,2), size(temp1,4));
-% temp1_vm_mu = NaN(1, size(temp1,2), size(temp1,4));
-% temp1_vm_kappa = NaN(1, size(temp1,2), size(temp1,4));
-% for i = 1:size(temp1, 2)
-%     for j = 1:size(temp1, 4)
-%         v1 = temp1(:,i,:,j);
-%         v1 = reshape(v1,1,numel(v1));
-%         v2 = or_radians;
-%         b = [];
-%         for k = 1:numel(v1)
-%             if ~isnan(v1(k))
-%             a = repmat(v2(k), v1(k), 1);
-%             b = [b; a];
-%             end
-%         end
-%         if ~isempty(b)
-%             [temp1_vm_mu(1,i,j), temp1_vm_kappa(1,i,j)] = circ_vmpar(b);
-%         end
-%     end
-% end
 
 t1 = orientations_used';
 or_radians = circ_axial(circ_ang2rad(t1),2);

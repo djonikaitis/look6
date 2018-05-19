@@ -222,13 +222,21 @@ end
 
 if analysis_spikes_timecourse == 1
     
-%     settings.preselected_channels_used = 24; % For debugging
+    settings.preselected_channels_used = 22; % For debugging
+    
+    settings.this_analysis = 0;
+    settings.overwrite = 1;
+    if settings.this_analysis==1
+        settings.temp1_data_folder = 'data_combined_plexon';
+        settings.function_name = 'look6_spikes_stats_cue_response';
+        look6_analysis_template_individual_units;
+    end
     
     settings.this_analysis = 1;
     settings.overwrite = 1;
     if settings.this_analysis==1
         settings.temp1_data_folder = 'data_combined_plexon';
-        settings.function_name = 'look6_spikes_timecourse_cue';
+        settings.function_name = 'look6_spikes_stats_orientations';
         look6_analysis_template_individual_units;
     end
     

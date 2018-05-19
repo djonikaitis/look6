@@ -131,7 +131,7 @@ for fig1 = 1:numel(num_fig)
     
     if settings.figure_current==1
         
-        look6_spikes_timecourse_cue_stats;
+        look6_spikes_stats_cue_response_1;
         
     end
     
